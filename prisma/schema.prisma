@@ -1,0 +1,203 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  VENDOR
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model User {
+  id            String          @id @default(uuid())
+  name          String
+  email         String          @unique
+  password      String
+  role          Role            @default(USER)
+  cartItems     CartItem[]
+  wishlist      WishlistItem[]
+  orders        Order[]
+  reviews       Review[]
+  payments      Payment[]
+  profile       UserProfile?
+  vendorReviews VendorReview[]  // Add this field to fix the relation
+  createdAt     DateTime        @default(now())
+}
+
+model Vendor {
+  id          String        @id @default(uuid())
+  name        String
+  email       String        @unique
+  password    String
+  products    Product[]
+  orders      Order[]       @relation("VendorOrders")
+  payments    Payment[]
+  profile     VendorProfile?
+  createdAt   DateTime      @default(now())
+}
+
+model UserProfile {
+  id          String      @id @default(uuid())
+  userId      String      @unique
+  phoneNumber String?
+  avatar      String?
+  addresses   Address[]
+  user        User        @relation(fields: [userId], references: [id])
+}
+
+model VendorProfile {
+  id              String          @id @default(uuid())
+  vendorId        String          @unique
+  storeName       String
+  description     String?
+  logo            String?
+  businessAddress String
+  taxId           String?
+  bankDetails     String?
+  rating          Float           @default(0)
+  vendor          Vendor          @relation(fields: [vendorId], references: [id])
+  reviews         VendorReview[]
+}
+
+model Address {
+  id            String      @id @default(uuid())
+  userProfileId String
+  street        String
+  city          String
+  state         String
+  country       String
+  zipCode       String
+  isDefault     Boolean     @default(false)
+  userProfile   UserProfile @relation(fields: [userProfileId], references: [id])
+}
+
+model ProductCategory {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  description String?
+  products    Product[]
+}
+
+model Product {
+  id          String           @id @default(uuid())
+  name        String
+  description String
+  imageUrl    String
+  vendorId    String
+  vendor      Vendor           @relation(fields: [vendorId], references: [id])
+  categoryId  String
+  category    ProductCategory  @relation(fields: [categoryId], references: [id])
+  variants    ProductVariant[]
+  reviews     Review[]
+  cartItems   CartItem[]
+  wishlistItems WishlistItem[]
+  orderItems  OrderItem[]
+  createdAt   DateTime         @default(now())
+}
+
+model ProductVariant {
+  id        String   @id @default(uuid())
+  productId String
+  size      String?
+  color     String?
+  sku       String   @unique
+  price     Float
+  stock     Int
+  product   Product  @relation(fields: [productId], references: [id])
+}
+
+model CartItem {
+  id        String   @id @default(uuid())
+  userId    String
+  productId String
+  quantity  Int
+  user      User     @relation(fields: [userId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+}
+
+model WishlistItem {
+  id        String   @id @default(uuid())
+  userId    String
+  productId String
+  user      User     @relation(fields: [userId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+}
+
+model Order {
+  id          String       @id @default(uuid())
+  userId      String
+  vendorId    String
+  total       Float
+  status      OrderStatus
+  address     String
+  createdAt   DateTime     @default(now())
+  orderItems  OrderItem[]
+  payment     Payment[]    // Changed to one-to-many relation
+  user        User         @relation(fields: [userId], references: [id])
+  vendor      Vendor       @relation("VendorOrders", fields: [vendorId], references: [id])
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int
+  price     Float
+  order     Order    @relation(fields: [orderId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+}
+
+model Payment {
+  id          String        @id @default(uuid())
+  orderId     String
+  userId      String
+  vendorId    String
+  amount      Float
+  status      PaymentStatus @default(PENDING)
+  method      String
+  createdAt   DateTime      @default(now())
+  order       Order         @relation(fields: [orderId], references: [id])
+  user        User          @relation(fields: [userId], references: [id])
+  vendor      Vendor        @relation(fields: [vendorId], references: [id])
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  productId String
+  userId    String
+  rating    Int
+  comment   String
+  createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model VendorReview {
+  id              String   @id @default(uuid())
+  vendorProfileId String
+  userId          String
+  rating          Int
+  comment         String
+  createdAt       DateTime @default(now())
+  vendorProfile   VendorProfile @relation(fields: [vendorProfileId], references: [id])
+  user            User          @relation(fields: [userId], references: [id])
+}

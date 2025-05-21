@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+ecommerce-app/
+│
+├── src/
+│   ├── app/
+│   │   ├── (auth)/
+│   │   ├── (user)/
+│   │   ├── (vendor)/
+│   │   ├── api/
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│
+│   ├── components/
+│   │   ├── shared/                  # Reusable elements (Navbar, Footer, Button)
+│   │   ├── user/                    # User-specific components
+│   │   ├── vendor/                  # Vendor-specific components
+│   │   └── forms/                   # Reusable forms (login, register, product form)
+│
+│   ├── context/                     # React context (e.g., Cart, Auth, Toast)
+│   │   ├── AuthContext.tsx
+│   │   ├── CartContext.tsx
+│   │   └── VendorContext.tsx
+│
+│   ├── hooks/                       # Custom hooks
+│   │   ├── useAuth.ts               # Get current user/session
+│   │   ├── useCart.ts               # Cart actions
+│   │   ├── useUpload.ts             # Cloudinary upload logic
+│   │   └── useRoleRedirect.ts       # Redirect users by role after login
+│
+│   ├── lib/                         # Utility functions / setup
+│   │   ├── prisma.ts
+│   │   ├── cloudinary.ts
+│   │   └── auth.ts
+│
+│   ├── prisma/
+│   │   └── schema.prisma
+│
+│   ├── styles/
+│   │   └── globals.css
+│
+│   ├── types/                       # Global TypeScript types
+│   │   └── index.d.ts
+│
+│   └── middleware.ts               # Role-based redirects
+│
+├── public/
+├── .env.local
+├── next.config.js
+├── package.json
+└── tsconfig.json
 
-## Getting Started
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Element                     | Recommended Font Size (px) | Notes                                                               |
+| --------------------------- | -------------------------- | ------------------------------------------------------------------- |
+| **Body text**               | `16–18px`                  | Default readable size for product descriptions, account pages, etc. |
+| **Product titles**          | `20–24px`                  | Slightly larger to stand out in listings or details.                |
+| **Section headings**        | `24–32px`                  | For categories like "Featured Products", "Recommended for You".     |
+| **Main page title (H1)**    | `32–40px`                  | Homepage hero, category header.                                     |
+| **Price text**              | `18–24px`                  | Clear and slightly bold; sometimes even larger than product titles. |
+| **Buttons**                 | `16–18px`                  | Ensure buttons are readable on all devices.                         |
+| **Navigation/Menu items**   | `16–18px`                  | Main nav and mobile drawer.                                         |
+| **Product details (small)** | `14–16px`                  | Material, size, shipping info — less prominent but still readable.  |
+| **Footer text**             | `12–14px`                  | For legal, terms, copyright.                                        |

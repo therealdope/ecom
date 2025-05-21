@@ -1,0 +1,10 @@
+@import "tailwindcss";
+:root {
+    --font-roboto-mono: var(--font-roboto-mono);
+    --font-open-sans: var(--font-open-sans);
+}
+
+body {
+    font-family: var(--font-roboto-mono);
+    background-color: #f1f1f1;
+}
