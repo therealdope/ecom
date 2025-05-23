@@ -8,8 +8,9 @@ export default function Loader() {
   const loaderImages = [
     '/loader.gif',
     '/loader1.gif',
-    '/loader2.gif',
-    '/loader3.gif',
+    '/loader2.png',
+    '/loader3.png',
+    '/loader4.png',
   ];
   
   // Select a random image on component mount
@@ -18,22 +19,23 @@ export default function Loader() {
     return loaderImages[randomIndex];
   }, []);
   
-  // Fallback to the default loader if the random one fails to load
   const imageSrc = imageError ? '/loader.gif' : randomImage;
   
   return (
     <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center z-50">
-      <div className="loader rounded-lg flex items-center justify-center">
-        <Image 
-          src={imageSrc} 
-          width={0}
-          height={0}
-          sizes="(max-width: 640px) 80px, (max-width: 1024px) 120px, 140px"
-          className="w-auto h-auto max-w-[120px] max-h-[120px] sm:max-w-[100px] sm:max-h-[100px] xs:max-w-[80px] xs:max-h-[80px]"
-          alt="Loading..." 
-          priority
-          onError={() => setImageError(true)}
-        />
+      <div className="flex items-center justify-center">
+        <div className="relative">
+          <Image 
+            src={imageSrc} 
+            width={0}
+            height={0}
+            sizes="(max-width: 640px) 150px, (max-width: 1024px) 250px, 300px"
+            className="w-auto h-auto max-w-[300px] max-h-[300px] md:max-w-[250px] md:max-h-[250px] sm:max-w-[150px] sm:max-h-[150px]"
+            alt="Loading..." 
+            priority
+            onError={() => setImageError(true)}
+          />
+        </div>
       </div>
     </div>
   );

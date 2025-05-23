@@ -1,61 +1,80 @@
 import { NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
-// This function can be marked `async` if using `await` inside
+// Define paths that don't require authentication
+const publicPaths = [
+    '/', // Intro page
+    '/auth/signin', // Sign in page
+    '/auth/signup', // Sign up page
+    '/api/auth/(.*)'
+];
+
+// Define paths that require specific roles
+const userPaths = ['/user/(.*)'];
+const vendorPaths = ['/vendor/(.*)'];
+
 export async function middleware(request) {
-  const { pathname } = request.nextUrl;
-  
-  // Get the token and check if the user is authenticated
-  const token = await getToken({ 
-    req: request,
-    secret: process.env.NEXTAUTH_SECRET
-  });
-  
-  const isAuthenticated = !!token;
-  
-  // Public paths that don't require authentication
-  const publicPaths = [
-    '/auth/signin',
-    '/auth/signup',
-  ];
-  
-  const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
-  
-  // Redirect logic based on authentication status and role
-  if (!isAuthenticated && !isPublicPath) {
-    // Redirect unauthenticated users to signin page
-    return NextResponse.redirect(new URL('/auth/signin', request.url));
-  }
-  
-  if (isAuthenticated && isPublicPath) {
-    // Redirect authenticated users to their dashboard based on role
-    if (token.role === 'USER') {
-      return NextResponse.redirect(new URL('/user/dashboard', request.url));
-    } else if (token.role === 'VENDOR') {
-      return NextResponse.redirect(new URL('/vendor/dashboard', request.url));
+    const { pathname } = request.nextUrl;
+
+    // Check if the path is public (no auth required)
+    const isPublicPath = publicPaths.some(path => {
+        const regex = new RegExp(`^${path}$`);
+        return regex.test(pathname);
+    });
+
+    // Get the user's token
+    const token = await getToken({
+        req: request,
+        secret: process.env.NEXTAUTH_SECRET
+    });
+
+    const isAuthenticated = !!token;
+
+    // Allow access to public paths regardless of authentication status
+    if (isPublicPath) {
+        return NextResponse.next();
     }
-  }
-  
-  // Role-based access control
-  if (isAuthenticated) {
-    // Prevent users from accessing vendor routes
-    if (token.role === 'USER' && pathname.startsWith('/vendor')) {
-      return NextResponse.redirect(new URL('/user/dashboard', request.url));
+
+    // If user is not authenticated and trying to access a protected route, redirect to sign in
+    if (!isAuthenticated) {
+        return NextResponse.redirect(new URL('/auth/signin', request.url));
     }
-    
-    // Prevent vendors from accessing user routes
-    if (token.role === 'VENDOR' && pathname.startsWith('/user')) {
-      return NextResponse.redirect(new URL('/vendor/dashboard', request.url));
+
+    // Check if user is trying to access user-specific paths
+    const isUserPath = userPaths.some(path => {
+        const regex = new RegExp(`^${path}$`);
+        return regex.test(pathname);
+    });
+
+    // Check if user is trying to access vendor-specific paths
+    const isVendorPath = vendorPaths.some(path => {
+        const regex = new RegExp(`^${path}$`);
+        return regex.test(pathname);
+    });
+
+    // If user is trying to access user paths but is not a USER, redirect to vendor dashboard
+    if (isUserPath && token.role !== 'USER') {
+        return NextResponse.redirect(new URL('/vendor/dashboard', request.url));
     }
-  }
-  
-  return NextResponse.next();
+
+    // If user is trying to access vendor paths but is not a VENDOR, redirect to user dashboard
+    if (isVendorPath && token.role !== 'VENDOR') {
+        return NextResponse.redirect(new URL('/user/dashboard', request.url));
+    }
+
+    // If user is authenticated but accessing the root path, redirect to appropriate dashboard
+    if (pathname === '/') {
+        const redirectPath = token.role === 'USER' ? '/user/dashboard' : '/vendor/dashboard';
+        return NextResponse.redirect(new URL(redirectPath, request.url));
+    }
+
+    // Allow the request to proceed
+    return NextResponse.next();
 }
 
 // Configure which paths the middleware should run on
 export const config = {
-  matcher: [
-    // Match all paths except for static files, api routes, and _next
-    '/((?!_next/static|_next/image|favicon.ico|api/auth).*)',
-  ],
+    matcher: [
+        '/((?!_next|favicon\.ico|logo\.png|loader\d?\.gif).*)',
+    ],
 };
