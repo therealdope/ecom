@@ -1,8 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 
 export default function Loader() {
   const [imageError, setImageError] = useState(false);
+  const [imageSrc, setImageSrc] = useState('/loader.gif'); // Default for SSR
   
   // List of available loader images
   const loaderImages = [
@@ -13,20 +14,21 @@ export default function Loader() {
     '/loader4.png',
   ];
   
-  // Select a random image on component mount
-  const randomImage = useMemo(() => {
+  // Select a random image only on client-side after hydration
+  useEffect(() => {
     const randomIndex = Math.floor(Math.random() * loaderImages.length);
-    return loaderImages[randomIndex];
+    setImageSrc(loaderImages[randomIndex]);
   }, []);
   
-  const imageSrc = imageError ? '/loader.gif' : randomImage;
+  // Fallback if image fails to load
+  const finalImageSrc = imageError ? '/loader.gif' : imageSrc;
   
   return (
     <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center z-50">
       <div className="flex items-center justify-center">
         <div className="relative">
           <Image 
-            src={imageSrc} 
+            src={finalImageSrc} 
             width={0}
             height={0}
             sizes="(max-width: 640px) 150px, (max-width: 1024px) 250px, 300px"
