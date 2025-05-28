@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import Loader from '@/components/shared/Loader';
-import DashboardLayout from '@/components/vendor/dashboard/DashboardLayout';
+import VendorLayout from '@/components/vendor/layout/VendorLayout';
 
 export default function VendorDashboard() {
   const { data: session, status } = useSession();
@@ -12,7 +12,7 @@ export default function VendorDashboard() {
   }
 
   return (
-    <DashboardLayout>
+    <VendorLayout>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <h3 className="text-lg font-medium text-gray-900">Total Products</h3>
@@ -92,6 +92,6 @@ export default function VendorDashboard() {
       <div className="mt-8 text-center text-gray-500 text-sm">
         <p>Welcome, {session?.user?.name || 'Vendor'}! This is your dashboard for managing your shop.</p>
       </div>
-    </DashboardLayout>
+    </VendorLayout>
   );
 }

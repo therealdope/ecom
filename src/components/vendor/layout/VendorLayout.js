@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useShop } from '@/context/ShopContext';
 
 // Updated Icons import for v1
 import { 
@@ -18,7 +19,6 @@ import {
   BellIcon,
   ChatIcon,
   ChevronDownIcon,
-  ChevronRightIcon,
   ChevronLeftIcon,
 } from '@heroicons/react/outline';
 
@@ -26,12 +26,48 @@ import {
 import { signOut } from 'next-auth/react';
 
 export default function DashboardLayout({ children }) {
-  // State for selected shop
-  const [selectedShop, setSelectedShop] = useState('Shop 1');
+  // Remove the local selectedShop state
+  const [shops, setShops] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isShopDropdownOpen, setIsShopDropdownOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // Use the shop context
+  const { selectedShop, setSelectedShop } = useShop();
+  const defaultSet = useRef(false);
+
+  // Fetch shops from API
+  useEffect(() => {
+    const fetchShops = async () => {
+      try {
+        const response = await fetch('/api/vendor/shops');
+        if (!response.ok) throw new Error('Failed to fetch shops');
+        const data = await response.json();
+        const allShopsOption = { id: 'all', name: 'All Shops' };
+        const updatedShops = [allShopsOption, ...data];
+        setShops(updatedShops);
+        // Set first shop as default if available and no shop is selected
+        if (!selectedShop && !defaultSet.current) {
+          setSelectedShop(allShopsOption); // ensure it's set
+          defaultSet.current = true;
+        }
+      } catch (error) {
+        console.error('Error fetching shops:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchShops();
+  }, []);
+
+  // Handle shop selection
+  const selectShop = (shop) => {
+    setSelectedShop(shop);
+    setIsShopDropdownOpen(false);
+  };
   
   // Create refs for dropdown containers
   const shopDropdownRefDesktop = useRef(null);
@@ -42,7 +78,6 @@ export default function DashboardLayout({ children }) {
   const pathname = usePathname();
   
   // Example shops
-  const shops = ['Shop 1', 'Shop 2', 'Shop 3'];
   
   // Navigation links with icons
   const navLinks = [
@@ -73,7 +108,6 @@ export default function DashboardLayout({ children }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
   
-  
   // Toggle dropdown handlers
   const toggleShopDropdown = (e) => {
     e.stopPropagation(); // Changed back to stopPropagation
@@ -84,12 +118,6 @@ export default function DashboardLayout({ children }) {
   const toggleProfileDropdown = (e) => {
     e.stopPropagation();
     setIsProfileDropdownOpen(!isProfileDropdownOpen);
-    setIsShopDropdownOpen(false);
-  };
-  
-  // Handle shop selection
-  const selectShop = (shop) => {
-    setSelectedShop(shop);
     setIsShopDropdownOpen(false);
   };
   
@@ -105,7 +133,6 @@ export default function DashboardLayout({ children }) {
   
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Top Navbar */}
       <header className="bg-white shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
@@ -143,27 +170,40 @@ export default function DashboardLayout({ children }) {
                 <button
                   onClick={toggleShopDropdown}
                   className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
+                  disabled={isLoading}
                 >
-                  {selectedShop}
+                  {isLoading ? (
+                    <span>Loading shops...</span>
+                  ) : selectedShop ? (
+                    <span>{selectedShop.name}</span>
+                  ) : (
+                    <span>Select a shop</span>
+                  )}
                   <ChevronDownIcon className="ml-2 -mr-1 h-5 w-5" aria-hidden="true" />
                 </button>
                 
                 {isShopDropdownOpen && (
                   <div className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-20">
-                    <div className="py-1" role="menu" aria-orientation="vertical">
+                    <div className="py-1 max-h-60 overflow-y-auto" role="menu" aria-orientation="vertical">
                       {shops.map((shop) => (
                         <button
-                          key={shop}
+                          key={shop.id}
                           onClick={(e) => {
-                            e.stopPropagation(); // Change from e.preventDefault() to e.stopPropagation()
+                            e.stopPropagation();
                             selectShop(shop);
                           }}
-                          className={`${selectedShop === shop ? 'bg-gray-100 text-gray-900' : 'text-gray-700'} block w-full text-left px-4 py-2 text-sm hover:bg-gray-100`}
+                          className={`${selectedShop?.id === shop.id ? 'bg-gray-100 text-gray-900' : 'text-gray-700'} block w-full text-left px-4 py-2 text-sm hover:bg-gray-100`}
                           role="menuitem"
                         >
-                          {shop}
+                          {shop.name}
                         </button>
                       ))}
+                      <Link 
+                        href="/vendor/shops/new"
+                        className="block px-4 py-2 text-sm text-indigo-600 hover:bg-gray-100 border-t"
+                      >
+                        + Create New Shop
+                      </Link>
                     </div>
                   </div>
                 )}
@@ -231,7 +271,7 @@ export default function DashboardLayout({ children }) {
                 onClick={toggleShopDropdown}
                 className="w-full inline-flex items-center justify-between px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
               >
-                {selectedShop}
+                {selectedShop ? selectedShop.name : 'Select a shop'}
                 <ChevronDownIcon className="ml-2 -mr-1 h-5 w-5" aria-hidden="true" />
               </button>
               
@@ -249,15 +289,15 @@ export default function DashboardLayout({ children }) {
                   <div className="flex-1 overflow-y-auto p-4">
                     {shops.map((shop) => (
                       <button
-                        key={shop}
+                        key={shop.id}
                         onClick={(e) => {
-                          e.stopPropagation(); // Change from e.preventDefault() to e.stopPropagation()
+                          e.stopPropagation();
                           selectShop(shop);
                         }}
-                        className={`${selectedShop === shop ? 'bg-gray-100 text-gray-900' : 'text-gray-700'} block w-full text-left px-4 py-2 text-sm hover:bg-gray-100`}
+                        className={`${selectedShop?.id === shop.id ? 'bg-gray-100 text-gray-900' : 'text-gray-700'} block w-full text-left px-4 py-2 text-sm hover:bg-gray-100`}
                         role="menuitem"
                       >
-                        {shop}
+                        {shop.name}
                       </button>
                     ))}
                   </div>
@@ -268,7 +308,7 @@ export default function DashboardLayout({ children }) {
         </div>
       </header>
       
-      <div className="flex h-[calc(100vh-4rem)]"> {/* Added fixed height calculation (100vh minus header height) */}
+      <div className="flex h-[calc(100vh-4rem)]">
         {/* Sidebar for desktop */}
         <aside 
           className={`${isSidebarOpen ? 'w-64' : 'w-20'} hidden md:block transition-all duration-300 ease-in-out bg-white shadow-md fixed h-[calc(100vh-4rem)] overflow-y-auto`} 
@@ -289,7 +329,7 @@ export default function DashboardLayout({ children }) {
             </button>
           </div>
           
-          <div className="pt-5 pb-4 overflow-y-auto"> {/* Removed h-screen and sticky classes */}
+          <div className="pt-5 pb-4 overflow-y-auto">
             <div className="px-2 space-y-1">
               {navLinks.map((item) => {
                 const isActive = pathname === item.href;
@@ -360,11 +400,9 @@ export default function DashboardLayout({ children }) {
         )}
         
         {/* Main content */}
-        <main className={`flex-1 p-2 sm:p-4 md:p-6 overflow-y-auto ${isSidebarOpen ? 'md:ml-64' : 'md:ml-20'}`}> {/* Added margin-left to match sidebar width and overflow-y-auto */}
+        <main className={`flex-1 p-2 sm:p-2 md:p-4 overflow-y-auto ${isSidebarOpen ? 'md:ml-64' : 'md:ml-20'}`}>
           <div className="max-w-7xl mx-auto">
             <div className="bg-white rounded-lg shadow p-3 sm:p-4 md:p-6">
-              {/* Dynamic content based on selected shop */}
-              <h2 className="text-xl sm:text-2xl font-semibold mb-4 break-words">Dashboard content for {selectedShop}</h2>
               {children}
             </div>
           </div>

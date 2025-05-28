@@ -52,6 +52,7 @@ model Vendor {
   orders      Order[]       @relation("VendorOrders")
   payments    Payment[]
   profile     VendorProfile?
+  shops       Shop[]        // Add this field to complete the relation
   createdAt   DateTime      @default(now())
 }
 
@@ -97,6 +98,22 @@ model ProductCategory {
   products    Product[]
 }
 
+model Shop {
+  id          String    @id @default(cuid())
+  name        String
+  description String
+  address     String
+  phone       String
+  vendorId    String    
+  vendor      Vendor    @relation(fields: [vendorId], references: [id])
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([vendorId])
+}
+
+// Update the Product model to include shop
 model Product {
   id          String           @id @default(uuid())
   name        String
@@ -104,6 +121,8 @@ model Product {
   imageUrl    String
   vendorId    String
   vendor      Vendor           @relation(fields: [vendorId], references: [id])
+  shopId      String
+  shop        Shop             @relation(fields: [shopId], references: [id])
   categoryId  String
   category    ProductCategory  @relation(fields: [categoryId], references: [id])
   variants    ProductVariant[]

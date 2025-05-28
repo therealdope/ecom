@@ -2,6 +2,7 @@
 
 import { Open_Sans, Roboto_Mono } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
+import { ShopProvider } from '@/context/ShopContext';
 import "@styles/globals.css";
 
 const robotoMono = Roboto_Mono({
@@ -19,7 +20,9 @@ export default function RootLayout({ children }) {
     <html lang="en" className={`${robotoMono.variable} ${openSans.variable}`}>
       <body className="antialiased">
         <SessionProvider>
-          {children}
+          <ShopProvider>
+            {children}
+          </ShopProvider>
         </SessionProvider>
       </body>
     </html>
