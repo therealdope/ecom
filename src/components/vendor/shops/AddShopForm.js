@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { FaStore, FaMapMarkerAlt, FaPhone, FaInfoCircle, FaTimes } from 'react-icons/fa';
 
 export default function AddShopForm() {
   const { data: session } = useSession();
@@ -16,12 +17,15 @@ export default function AddShopForm() {
     phone: ''
   });
 
+  const handleClose = () => {
+    router.push('/vendor/dashboard');
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setErrors({});
 
-    // Validate form
     const validationErrors = {};
     if (!formData.name) validationErrors.name = 'Shop name is required';
     if (!formData.description) validationErrors.description = 'Description is required';
@@ -50,73 +54,104 @@ export default function AddShopForm() {
       router.push('/vendor/dashboard');
     } catch (error) {
       console.error('Error creating shop:', error);
-      setErrors({
-        submit: 'Failed to create shop. Please try again.'
-      });
+      setErrors({ submit: 'Failed to create shop. Please try again.' });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-semibold mb-6">Create New Shop</h1>
+    <div className="relative max-w-3xl mx-auto mt-12 p-4 sm:p-6 lg:p-8 rounded-lg border shadow-sm border-gray-200">
+      {/* Close Icon */}
+      <button
+        onClick={handleClose}
+        className="absolute top-4 right-4 text-gray-400 hover:text-gray-500 z-10"
+        aria-label="Close"
+      >
+        <FaTimes size={20} />
+      </button>
       
+
+      <h1 className="text-2xl font-bold text-gray-800 mb-8 text-center">Create New Shop</h1>
+
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Shop Name</label>
+        {/* Shop Name */}
+        <div className="flex flex-col">
+          <label className="text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+            <FaStore /> Shop Name
+          </label>
           <input
             type="text"
+            placeholder="Enter shop name"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${errors.name ? 'border-red-300' : 'border-gray-300'}`}
+            className={`w-full px-4 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none ${
+              errors.name ? 'border-red-500' : 'border-gray-300'
+            }`}
           />
-          {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
+          {errors.name && <p className="text-sm text-red-600 mt-1">{errors.name}</p>}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Description</label>
+        {/* Description */}
+        <div className="flex flex-col">
+          <label className="text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+            <FaInfoCircle /> Description
+          </label>
           <textarea
+            rows={3}
+            placeholder="Describe your shop and offerings"
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            rows={3}
-            className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${errors.description ? 'border-red-300' : 'border-gray-300'}`}
+            className={`w-full px-4 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none ${
+              errors.description ? 'border-red-500' : 'border-gray-300'
+            }`}
           />
-          {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description}</p>}
+          {errors.description && <p className="text-sm text-red-600 mt-1">{errors.description}</p>}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Address</label>
+        {/* Address */}
+        <div className="flex flex-col">
+          <label className="text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+            <FaMapMarkerAlt /> Address
+          </label>
           <textarea
+            rows={2}
+            placeholder="Enter shop address"
             value={formData.address}
             onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-            rows={2}
-            className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${errors.address ? 'border-red-300' : 'border-gray-300'}`}
+            className={`w-full px-4 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none ${
+              errors.address ? 'border-red-500' : 'border-gray-300'
+            }`}
           />
-          {errors.address && <p className="mt-1 text-sm text-red-600">{errors.address}</p>}
+          {errors.address && <p className="text-sm text-red-600 mt-1">{errors.address}</p>}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+        {/* Phone Number */}
+        <div className="flex flex-col">
+          <label className="text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+            <FaPhone /> Phone Number
+          </label>
           <input
             type="tel"
+            placeholder="Enter phone number"
             value={formData.phone}
             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            placeholder="Enter phone number"
+            className={`w-full px-4 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none ${
+              errors.phone ? 'border-red-500' : 'border-gray-300'
+            }`}
           />
-          {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
+          {errors.phone && <p className="text-sm text-red-600 mt-1">{errors.phone}</p>}
         </div>
 
-        {errors.submit && (
-          <div className="text-red-600 text-sm">{errors.submit}</div>
-        )}
+        {/* Submit error */}
+        {errors.submit && <p className="text-sm text-red-600">{errors.submit}</p>}
 
+        {/* Submit button */}
         <div className="flex justify-end">
           <button
             type="submit"
             disabled={isLoading}
-            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+            className="bg-indigo-500 text-white px-6 py-2 rounded-md text-sm font-medium hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
           >
             {isLoading ? 'Creating...' : 'Create Shop'}
           </button>

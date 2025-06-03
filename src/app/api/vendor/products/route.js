@@ -3,8 +3,9 @@ import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
+
 export async function GET(req) {
-    // Get the authenticated session
+
     const session = await getServerSession(authOptions);
     if (!session || session.user.role !== 'VENDOR') {
         return NextResponse.json({ error: 'Unauthorized access' }, { status: 401 });
@@ -19,7 +20,7 @@ export async function GET(req) {
     }
 
     // Verify the shop belongs to the vendor
-    if(shopId==='all'){
+    if (shopId === 'all') {
         const products = await prisma.product.findMany({
             include: {
                 category: true,
@@ -28,8 +29,8 @@ export async function GET(req) {
             }
         });
         return NextResponse.json(products);
-        
-    }else{
+
+    } else {
         const shop = await prisma.shop.findFirst({
             where: {
                 id: shopId,
@@ -50,7 +51,7 @@ export async function GET(req) {
                 variants: true,
                 shop: true
             }
-        }); 
+        });
         return NextResponse.json(products);
     }
 }
@@ -68,23 +69,9 @@ export async function POST(request) {
         if (!shopId) {
             return NextResponse.json({ error: 'Shop ID is required' }, { status: 400 });
         }
-
-        // Verify the shop belongs to the vendor
-        const shop = await prisma.shop.findFirst({
-            where: {
-                id: shopId,
-                vendorId: session.user.id
-            }
-        });
-
-        if (!shop) {
-            return NextResponse.json({ error: 'Shop not found or unauthorized' }, { status: 404 });
-        }
-
         // Handle category
         let categoryRecord;
         if (categoryId) {
-            // Use existing category
             categoryRecord = await prisma.productCategory.findUnique({
                 where: { id: categoryId }
             });
@@ -92,7 +79,6 @@ export async function POST(request) {
                 return NextResponse.json({ error: 'Invalid category ID' }, { status: 400 });
             }
         } else if (category) {
-            // Find or create category
             categoryRecord = await prisma.productCategory.findFirst({
                 where: {
                     name: {
@@ -111,12 +97,86 @@ export async function POST(request) {
             return NextResponse.json({ error: 'Category ID or new category name is required' }, { status: 400 });
         }
 
-        // Create the product
+        // Create product in all shops owned by the vendor
+        if (shopId === 'all') {
+            const allshops = await prisma.shop.findMany({
+                where: {
+                    vendorId: session.user.id
+                }
+            });
+
+            const createdProducts = [];
+
+            for (const shop of allshops) {
+                // Prevent duplicate product by name in the same shop
+                const existing = await prisma.product.findFirst({
+                    where: {
+                        name,
+                        shopId: shop.id
+                    }
+                });
+                if (existing) continue;
+
+                const product = await prisma.product.create({
+                    data: {
+                        name,
+                        description,
+                        imageUrl: imageUrl ?.trim() || '',
+                        categoryId: categoryRecord.id,
+                        shopId: shop.id,
+                        vendorId: session.user.id,
+                        variants: {
+                            create: variants.map(variant => ({
+                                size: variant.size,
+                                color: variant.color,
+                                sku: variant.sku,
+                                price: parseFloat(variant.price),
+                                stock: parseInt(variant.stock)
+                            }))
+                        }
+                    },
+                    include: {
+                        category: true,
+                        variants: true,
+                        shop: true,
+                        vendor: true
+                    }
+                });
+
+                createdProducts.push(product);
+            }
+
+            return NextResponse.json({ message: 'Products created for all shops', products: createdProducts }, { status: 201 });
+        }
+
+        // Verify the shop belongs to the vendor
+        const shop = await prisma.shop.findFirst({
+            where: {
+                id: shopId,
+                vendorId: session.user.id
+            }
+        });
+
+        if (!shop) {
+            return NextResponse.json({ error: 'Shop not found or unauthorized' }, { status: 404 });
+        }
+
+        // Prevent duplicate product in this shop
+        const existing = await prisma.product.findFirst({
+            where: {
+                name,
+                shopId: shop.id
+            }
+        });
+        if (existing) {
+            return NextResponse.json({ error: 'Product with the same name already exists in this shop' }, { status: 409 });
+        }
+
         const product = await prisma.product.create({
             data: {
                 name,
                 description,
-                imageUrl: imageUrl?.trim() || '',
+                imageUrl: imageUrl ?.trim() || '',
                 categoryId: categoryRecord.id,
                 shopId: shop.id,
                 vendorId: session.user.id,
@@ -138,7 +198,8 @@ export async function POST(request) {
             }
         });
 
-        return NextResponse.json(product);
+        return NextResponse.json(product, { status: 201 });
+
     } catch (error) {
         console.error('Error creating product:', error);
         return NextResponse.json({ error: 'Failed to create product' }, { status: 500 });

@@ -33,26 +33,6 @@ export default function VendorDashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">Total Products</h3>
-          <p className="mt-2 text-3xl font-bold text-indigo-600">24</p>
-          <p className="mt-1 text-sm text-gray-500">+12% from last month</p>
-        </div>
-        
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">Total Orders</h3>
-          <p className="mt-2 text-3xl font-bold text-indigo-600">36</p>
-          <p className="mt-1 text-sm text-gray-500">+8% from last month</p>
-        </div>
-        
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">Total Revenue</h3>
-          <p className="mt-2 text-3xl font-bold text-indigo-600">$4,320</p>
-          <p className="mt-1 text-sm text-gray-500">+15% from last month</p>
-        </div>
-      </div>
-      
       <div className="mt-8">
         <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Orders</h3>
         <div className="border border-gray-200 rounded-md  shadow-sm overflow-hidden">

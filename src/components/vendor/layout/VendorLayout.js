@@ -140,7 +140,7 @@ export default function DashboardLayout({ children }) {
             <div className="flex items-center">
               <button
                 onClick={toggleMobileMenu}
-                className="inline-flex items-center justify-center sm:hidden p-2 mr-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none"
+                className="inline-flex items-center justify-center md:hidden p-2 mr-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none"
                 aria-expanded="false"
               >
                 <span className="sr-only">Open main menu</span>
@@ -183,7 +183,7 @@ export default function DashboardLayout({ children }) {
                 </button>
                 
                 {isShopDropdownOpen && (
-                  <div className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-20">
+                  <div className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-gray-300 ring-opacity-5 focus:outline-none z-20">
                     <div className="py-1 max-h-60 overflow-y-auto" role="menu" aria-orientation="vertical">
                       {shops.map((shop) => (
                         <button
@@ -195,14 +195,19 @@ export default function DashboardLayout({ children }) {
                           className={`${selectedShop?.id === shop.id ? 'bg-gray-100 text-gray-900' : 'text-gray-700'} block w-full text-left px-4 py-2 text-sm hover:bg-gray-100`}
                           role="menuitem"
                         >
-                          {shop.name}
+                          
+                          {
+                            shop.id === 'all'? (
+                              <span className="text-black">All Shops</span>
+                            ) : shop.name
+                          }
                         </button>
                       ))}
                       <Link 
                         href="/vendor/shops/new"
-                        className="block px-4 py-2 text-sm text-indigo-600 hover:bg-gray-100 border-t"
+                        className="block px-4 py-2 text-sm text-indigo-600 hover:bg-gray-100 border-t border-gray-300"
                       >
-                        + Create New Shop
+                      Create New Shop
                       </Link>
                     </div>
                   </div>
@@ -234,7 +239,7 @@ export default function DashboardLayout({ children }) {
                 </div>
                 
                 {isProfileDropdownOpen && (
-                  <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-20">
+                  <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-gray-300 ring-opacity-5 focus:outline-none z-20">
                     <div className="py-1" role="menu" aria-orientation="vertical">
                       <Link 
                         href="/vendor/profile" 
@@ -294,12 +299,18 @@ export default function DashboardLayout({ children }) {
                           e.stopPropagation();
                           selectShop(shop);
                         }}
-                        className={`${selectedShop?.id === shop.id ? 'bg-gray-100 text-gray-900' : 'text-gray-700'} block w-full text-left px-4 py-2 text-sm hover:bg-gray-100`}
+                        className={`${selectedShop?.id === shop.id ? 'text-gray-900' : 'text-gray-700'} rounded-md border-b border-gray-200 block w-full text-left px-4 py-4 text-md hover:bg-gray-200`}
                         role="menuitem"
                       >
                         {shop.name}
                       </button>
                     ))}
+                    <Link 
+                        href="/vendor/shops/new"
+                        className="px-4 py-4 mt-16 text-md text-center text-indigo-600 rounded-md border block bg-indigo-100 hover:bg-indigo-200 border-indigo-300"
+                      >
+                        Create New Shop
+                      </Link>
                   </div>
                 </div>
               )}

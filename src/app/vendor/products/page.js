@@ -6,7 +6,8 @@ import { useShop } from '@/context/ShopContext';
 import Loader from '@/components/shared/Loader';
 import VendorLayout from '@/components/vendor/layout/VendorLayout';
 import AddProductForm from '@/components/vendor/products/AddProductForm';
-import ProductList from '@/components/vendor/products/ProductList';
+import ProductListPage from '@/components/vendor/products/ProductListPage';
+import ProductMainPageSkeletonLoader from '@/components/vendor/products/ProductMainPageSkeletonLoader';
 
 export default function VendorProducts() {
   const { data: session, status } = useSession();
@@ -42,7 +43,13 @@ export default function VendorProducts() {
   };
 
   if (status === 'loading' || isLoading) {
-    return <Loader />;
+    return (
+      <VendorLayout>
+        <div className="flex justify-center text-center">
+          <ProductMainPageSkeletonLoader />
+        </div>
+      </VendorLayout>
+    );
   }
 
   if (!selectedShop) {
@@ -68,7 +75,7 @@ export default function VendorProducts() {
           </button>
         </div>
 
-        <ProductList products={products} onUpdate={fetchProducts} />
+        <ProductListPage products={products} onUpdate={fetchProducts} />
 
         {isAddModalOpen && (
           <AddProductForm

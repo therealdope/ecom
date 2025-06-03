@@ -34,6 +34,7 @@ export default function Loader() {
             sizes="(max-width: 640px) 150px, (max-width: 1024px) 250px, 300px"
             className="w-auto h-auto max-w-[300px] max-h-[300px] md:max-w-[250px] md:max-h-[250px] sm:max-w-[150px] sm:max-h-[150px]"
             alt="Loading..." 
+            unoptimized
             priority
             onError={() => setImageError(true)}
           />

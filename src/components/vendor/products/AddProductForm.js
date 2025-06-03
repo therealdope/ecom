@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef} from 'react';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useShop } from '@/context/ShopContext';
@@ -20,11 +20,29 @@ export default function AddProductForm({ isOpen, onClose, onProductAdded }) {
   });
   const [categories, setCategories] = useState([]);
   const [categorySearch, setCategorySearch] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const [sizeUnit, setSizeUnit] = useState('cm');
+  const [customSizeUnit, setCustomSizeUnit] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
+  const [colorPickerIndex, setColorPickerIndex] = useState("#");
+  const colorInputRefs = useRef({});
+  useEffect(() => {
+    if (colorPickerIndex !== null && colorInputRefs.current[colorPickerIndex]) {
+      // Delay to let the DOM update fully before clicking
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          colorInputRefs.current[colorPickerIndex]?.click();
+        }, 0); // Or increase to 50ms if needed
+      });
+    }
+  }, [colorPickerIndex]);
   
-  // Add useEffect to fetch categories when component mounts
+  
+
   useEffect(() => {
     const fetchCategories = async () => {
+      setIsSearching(true);
       try {
         const response = await fetch('/api/vendor/categories');
         if (response.ok) {
@@ -33,17 +51,13 @@ export default function AddProductForm({ isOpen, onClose, onProductAdded }) {
         }
       } catch (error) {
         console.error('Error fetching categories:', error);
+      } finally {
+        setIsSearching(false);
       }
     };
     fetchCategories();
   }, []);
   
-  // Modified category handling
-  const handleCreateCategory = () => {
-    if (!categorySearch.trim()) return;
-    setFormData({ ...formData, category: categorySearch.trim() });
-    setCategorySearch(categorySearch.trim());
-  };
   const getFilteredCategories = () => {
     if (!categorySearch) return [];
     return categories.filter(category =>
@@ -51,267 +65,456 @@ export default function AddProductForm({ isOpen, onClose, onProductAdded }) {
     );
   };
 
+  // New state to track selected category
+
+// Modify this when selecting a category or creating one
+const handleSelectCategory = (name) => {
+  setFormData({ ...formData, category: name });
+  setCategorySearch(name);
+  setSelectedCategory(name);
+};
+
+const handleCreateCategory = () => {
+  const trimmed = categorySearch.trim();
+  if (!trimmed) return;
+  handleSelectCategory(trimmed);
+};
+
+const handleRemoveCategory = () => {
+  setSelectedCategory(null);
+  setFormData({ ...formData, category: '' });
+  setCategorySearch('');
+};
+
+
   // Add this function to handle category search input changes
   const handleCategorySearch = (value) => {
     setCategorySearch(value);
     setFormData({ ...formData, category: '' });
   };
+  
 
   // Update the category selection JSX
   const renderCategorySelection = () => (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-700">Category</label>
-      {formData.category ? (
-        <div className="flex items-center justify-between p-2 border rounded-md bg-gray-50">
-          <span>
-            {formData.category}
-            <span className="ml-2 text-sm text-gray-500">(New)</span>
-          </span>
+      <label className="block text-sm font-medium text-gray-700">
+        Category <span className="text-red-500">*</span>
+      </label>
+  
+      <div className="relative">
+        <input
+          type="text"
+          placeholder="Search or create category"
+          value={categorySearch}
+          onChange={(e) => handleCategorySearch(e.target.value)}
+          disabled={!!formData.category}
+          className="w-full rounded-lg border px-4 py-3 pr-10 bg-white"
+        />
+  
+        {/* Remove icon */}
+        {formData.category && (
           <button
             type="button"
             onClick={() => {
               setFormData({ ...formData, category: '' });
               setCategorySearch('');
             }}
-            className="text-red-600 hover:text-red-500"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"
           >
-            Remove
-          </button>
-        </div>
-      ) : (
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="Enter category"
-            value={categorySearch}
-            onChange={(e) => handleCategorySearch(e.target.value)}
-            className="w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
-          />
-          {categorySearch && (
-            <button
-              type="button"
-              onClick={handleCreateCategory}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-blue-600 hover:text-blue-500"
+            <svg
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
             >
-              + Add
-            </button>
-          )}
-        </div>
-      )}
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        )}
+  
+        {/* Loading spinner */}
+        {isSearching && (
+          <div className="absolute right-10 top-1/2 -translate-y-1/2">
+            <svg
+              className="animate-spin h-5 w-5 text-gray-400"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+          </div>
+        )}
+      </div>
+  
+      {/* Filtered categories list */}
       {!formData.category && getFilteredCategories().length > 0 && (
         <ul className="mt-2 max-h-40 overflow-auto border rounded-md shadow-sm">
           {getFilteredCategories().map((category) => (
             <li
               key={category.id}
-              onClick={() => {
-                setFormData({ ...formData, category: category.name });
-                setCategorySearch(category.name);
-              }}
-              className="cursor-pointer p-2 hover:bg-gray-50"
+              className="flex justify-between items-center cursor-pointer p-2 hover:bg-gray-50"
             >
-              {category.name}
+              <span
+                onClick={() => {
+                  setFormData({ ...formData, category: category.name });
+                  setCategorySearch(category.name);
+                }}
+                className="flex-grow"
+              >
+                {category.name}
+              </span>
             </li>
           ))}
         </ul>
       )}
-      {errors.category && <p className="mt-1 text-sm text-red-600">{errors.category}</p>}
+  
+      {/* Create new category if no match */}
+      {!formData.category &&
+        categorySearch &&
+        getFilteredCategories().length === 0 && (
+          <button
+            type="button"
+            onClick={handleCreateCategory}
+            className="mt-2 w-full py-2 px-4 text-sm text-blue-600 hover:bg-blue-50 rounded-md border border-blue-200"
+          >
+            Create new category &quot;{categorySearch}&quot;
+          </button>
+        )}
+  
+      {/* Validation error */}
+      {errors.category && (
+        <p className="mt-1 text-sm text-red-600">{errors.category}</p>
+      )}
     </div>
   );
+  
+  
 
-  // Update renderStep1 to use the new renderCategorySelection function
+
   const renderStep1 = () => (
-    <div className="space-y-4">
-      {/* Product Name and Description fields */}
+    <div className="space-y-6 p-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700">Product Name</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Product Name <span className="text-red-500">*</span>
+          <span className="ml-1 text-xs text-gray-500">(Required)</span>
+        </label>
         <input
           type="text"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${errors.name ? 'border-red-300' : 'border-gray-300'}`}
+          className={`mt-1 block w-full rounded-lg border px-4 py-3 ${errors.name ? 'border-red-300' : 'border-gray-300'}`}
+          placeholder="Enter product name"
         />
         {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
       </div>
 
-      {/* Description */}
       <div>
-        <label className="block text-sm font-medium text-gray-700">Description</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Description <span className="text-red-500">*</span>
+        </label>
         <textarea
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          rows={3}
-          className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${errors.description ? 'border-red-300' : 'border-gray-300'}`}
+          rows={4}
+          className={`mt-1 block w-full rounded-lg border px-4 py-3 ${errors.description ? 'border-red-300' : 'border-gray-300'}`}
+          placeholder="Enter product description"
         />
         {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description}</p>}
       </div>
 
-      {/* Category Selection */}
-      {renderCategorySelection()}
+      <div className="space-y-2">
+        {renderCategorySelection()}
+      </div>
     </div>
   );
 
-  // Step 3 content
+
+
+  const handleRemoveVariant = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      variants: prev.variants.filter((_, i) => i !== index)
+    }));
+  };
+  
+  const handleVariantChange = (index, field, value) => {
+    setFormData(prev => {
+      const newVariants = [...prev.variants];
+      newVariants[index] = { ...newVariants[index], [field]: value };
+      return { ...prev, variants: newVariants };
+    });
+  };
+
+  // Update the renderStep3 function
   const renderStep3 = () => (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">Product Variants</h3>
-        <button
-          type="button"
-          onClick={() => setFormData({
-            ...formData,
-            variants: [...formData.variants, { size: '', color: '', sku: '', price: '', stock: '' }]
-          })}
-          className="text-sm text-blue-600 hover:text-blue-500"
-        >
-          + Add Variant
-        </button>
-      </div>
-      {formData.variants.map((variant, index) => (
-        <div key={index} className="border rounded-md p-4 space-y-3">
-          <div className="flex justify-between">
-            <h4 className="font-medium">Variant {index + 1}</h4>
-            {index > 0 && (
-              <button
-                type="button"
-                onClick={() => handleRemoveVariant(index)}
-                className="text-red-600 hover:text-red-500"
+  <div className="space-y-6 p-4">
+    <div className="flex justify-between items-center mb-6">
+      <h3 className="text-xl font-semibold">Product Variants <span className="text-red-500">*</span></h3>
+      <button
+        type="button"
+        onClick={() => setFormData(prev => ({
+          ...prev,
+          variants: [...prev.variants, { size: '', color: '', sku: '', price: '', stock: '' }]
+        }))}
+        className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+      >
+        <svg className="-ml-1 mr-2 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M10 5a1 1 0 011 1v3h3a1 1 0 010 2h-3v3a1 1 0 01-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" />
+        </svg>
+        Add Variant
+      </button>
+    </div>
+
+    {formData.variants.map((variant, index) => (
+      <div key={index} className="border-1 rounded-xl p-6 shadow-md bg-white space-y-4">
+        <div className="flex justify-between items-center border-b pb-2">
+          <h4 className="text-lg font-medium">Variant {index + 1}</h4>
+          {formData.variants.length > 1 && (
+            <button
+              type="button"
+              onClick={() => handleRemoveVariant(index)}
+              className="text-gray-400 hover:text-red-500 transition p-1 rounded-full hover:bg-red-50"
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Size Input */}
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold">Size</label>
+            <div className="flex space-x-2 items-center">
+              <input
+                type="text"
+                placeholder="Size"
+                value={variant.size.split(/[a-zA-Z]+/)[0] || ''}
+                onChange={(e) => {
+                  const newSize = e.target.value + (sizeUnit === 'custom' ? customSizeUnit : sizeUnit);
+                  handleVariantChange(index, 'size', newSize);
+                }}
+                className="flex-1 border rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+              <select
+                value={sizeUnit}
+                onChange={(e) => setSizeUnit(e.target.value)}
+                className="border rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
               >
-                Remove
-              </button>
+                {['cm', 'in', 'L', 'ml', 'kg', 'gm', 'custom'].map(unit => (
+                  <option key={unit} value={unit}>{unit}</option>
+                ))}
+              </select>
+            </div>
+            {sizeUnit === 'custom' && (
+              <input
+                type="text"
+                placeholder="Custom unit (e.g. yards)"
+                value={customSizeUnit}
+                onChange={(e) => setCustomSizeUnit(e.target.value)}
+                className="w-full border rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
+              />
             )}
           </div>
-          <div className="grid grid-cols-2 gap-4">
+
+            {/* Color Input with Inline Preview and Picker */}
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">Color (Hex)</label>
+              <div className="flex items-center space-x-3 relative">
+                {/* Text input for hex value */}
+                <input
+                  type="text"
+                  placeholder="#RRGGBB"
+                  value={variant.color}
+                  onChange={(e) => handleVariantChange(index, 'color', e.target.value)}
+                  className="flex-1 border border-black rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+
+                {/* Color preview with inline color input */}
+                <div className="relative">
+                  <div
+                    className="w-10 h-10 rounded-lg border border-black cursor-pointer"
+                    style={{ backgroundColor: /^#([0-9A-F]{3}){1,2}$/i.test(variant.color) ? variant.color : '#ffffff' }}
+                    onClick={() => setColorPickerIndex(index)}
+                    title="Click to pick color"
+                  />
+                  {colorPickerIndex === index && (
+                    <input
+                      type="color"
+                      ref={(el) => (colorInputRefs.current[index] = el)}
+                      value={variant.color || '#000000'}
+                      onChange={(e) => handleVariantChange(index, 'color', e.target.value)}
+                      className="absolute top-0 left-0 w-10 h-10 opacity-0 cursor-pointer"
+                      onBlur={() => setColorPickerIndex(null)}
+                    />
+                  )}
+                </div>
+              </div>
+
+              {/* Optional invalid warning */}
+              {!/^#([0-9A-F]{3}){1,2}$/i.test(variant.color) && variant.color && (
+                <p className="text-xs text-red-500">Invalid hex code</p>
+              )}
+            </div>
+
+          {/* SKU */}
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold">SKU</label>
             <input
               type="text"
-              placeholder="Size"
-              value={variant.size}
-              onChange={(e) => handleVariantChange(index, 'size', e.target.value)}
-              className="rounded-md border-gray-300"
-            />
-            <input
-              type="text"
-              placeholder="Color"
-              value={variant.color}
-              onChange={(e) => handleVariantChange(index, 'color', e.target.value)}
-              className="rounded-md border-gray-300"
-            />
-            <input
-              type="text"
-              placeholder="SKU"
+              placeholder="Stock Keeping Unit"
               value={variant.sku}
               onChange={(e) => handleVariantChange(index, 'sku', e.target.value)}
-              className="rounded-md border-gray-300"
+              className="w-full border rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
             />
+          </div>
+
+          {/* Price */}
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold">Price</label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+              <input
+                type="number"
+                placeholder="0.00"
+                value={variant.price}
+                onChange={(e) => handleVariantChange(index, 'price', e.target.value)}
+                className="w-full border rounded-lg pl-8 pr-4 py-2 focus:ring-blue-500 focus:border-blue-500"
+                min="0"
+                step="0.01"
+              />
+            </div>
+          </div>
+
+          {/* Stock */}
+          <div className="space-y-2 md:col-span-2">
+            <label className="block text-sm font-semibold">Stock</label>
             <input
               type="number"
-              placeholder="Price"
-              value={variant.price}
-              onChange={(e) => handleVariantChange(index, 'price', e.target.value)}
-              className="rounded-md border-gray-300"
-            />
-            <input
-              type="number"
-              placeholder="Stock"
+              placeholder="Quantity in stock"
               value={variant.stock}
               onChange={(e) => handleVariantChange(index, 'stock', e.target.value)}
-              className="rounded-md border-gray-300"
+              className="w-full border rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
+              min="0"
             />
           </div>
         </div>
-      ))}
-    </div>
-  );
+      </div>
+    ))}
+  </div>
+);
 
-  // Add this function to handle variant changes
-  const handleVariantChange = (index, field, value) => {
-    const newVariants = [...formData.variants];
-    newVariants[index] = { ...newVariants[index], [field]: value };
-    setFormData({ ...formData, variants: newVariants });
-  };
 
-  // Add handleImageChange function
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedFile(file);
-      setPreviewImage(URL.createObjectURL(file));
-    }
-  };
 
-  // Add renderStep2 function for image upload
-  const renderStep2 = () => (
-    <div className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Product Image</label>
-        <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-          <div className="space-y-1 text-center">
-            {previewImage ? (
-              <div className="relative w-40 h-40 mx-auto">
-                <Image
-                  src={previewImage}
-                  alt="Product preview"
-                  layout="fill"
-                  objectFit="contain"
-                  className="rounded-md"
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPreviewImage(null);
-                    setSelectedFile(null);
-                  }}
-                  className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1"
-                >
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            ) : (
-              <>
-                <svg
-                  className="mx-auto h-12 w-12 text-gray-400"
-                  stroke="currentColor"
-                  fill="none"
-                  viewBox="0 0 48 48"
-                >
+
+// Image change handler
+const handleImageChange = (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    setSelectedFile(file);
+    setPreviewImage(URL.createObjectURL(file));
+  }
+};
+// Step 2 UI
+const renderStep2 = () => (
+  <div className="p-3">
+    <label className="block text-sm font-semibold text-gray-800 mb-2">
+      Product Image <span className="text-red-500">*</span>
+    </label>
+
+    <div className="flex justify-center items-center border-2 border-gray-400 border-dashed rounded-xl bg-gray-50 hover:border-blue-600 transition-colors min-h-[300px]">
+      <div className="w-full text-center p-3">
+        {previewImage ? (
+          <div className="relative group mx-auto w-full max-w-md aspect-square rounded-xl overflow-hidden">
+            <Image
+              src={previewImage}
+              alt="Product preview"
+              layout="fill"
+              objectFit="cover"
+              className="rounded-xl"
+            />
+            {/* Overlay and remove icon on hover */}
+            <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
+              <button
+                type="button"
+                onClick={() => {
+                  setPreviewImage(null);
+                  setSelectedFile(null);
+                }}
+                className="text-white p-3 rounded-full hover:text-red-500 transition"
+              >
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
-                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                    strokeWidth={2}
                     strokeLinecap="round"
                     strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                   />
                 </svg>
-                <div className="flex text-sm text-gray-600">
-                  <label className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                    <span>Upload a file</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="sr-only"
-                    />
-                  </label>
-                  <p className="pl-1">or drag and drop</p>
-                </div>
-                <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
-              </>
-            )}
+              </button>
+            </div>
           </div>
-        </div>
-        {errors.image && <p className="mt-1 text-sm text-red-600">{errors.image}</p>}
+        ) : (
+          <div className="flex flex-col items-center space-y-3">
+            <svg className="h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+              <path
+                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+              />
+            </svg>
+
+            <label className="cursor-pointer inline-flex items-center space-x-2 px-4 py-1.5 text-sm font-medium text-blue-600 bg-white border border-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition">
+              <span>Upload Image</span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="sr-only"
+              />
+            </label>
+
+            <p className="text-sm text-gray-500">or drag and drop</p>
+            <p className="text-xs text-gray-400">PNG, JPG, GIF — up to 10MB</p>
+          </div>
+        )}
       </div>
     </div>
-  );
+
+    {errors.image && (
+      <p className="mt-2 text-sm text-red-600">{errors.image}</p>
+    )}
+  </div>
+);
 
   // Add handleSubmit function before the return statement
-  const uploadImage = async (file) => {
+  const uploadImage = async (selectedFile) => {
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', selectedFile);
       formData.append('folder', 'products'); // Specify the products folder
 
-      const response = await fetch('/api/upload', {
+      const response = await fetch('/api/cloudinary/upload', {
         method: 'POST',
         body: formData,
       });
@@ -408,8 +611,8 @@ export default function AddProductForm({ isOpen, onClose, onProductAdded }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
-      <div className="relative top-20 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white">
+    <div className="fixed z-50 inset-0 bg-black/30 backdrop-blur-sm overflow-y-auto h-full w-full">
+      <div className="relative sm:top-20 mx-auto p-5 w-full sm:max-w-4xl shadow-xl rounded-2xl bg-white min-h-screen sm:min-h-0">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-medium">Add New Product - Step {currentStep} of 3</h3>
           <button
@@ -436,7 +639,7 @@ export default function AddProductForm({ isOpen, onClose, onProductAdded }) {
           {currentStep === 2 && renderStep2()}
           {currentStep === 3 && renderStep3()}
           
-          <div className="flex justify-end space-x-4 mt-6">
+          <div className="flex justify-end space-x-4 mt-6 sticky bottom-0 bg-white p-4 border-t">
             {currentStep > 1 && (
               <button
                 type="button"
@@ -457,5 +660,5 @@ export default function AddProductForm({ isOpen, onClose, onProductAdded }) {
         </form>
       </div>
     </div>
-  );
+);
 }

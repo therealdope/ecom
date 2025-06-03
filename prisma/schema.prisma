@@ -138,7 +138,7 @@ model ProductVariant {
   productId String
   size      String?
   color     String?
-  sku       String   @unique
+  sku       String
   price     Float
   stock     Int
   product   Product  @relation(fields: [productId], references: [id])
