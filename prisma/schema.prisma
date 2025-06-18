@@ -99,7 +99,7 @@ model ProductCategory {
 }
 
 model Shop {
-  id          String    @id @default(cuid())
+  id          String    @id @default(uuid())
   name        String
   description String
   address     String
@@ -134,31 +134,48 @@ model Product {
 }
 
 model ProductVariant {
-  id        String   @id @default(uuid())
+  id        String        @id @default(uuid())
   productId String
   size      String?
   color     String?
   sku       String
   price     Float
   stock     Int
-  product   Product  @relation(fields: [productId], references: [id])
+  product   Product       @relation(fields: [productId], references: [id])
+  cartItems CartItem[]
+  orderItems OrderItem[]
 }
+
+
+// Add these models to your existing schema
 
 model CartItem {
   id        String   @id @default(uuid())
   userId    String
   productId String
-  quantity  Int
-  user      User     @relation(fields: [userId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
+  variantId String
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User          @relation(fields: [userId], references: [id])
+  product Product       @relation(fields: [productId], references: [id])
+  variant ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@unique([userId, productId, variantId])
 }
+
 
 model WishlistItem {
   id        String   @id @default(uuid())
   userId    String
   productId String
-  user      User     @relation(fields: [userId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
 }
 
 model Order {
@@ -176,14 +193,17 @@ model Order {
 }
 
 model OrderItem {
-  id        String   @id @default(uuid())
-  orderId   String
-  productId String
-  quantity  Int
-  price     Float
-  order     Order    @relation(fields: [orderId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
+  id         String         @id @default(uuid())
+  orderId    String
+  productId  String
+  variantId  String         // <-- NEW FIELD
+  quantity   Int
+  price      Float
+  order      Order          @relation(fields: [orderId], references: [id])
+  product    Product        @relation(fields: [productId], references: [id])
+  variant    ProductVariant @relation(fields: [variantId], references: [id])
 }
+
 
 model Payment {
   id          String        @id @default(uuid())

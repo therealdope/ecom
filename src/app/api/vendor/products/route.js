@@ -10,7 +10,7 @@ export async function GET(req) {
     if (!session || session.user.role !== 'VENDOR') {
         return NextResponse.json({ error: 'Unauthorized access' }, { status: 401 });
     }
-
+    console.log("session id: ",session.user.id);
     // Get shopId from URL params
     const { searchParams } = new URL(req.url);
     const shopId = searchParams.get('shopId');
@@ -22,6 +22,9 @@ export async function GET(req) {
     // Verify the shop belongs to the vendor
     if (shopId === 'all') {
         const products = await prisma.product.findMany({
+            where: {
+                vendorId: session.user.id
+            },
             include: {
                 category: true,
                 variants: true,
@@ -44,12 +47,14 @@ export async function GET(req) {
 
         const products = await prisma.product.findMany({
             where: {
-                shopId: shop.id
+                shopId: shop.id,
+                vendorId: session.user.id
             },
             include: {
                 category: true,
                 variants: true,
-                shop: true
+                shop: true,
+                vendor: true
             }
         });
         return NextResponse.json(products);
@@ -112,7 +117,8 @@ export async function POST(request) {
                 const existing = await prisma.product.findFirst({
                     where: {
                         name,
-                        shopId: shop.id
+                        shopId: shop.id,
+                        vendorId: session.user.id
                     }
                 });
                 if (existing) continue;
@@ -165,7 +171,8 @@ export async function POST(request) {
         const existing = await prisma.product.findFirst({
             where: {
                 name,
-                shopId: shop.id
+                shopId: shop.id,
+                vendorId: session.user.id
             }
         });
         if (existing) {

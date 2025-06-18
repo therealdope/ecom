@@ -13,14 +13,14 @@ import {
   ShoppingCartIcon, 
   CreditCardIcon, 
   UsersIcon, 
-  CogIcon,
-  MenuIcon,
-  XIcon,
+  Cog6ToothIcon,
+  Bars3Icon,
+  XMarkIcon,
   BellIcon,
-  ChatIcon,
+  ChatBubbleLeftRightIcon,
   ChevronDownIcon,
   ChevronLeftIcon,
-} from '@heroicons/react/outline';
+} from '@heroicons/react/24/outline';
 
 // Add this import at the top with other imports
 import { signOut } from 'next-auth/react';
@@ -86,7 +86,7 @@ export default function DashboardLayout({ children }) {
     { name: 'Orders', href: '/vendor/orders', icon: ShoppingCartIcon },
     { name: 'Payments', href: '/vendor/payments', icon: CreditCardIcon },
     { name: 'Customers', href: '/vendor/customers', icon: UsersIcon },
-    { name: 'Shop Settings', href: '/vendor/settings', icon: CogIcon },
+    { name: 'Shop Settings', href: '/vendor/settings', icon: Cog6ToothIcon },
   ];
   
   // Close dropdowns when clicking outside
@@ -145,20 +145,21 @@ export default function DashboardLayout({ children }) {
               >
                 <span className="sr-only">Open main menu</span>
                 {isMobileMenuOpen ? (
-                  <XIcon className="block h-6 w-6" aria-hidden="true" />
+                  <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
                 ) : (
-                  <MenuIcon className="block h-6 w-6" aria-hidden="true" />
+                  <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
                 )}
               </button>
               <div className="flex-shrink-0 flex items-center">
                 <Link href="/vendor/dashboard" className="flex items-center">
-                  <Image 
-                    src="/logo.png" 
-                    alt="Logo" 
-                    width={40} 
-                    height={40} 
-                    className="h-8 w-auto" 
-                  />
+                <Image
+                  src="/logo.png"
+                  alt="Your Brand"
+                  width={100}
+                  height={50}
+                  className="h-10 w-auto"
+                  priority
+                />
                   <span className="ml-2 text-xl font-bold text-gray-900 hidden sm:block">Vendor Portal</span>
                 </Link>
               </div>
@@ -221,7 +222,7 @@ export default function DashboardLayout({ children }) {
                 <BellIcon className="h-6 w-6" aria-hidden="true" />
               </button>
               <button className="p-2 rounded-full text-gray-400 hover:text-gray-500 hover:bg-gray-100">
-                <ChatIcon className="h-6 w-6" aria-hidden="true" />
+                <ChatBubbleLeftRightIcon className="h-6 w-6" aria-hidden="true" />
               </button>
               
               {/* Profile dropdown */}
@@ -288,7 +289,7 @@ export default function DashboardLayout({ children }) {
                       onClick={toggleShopDropdown}
                       className="p-3 rounded-full text-gray-400 hover:text-gray-500 hover:bg-gray-200"
                     >
-                      <XIcon className="h-6 w-6" aria-hidden="true" />
+                      <XMarkIcon className="h-6 w-6" aria-hidden="true" />
                     </button>
                   </div>
                   <div className="flex-1 overflow-y-auto p-4">
@@ -335,7 +336,7 @@ export default function DashboardLayout({ children }) {
               {isSidebarOpen ? (
                 <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
               ) : (
-                <MenuIcon className="h-6 w-6" aria-hidden="true" />
+                <Bars3Icon className="h-6 w-6" aria-hidden="true" />
               )}
             </button>
           </div>
@@ -372,7 +373,7 @@ export default function DashboardLayout({ children }) {
                   onClick={toggleMobileMenu}
                   className="flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
                 >
-                  <XIcon className="h-6 w-6 text-gray-400 hover:bg-gray-100 rounded-full" aria-hidden="true" />
+                  <XMarkIcon className="h-6 w-6 text-gray-400 hover:bg-gray-100 rounded-full" aria-hidden="true" />
                 </button>
               </div>
               <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
