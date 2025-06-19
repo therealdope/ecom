@@ -42,24 +42,25 @@ export default function CartPage() {
           {/* Cart Items */}
           <div className="md:col-span-2 space-y-4">
             {cartItems.map((item) => (
+              // Inside the cartItems.map() function
               <div key={`${item.productId}-${item.variantId}`} className="bg-white rounded-lg shadow p-4 flex items-center gap-4">
                 <div className="relative w-24 h-24">
                   <Image
-                    src={item.imageUrl}
-                    alt={item.name}
+                    src={item.product.imageUrl}
+                    alt={item.product.name}
                     fill
                     className="object-cover rounded-md"
                   />
                 </div>
                 
                 <div className="flex-1">
-                  <h3 className="font-semibold text-lg">{item.name}</h3>
+                  <h3 className="font-semibold text-lg">{item.product.name}</h3>
                   <p className="text-gray-600">
-                    {item.size && `Size: ${item.size}`}
-                    {item.color && item.size && ' - '}
-                    {item.color && `Color: ${item.color}`}
+                    {item.variant.size && `Size: ${item.variant.size}`}
+                    {item.variant.color && item.variant.size && ' - '}
+                    {item.variant.color && `Color: ${item.variant.color}`}
                   </p>
-                  <p className="font-medium text-indigo-600">${item.price}</p>
+                  <p className="font-medium text-indigo-600">${item.variant.price}</p>
                   
                   <div className="flex items-center justify-between mt-2">
                     <div className="flex items-center border rounded-lg overflow-hidden">
@@ -73,17 +74,11 @@ export default function CartPage() {
                       <button
                         className="px-3 py-1 hover:bg-gray-100"
                         onClick={() => updateCartItemQuantity(item.productId, item.variantId, item.quantity + 1)}
+                        disabled={item.quantity >= item.variant.stock}
                       >
                         +
                       </button>
                     </div>
-                    
-                    <button
-                      onClick={() => removeFromCart(item.productId, item.variantId)}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      Remove
-                    </button>
                   </div>
                 </div>
               </div>

@@ -54,14 +54,14 @@ export default function ProductPage({ params }) {
     }
   };
 
-  const handleQuantityChange = (delta) => {
+  const handleQuantityChange = async (delta) => {
     if (!product || !selectedVariant) return;
     
     const newQuantity = quantity + delta;
     if (newQuantity <= 0) {
-      removeFromCart(product.id, selectedVariant.id);
-    } else {
-      updateCartItemQuantity(product.id, selectedVariant.id, newQuantity);
+      await removeFromCart(product.id, selectedVariant.id);
+    } else if (newQuantity <= selectedVariant.stock) { // Changed from stockQuantity to stock
+      await updateCartItemQuantity(product.id, selectedVariant.id, newQuantity);
     }
   };
 
@@ -114,7 +114,10 @@ export default function ProductPage({ params }) {
                   priority
                 />
                 <button
-                  onClick={() => toggleWishlist(product)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleWishlist(product.id);
+                  }}
                   className="absolute top-4 right-4 p-1 rounded-full transition bg-indigo-100/50 hover:bg-indigo-100/80"
                 >
                   {isInWishlist(product.id) ? (

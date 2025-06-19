@@ -91,6 +91,15 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between mt-1">
           <span className="font-bold text-indigo-600">${product.variants[0]?.price || 'N/A'}</span>
           <div className="flex items-center">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleWishlist(product.id);
+              }}
+              className="p-1 hover:text-indigo-600 transition-colors"
+            >
+              {isInWishlist(product.id) ? <HeartSolidIcon className="w-5 h-5 text-indigo-500" /> : <HeartIcon className="w-5 h-5" />}
+            </button>
             <span className="text-yellow-400">★</span>
             <span className="text-sm ml-1">{product.averageRating.toFixed(1)}</span>
           </div>
@@ -114,7 +123,10 @@ export default function DashboardPage() {
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
         <button
-          onClick={() => toggleWishlist(product)}
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleWishlist(product.id);
+          }}
           className="absolute top-4 right-4 p-1 rounded-full transition bg-indigo-100/50 hover:bg-indigo-100/80"
         >
           {isInWishlist(product.id) ? (
@@ -143,7 +155,7 @@ export default function DashboardPage() {
             ${product.variants[0]?.price || 'N/A'}
           </span>
         </div>
-        <button 
+        <button
         className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2"
         onClick={() => router.push(`/user/product/${product.id}`)}>
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

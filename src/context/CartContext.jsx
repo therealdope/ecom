@@ -8,6 +8,31 @@ export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);
   const [wishlistItems, setWishlistItems] = useState([]);
 
+  const isInWishlist = (productId) => {
+    return wishlistItems.some(item => item.productId === productId);
+  };
+
+  const toggleWishlist = async (productId) => {
+    if (!session?.user?.id) return;
+
+    try {
+      const method = isInWishlist(productId) ? 'DELETE' : 'POST';
+      const response = await fetch(`/api/user/wishlist/${productId}`, {
+        method,
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update wishlist');
+      }
+
+      const data = await response.json();
+      setWishlistItems(data);
+    } catch (error) {
+      console.error('Error updating wishlist:', error);
+    }
+};
+
   // Fetch cart and wishlist items when user logs in
   useEffect(() => {
     const fetchUserData = async () => {
@@ -54,9 +79,12 @@ export function CartProvider({ children }) {
         })
       });
 
+      const data = await response.json();
+      
       if (response.ok) {
-        const updatedCart = await response.json();
-        setCartItems(updatedCart);
+        setCartItems(data);
+      } else {
+        console.error('Failed to add to cart:', data.error);
       }
     } catch (error) {
       console.error('Error adding to cart:', error);
@@ -72,9 +100,12 @@ export function CartProvider({ children }) {
         method: 'DELETE'
       });
 
+      const data = await response.json();
+      
       if (response.ok) {
-        const updatedCart = await response.json();
-        setCartItems(updatedCart);
+        setCartItems(data);
+      } else {
+        console.error('Failed to remove from cart:', data.error);
       }
     } catch (error) {
       console.error('Error removing from cart:', error);
@@ -97,59 +128,56 @@ export function CartProvider({ children }) {
         body: JSON.stringify({ quantity: newQuantity })
       });
 
+      const data = await response.json();
+      
       if (response.ok) {
-        const updatedCart = await response.json();
-        setCartItems(updatedCart);
+        setCartItems(data);
+      } else {
+        console.error('Failed to update cart:', data.error);
       }
     } catch (error) {
       console.error('Error updating cart:', error);
     }
   };
 
-  // Toggle wishlist with database integration
-  const toggleWishlist = async (product) => {
-    if (!session?.user?.id) return;
 
-    try {
-      const response = await fetch('/api/user/wishlist', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId: product.id })
-      });
-
-      if (response.ok) {
-        const updatedWishlist = await response.json();
-        setWishlistItems(updatedWishlist);
-      }
-    } catch (error) {
-      console.error('Error updating wishlist:', error);
-    }
-  };
-
-  // Check if product is in wishlist
-  const isInWishlist = (productId) => {
-    return wishlistItems.some(item => item.productId === productId);
-  };
-
-  // Get cart total
   const getCartTotal = () => {
-    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    return cartItems.reduce((total, item) => {
+      return total + (item.variant.price * item.quantity);
+    }, 0);
   };
 
   return (
     <CartContext.Provider value={{
       cartItems,
       wishlistItems,
+      setCartItems,
+      setWishlistItems,
       addToCart,
       removeFromCart,
       updateCartItemQuantity,
       toggleWishlist,
       isInWishlist,
-      getCartTotal
+      getCartTotal // Add this
     }}>
       {children}
     </CartContext.Provider>
   );
 }
 
-export const useCart = () => useContext(CartContext);
+export function useCart() {
+  const context = useContext(CartContext);
+  if (!context) {
+    throw new Error('useCart must be used within a CartProvider');
+  }
+  return {
+    cartItems: context.cartItems,
+    wishlistItems: context.wishlistItems,
+    addToCart: context.addToCart,
+    removeFromCart: context.removeFromCart,
+    updateCartItemQuantity: context.updateCartItemQuantity,
+    toggleWishlist: context.toggleWishlist,
+    isInWishlist: context.isInWishlist,
+    getCartTotal: context.getCartTotal
+  };
+}
