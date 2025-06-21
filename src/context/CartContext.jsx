@@ -147,6 +147,23 @@ export function CartProvider({ children }) {
     }, 0);
   };
 
+  const clearCart = async () => {
+  try {
+    const response = await fetch('/api/user/cart/clear', {
+      method: 'DELETE'
+    });
+
+    if (response.ok) {
+      setCartItems([]);
+    } else {
+      console.error('Failed to clear cart');
+    }
+  } catch (error) {
+    console.error('Error clearing cart:', error);
+  }
+};
+
+
   return (
     <CartContext.Provider value={{
       cartItems,
@@ -158,7 +175,8 @@ export function CartProvider({ children }) {
       updateCartItemQuantity,
       toggleWishlist,
       isInWishlist,
-      getCartTotal // Add this
+      getCartTotal,
+      clearCart
     }}>
       {children}
     </CartContext.Provider>
@@ -178,6 +196,8 @@ export function useCart() {
     updateCartItemQuantity: context.updateCartItemQuantity,
     toggleWishlist: context.toggleWishlist,
     isInWishlist: context.isInWishlist,
-    getCartTotal: context.getCartTotal
+    getCartTotal: context.getCartTotal,
+    clearCart: context.clearCart
+
   };
 }

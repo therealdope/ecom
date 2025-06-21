@@ -1,0 +1,93 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { StarIcon } from '@heroicons/react/24/solid';
+import VendorLayout from '@/components/vendor/layout/VendorLayout';
+
+
+export default function VendorReviewsPage() {
+  const [view, setView] = useState('vendor'); // 'vendor' or 'product'
+  const [reviews, setReviews] = useState([]);
+
+  useEffect(() => {
+    fetch(`/api/vendor/reviews?type=${view}`)
+      .then(res => res.json())
+      .then(setReviews);
+  }, [view]);
+
+  return (
+    <VendorLayout>
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-semibold">
+          {view === 'vendor' ? 'Vendor Reviews' : 'Product Reviews'}
+        </h2>
+        <div className="space-x-2">
+          <button
+            onClick={() => setView('vendor')}
+            className={`px-4 py-2 rounded-md ${view === 'vendor' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+          >
+            Vendor Reviews
+          </button>
+          <button
+            onClick={() => setView('product')}
+            className={`px-4 py-2 rounded-md ${view === 'product' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+          >
+            Product Reviews
+          </button>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="w-full bg-white shadow-md rounded-xl overflow-hidden">
+          <thead className="bg-indigo-100">
+            <tr>
+              <th className="px-4 py-3 text-left">Customer</th>
+              {view === 'product' && <th className="px-4 py-3 text-left">Product</th>}
+              <th className="px-4 py-3 text-left">Rating</th>
+              <th className="px-4 py-3 text-left">Comment</th>
+              <th className="px-4 py-3 text-left">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {reviews.map((review, idx) => (
+              <tr key={idx} className="border-b hover:bg-indigo-50">
+                <td className="px-4 py-3 flex items-center gap-3">
+                  <img
+                    src={review.user?.profile?.avatar || '/default-avatar.png'}
+                    alt="avatar"
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                  <span>{review.user?.name}</span>
+                </td>
+                {view === 'product' && (
+                  <td className="px-4 py-3">{review.product?.name || '—'}</td>
+                )}
+                <td className="px-4 py-3 flex items-center gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <StarIcon
+                      key={i}
+                      className={`h-5 w-5 ${i < review.rating ? 'text-yellow-400' : 'text-gray-300'}`}
+                    />
+                  ))}
+                </td>
+                <td className="px-4 py-3">{review.comment}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">
+                  {new Date(review.createdAt).toLocaleDateString()}
+                </td>
+              </tr>
+            ))}
+            {reviews.length === 0 && (
+              <tr>
+                <td colSpan={view === 'product' ? 5 : 4} className="text-center py-6 text-gray-500">
+                  No reviews found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    </VendorLayout>
+  );
+}

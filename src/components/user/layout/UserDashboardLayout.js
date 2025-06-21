@@ -19,6 +19,7 @@ import {
   CubeIcon,
   ShoppingBagIcon,
   XMarkIcon,
+  BuildingStorefrontIcon,
 } from '@heroicons/react/24/outline';
 import { useCart } from '@/context/CartContext';
 
@@ -223,6 +224,15 @@ export default function UserDashboardLayout({ children }) {
                         onClick={() => setProfileMenuOpen(false)}
                       >
                         <BellIcon className="h-4 w-4" /> Notifications
+                      </button>
+                    </Link>
+                    <Link href="/user/vendors">
+                      <button
+                        className="flex w-full items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm"
+                        role="menuitem"
+                        onClick={() => setProfileMenuOpen(false)}
+                      >
+                        <BuildingStorefrontIcon className="h-4 w-4" /> Vendors
                       </button>
                     </Link>
                     <Link href="/user/settings">

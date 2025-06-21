@@ -11,7 +11,7 @@ import RazorpayForm from '@/components/user/checkout/RazorpayForm';
 import PayOnDeliveryForm from '@/components/user/checkout/PayOnDeliveryForm';
 
 const CheckoutPage = () => {
-  const { cartItems, getCartTotal } = useCart();
+  const { cartItems, getCartTotal, clearCart} = useCart();
   const { data: session } = useSession();
   const router = useRouter();
   const [step, setStep] = useState(1);
@@ -32,28 +32,33 @@ const CheckoutPage = () => {
     setStep(3);
   };
 
-  const handlePlaceCodOrder = async () => {
-    try {
-      const res = await fetch('/api/user/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          items: cartItems,
-          address: checkoutData.address,
-          promoCode: checkoutData.promoCode,
-          giftCard: checkoutData.giftCard,
-          total: getCartTotal(),
-          paymentMethod: 'COD',
-        }),
-      });
 
-      const { orderId } = await res.json();
-      router.push(`/order/confirmation/${orderId}`);
-    } catch (err) {
-      console.error('Order placement failed:', err);
-      alert('Something went wrong while placing the order.');
-    }
-  };
+  const handlePlaceCodOrder = async () => {
+  try {
+    const res = await fetch('/api/user/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        items: cartItems,
+        address: checkoutData.address,
+        promoCode: checkoutData.promoCode,
+        giftCard: checkoutData.giftCard,
+        total: getCartTotal(),
+        paymentMethod: 'COD',
+      }),
+    });
+
+    const { orderId } = await res.json();
+
+    await clearCart();
+
+    router.push(`/order/confirmation/${orderId}`);
+  } catch (err) {
+    console.error('Order placement failed:', err);
+    alert('Something went wrong while placing the order.');
+  }
+};
+
 
   const renderStepIndicator = () => {
     const steps = ['Address', 'Promo', 'Summary', 'Payment'];

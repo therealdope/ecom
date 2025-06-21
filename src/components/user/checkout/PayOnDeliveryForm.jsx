@@ -1,24 +1,37 @@
 'use client';
 
+import { useCart } from '@/context/CartContext';
+import { useRouter } from 'next/navigation';
+
 const PayOnDeliveryForm = ({ checkoutData, onBack }) => {
+  const { clearCart } = useCart();
+  const router = useRouter();
+
   const handleConfirm = async () => {
-  console.log('Sending checkoutData:', checkoutData);
+    try {
+      const res = await fetch('/api/user/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...checkoutData,
+          paymentMethod: 'cod',
+        }),
+      });
 
-  const res = await fetch('/api/user/orders', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      ...checkoutData,
-      paymentMethod: 'cod',
-    }),
-  });
+      if (!res.ok) {
+        alert('Failed to place order. Try again.');
+        return;
+      }
 
-  const { orderId } = await res.json();
-  window.location.href = `/user/order/confirmation/${orderId}`;
-};
-
+      const { orderId } = await res.json();
+      await clearCart();
+      router.push(`/user/order/confirmation/${orderId}`);
+    } catch (err) {
+      alert('Something went wrong while placing your order.');
+    }
+  };
 
   return (
     <div className="space-y-6">

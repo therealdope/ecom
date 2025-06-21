@@ -196,6 +196,7 @@ model Order {
   promoCode     String?
   giftCard      String?
   paymentMethod PaymentMethod
+  orderOtp      OrderOtp?  
 }
 
 model OrderItem {
@@ -209,6 +210,17 @@ model OrderItem {
   product   Product        @relation(fields: [productId], references: [id])
   variant   ProductVariant @relation(fields: [variantId], references: [id])
 }
+
+model OrderOtp {
+  id        String   @id @default(uuid())
+  orderId   String   @unique
+  otp       String
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  order     Order    @relation(fields: [orderId], references: [id])
+}
+
 
 model Payment {
   id        String        @id @default(uuid())
