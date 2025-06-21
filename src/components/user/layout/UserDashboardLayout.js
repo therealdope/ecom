@@ -198,7 +198,7 @@ export default function UserDashboardLayout({ children }) {
                     aria-orientation="vertical"
                     aria-labelledby="user-menu"
                   >
-                    <Link href="/profile">
+                    <Link href="/user/profile">
                       <button
                         className="flex w-full items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm"
                         role="menuitem"
@@ -207,7 +207,7 @@ export default function UserDashboardLayout({ children }) {
                         <UserIcon className="h-4 w-4" /> Profile
                       </button>
                     </Link>
-                    <Link href="/messages">
+                    <Link href="/user/messages">
                       <button
                         className="flex w-full items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm"
                         role="menuitem"
@@ -216,7 +216,7 @@ export default function UserDashboardLayout({ children }) {
                         <EnvelopeIcon className="h-4 w-4" /> Messages
                       </button>
                     </Link>
-                    <Link href="/notifications">
+                    <Link href="/user/notifications">
                       <button
                         className="flex w-full items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm"
                         role="menuitem"
@@ -225,7 +225,7 @@ export default function UserDashboardLayout({ children }) {
                         <BellIcon className="h-4 w-4" /> Notifications
                       </button>
                     </Link>
-                    <Link href="/settings">
+                    <Link href="/user/settings">
                       <button
                         className="flex w-full items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm"
                         role="menuitem"
@@ -235,7 +235,7 @@ export default function UserDashboardLayout({ children }) {
                       </button>
                     </Link>
                     <hr className="my-1" />
-                    <Link href="/orders">
+                    <Link href="/user/orders">
                       <button
                         className="flex w-full items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm"
                         role="menuitem"
@@ -244,7 +244,7 @@ export default function UserDashboardLayout({ children }) {
                         <CubeIcon className="h-4 w-4" /> Orders
                       </button>
                     </Link>
-                    <Link href="/payments">
+                    <Link href="/user/payments">
                       <button
                         className="flex w-full items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm"
                         role="menuitem"

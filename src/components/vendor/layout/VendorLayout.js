@@ -9,6 +9,8 @@ import { useShop } from '@/context/ShopContext';
 // Updated Icons import for v1
 import { 
   HomeIcon, 
+  ArrowRightOnRectangleIcon,
+  UserCircleIcon,
   ShoppingBagIcon, 
   ShoppingCartIcon, 
   CreditCardIcon, 
@@ -84,6 +86,7 @@ export default function DashboardLayout({ children }) {
     { name: 'Overview', href: '/vendor/dashboard', icon: HomeIcon },
     { name: 'Products', href: '/vendor/products', icon: ShoppingBagIcon },
     { name: 'Orders', href: '/vendor/orders', icon: ShoppingCartIcon },
+    { name: 'Messages', href: '/vendor/messages', icon: ChatBubbleLeftRightIcon },
     { name: 'Payments', href: '/vendor/payments', icon: CreditCardIcon },
     { name: 'Customers', href: '/vendor/customers', icon: UsersIcon },
     { name: 'Shop Settings', href: '/vendor/settings', icon: Cog6ToothIcon },
@@ -218,12 +221,16 @@ export default function DashboardLayout({ children }) {
             
             {/* Right section: Notification, Messages, Profile */}
             <div className="flex items-center">
-              <button className="p-2 rounded-full text-gray-400 hover:text-gray-500 hover:bg-gray-100">
-                <BellIcon className="h-6 w-6" aria-hidden="true" />
-              </button>
-              <button className="p-2 rounded-full text-gray-400 hover:text-gray-500 hover:bg-gray-100">
-                <ChatBubbleLeftRightIcon className="h-6 w-6" aria-hidden="true" />
-              </button>
+              <Link href="/vendor/notifications">
+                <button className="p-2 rounded-full text-gray-400 hover:text-gray-500 hover:bg-gray-100">
+                  <BellIcon className="h-6 w-6" aria-hidden="true" />
+                </button>
+              </Link>
+              <Link href="/vendor/messages">
+                <button className="p-2 rounded-full text-gray-400 hover:text-gray-500 hover:bg-gray-100">
+                  <ChatBubbleLeftRightIcon className="h-6 w-6" aria-hidden="true" />
+                </button>
+              </Link>
               
               {/* Profile dropdown */}
               <div className="ml-3 relative" ref={profileDropdownRef}>
@@ -244,23 +251,26 @@ export default function DashboardLayout({ children }) {
                     <div className="py-1" role="menu" aria-orientation="vertical">
                       <Link 
                         href="/vendor/profile" 
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" 
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" 
                         role="menuitem"
                       >
+                        <UserCircleIcon className="w-5 h-5 mr-2 text-gray-500" />
                         View Profile
                       </Link>
                       <Link 
                         href="/vendor/settings" 
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" 
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" 
                         role="menuitem"
                       >
+                        <Cog6ToothIcon className="w-5 h-5 mr-2 text-gray-500" />
                         Settings
                       </Link>
                       <button 
-                        onClick={() => signOut({ callbackUrl: '/' })} // Fixed from OnClick to onClick
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-red-600" 
+                        onClick={() => signOut({ callbackUrl: '/' })} 
+                        className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-red-600" 
                         role="menuitem"
                       >
+                        <ArrowRightOnRectangleIcon className="w-5 h-5 mr-2"/>
                         Logout
                       </button>
                     </div>

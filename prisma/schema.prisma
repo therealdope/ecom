@@ -27,55 +27,63 @@ enum PaymentStatus {
   REFUNDED
 }
 
+enum PaymentMethod {
+  COD
+  RAZORPAY
+}
+
 model User {
-  id            String          @id @default(uuid())
+  id            String         @id @default(uuid())
   name          String
-  email         String          @unique
+  email         String         @unique
   password      String
-  role          Role            @default(USER)
+  role          Role           @default(USER)
   cartItems     CartItem[]
   wishlist      WishlistItem[]
   orders        Order[]
   reviews       Review[]
   payments      Payment[]
   profile       UserProfile?
-  vendorReviews VendorReview[]  // Add this field to fix the relation
-  createdAt     DateTime        @default(now())
+  vendorReviews VendorReview[]
+  createdAt     DateTime       @default(now())
+  chats         Chat[]
 }
 
 model Vendor {
-  id          String        @id @default(uuid())
-  name        String
-  email       String        @unique
-  password    String
-  products    Product[]
-  orders      Order[]       @relation("VendorOrders")
-  payments    Payment[]
-  profile     VendorProfile?
-  shops       Shop[]        // Add this field to complete the relation
-  createdAt   DateTime      @default(now())
+  id        String         @id @default(uuid())
+  name      String
+  email     String         @unique
+  password  String
+  products  Product[]
+  orders    Order[]        @relation("VendorOrders")
+  payments  Payment[]
+  profile   VendorProfile?
+  shops     Shop[]
+  createdAt DateTime       @default(now())
+  chats     Chat[]
 }
 
 model UserProfile {
-  id          String      @id @default(uuid())
-  userId      String      @unique
+  id          String    @id @default(uuid())
+  userId      String    @unique
   phoneNumber String?
   avatar      String?
   addresses   Address[]
-  user        User        @relation(fields: [userId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
 }
 
 model VendorProfile {
-  id              String          @id @default(uuid())
-  vendorId        String          @unique
+  id              String         @id @default(uuid())
+  vendorId        String         @unique
+  phoneNumber     String?
   storeName       String
   description     String?
   logo            String?
   businessAddress String
   taxId           String?
   bankDetails     String?
-  rating          Float           @default(0)
-  vendor          Vendor          @relation(fields: [vendorId], references: [id])
+  rating          Float          @default(0)
+  vendor          Vendor         @relation(fields: [vendorId], references: [id])
   reviews         VendorReview[]
 }
 
@@ -92,8 +100,8 @@ model Address {
 }
 
 model ProductCategory {
-  id          String     @id @default(uuid())
-  name        String     @unique
+  id          String    @id @default(uuid())
+  name        String    @unique
   description String?
   products    Product[]
 }
@@ -104,7 +112,7 @@ model Shop {
   description String
   address     String
   phone       String
-  vendorId    String    
+  vendorId    String
   vendor      Vendor    @relation(fields: [vendorId], references: [id])
   products    Product[]
   createdAt   DateTime  @default(now())
@@ -113,41 +121,37 @@ model Shop {
   @@index([vendorId])
 }
 
-// Update the Product model to include shop
 model Product {
-  id          String           @id @default(uuid())
-  name        String
-  description String
-  imageUrl    String
-  vendorId    String
-  vendor      Vendor           @relation(fields: [vendorId], references: [id])
-  shopId      String
-  shop        Shop             @relation(fields: [shopId], references: [id])
-  categoryId  String
-  category    ProductCategory  @relation(fields: [categoryId], references: [id])
-  variants    ProductVariant[]
-  reviews     Review[]
-  cartItems   CartItem[]
+  id            String           @id @default(uuid())
+  name          String
+  description   String
+  imageUrl      String
+  vendorId      String
+  vendor        Vendor           @relation(fields: [vendorId], references: [id])
+  shopId        String
+  shop          Shop             @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  categoryId    String
+  category      ProductCategory  @relation(fields: [categoryId], references: [id])
+  variants      ProductVariant[]
+  reviews       Review[]
+  cartItems     CartItem[]
   wishlistItems WishlistItem[]
-  orderItems  OrderItem[]
-  createdAt   DateTime         @default(now())
+  orderItems    OrderItem[]
+  createdAt     DateTime         @default(now())
 }
 
 model ProductVariant {
-  id        String        @id @default(uuid())
-  productId String
-  size      String?
-  color     String?
-  sku       String
-  price     Float
-  stock     Int
-  product   Product       @relation(fields: [productId], references: [id])
-  cartItems CartItem[]
+  id         String      @id @default(uuid())
+  productId  String
+  size       String?
+  color      String?
+  sku        String
+  price      Float
+  stock      Int
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cartItems  CartItem[]
   orderItems OrderItem[]
 }
-
-
-// Add these models to your existing schema
 
 model CartItem {
   id        String   @id @default(uuid())
@@ -158,13 +162,12 @@ model CartItem {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user    User          @relation(fields: [userId], references: [id])
-  product Product       @relation(fields: [productId], references: [id])
+  user    User           @relation(fields: [userId], references: [id])
+  product Product        @relation(fields: [productId], references: [id])
   variant ProductVariant @relation(fields: [variantId], references: [id])
 
   @@unique([userId, productId, variantId])
 }
-
 
 model WishlistItem {
   id        String   @id @default(uuid())
@@ -178,58 +181,47 @@ model WishlistItem {
   @@unique([userId, productId])
 }
 
-model StripePayment {
-  id            String        @id @default(uuid())
-  orderId       String        @unique
-  paymentId     String        @unique  // Stripe payment intent ID
-  amount        Float
-  currency      String        @default("usd")
-  status        PaymentStatus @default(PENDING)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  order         Order         @relation(fields: [orderId], references: [id])
-}
-
-// Update Order model to include stripe payment
 model Order {
-  id          String       @id @default(uuid())
-  userId      String
-  vendorId    String
-  total       Float
-  status      OrderStatus
-  address     String
-  createdAt   DateTime     @default(now())
-  orderItems  OrderItem[]
-  payment     Payment[]    // Changed to one-to-many relation
-  user        User         @relation(fields: [userId], references: [id])
-  vendor      Vendor       @relation("VendorOrders", fields: [vendorId], references: [id])
+  id            String         @id @default(uuid())
+  userId        String
+  vendorId      String
+  total         Float
+  status        OrderStatus
+  address       Json
+  createdAt     DateTime       @default(now())
+  orderItems    OrderItem[]
+  payment       Payment[]
+  user          User           @relation(fields: [userId], references: [id])
+  vendor        Vendor         @relation("VendorOrders", fields: [vendorId], references: [id])
+  promoCode     String?
+  giftCard      String?
+  paymentMethod PaymentMethod
 }
 
 model OrderItem {
-  id         String         @id @default(uuid())
-  orderId    String
-  productId  String
-  variantId  String         // <-- NEW FIELD
-  quantity   Int
-  price      Float
-  order      Order          @relation(fields: [orderId], references: [id])
-  product    Product        @relation(fields: [productId], references: [id])
-  variant    ProductVariant @relation(fields: [variantId], references: [id])
+  id        String         @id @default(uuid())
+  orderId   String
+  productId String
+  variantId String
+  quantity  Int
+  price     Float
+  order     Order          @relation(fields: [orderId], references: [id])
+  product   Product        @relation(fields: [productId], references: [id])
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
 }
 
-
 model Payment {
-  id          String        @id @default(uuid())
-  orderId     String
-  userId      String
-  vendorId    String
-  amount      Float
-  status      PaymentStatus @default(PENDING)
-  method      String
-  createdAt   DateTime      @default(now())
-  order       Order         @relation(fields: [orderId], references: [id])
-  user        User          @relation(fields: [userId], references: [id])
-  vendor      Vendor        @relation(fields: [vendorId], references: [id])
+  id        String        @id @default(uuid())
+  orderId   String
+  userId    String
+  vendorId  String
+  amount    Float
+  status    PaymentStatus @default(PENDING)
+  method    String
+  createdAt DateTime      @default(now())
+  order     Order         @relation(fields: [orderId], references: [id])
+  user      User          @relation(fields: [userId], references: [id])
+  vendor    Vendor        @relation(fields: [vendorId], references: [id])
 }
 
 model Review {
@@ -244,51 +236,59 @@ model Review {
 }
 
 model VendorReview {
-  id              String   @id @default(uuid())
+  id              String        @id @default(uuid())
   vendorProfileId String
   userId          String
   rating          Int
   comment         String
-  createdAt       DateTime @default(now())
+  createdAt       DateTime      @default(now())
   vendorProfile   VendorProfile @relation(fields: [vendorProfileId], references: [id])
   user            User          @relation(fields: [userId], references: [id])
 }
 
-
 model PromoCode {
-  id          String   @id @default(uuid())
-  code        String   @unique
-  discount    Float
-  isPercent   Boolean  @default(true)
-  validFrom   DateTime
-  validUntil  DateTime
-  maxUses     Int?
-  usedCount   Int      @default(0)
-  createdAt   DateTime @default(now())
+  id         String   @id @default(uuid())
+  code       String   @unique
+  discount   Float
+  isPercent  Boolean  @default(true)
+  validFrom  DateTime
+  validUntil DateTime
+  maxUses    Int?
+  usedCount  Int      @default(0)
+  createdAt  DateTime @default(now())
 }
 
 model GiftCard {
-  id          String   @id @default(uuid())
-  code        String   @unique
-  balance     Float
-  isUsed      Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  expiresAt   DateTime?
+  id        String    @id @default(uuid())
+  code      String    @unique
+  balance   Float
+  isUsed    Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  expiresAt DateTime?
 }
 
-// Update Order model
-model Order {
-  id          String       @id @default(uuid())
-  userId      String
-  vendorId    String
-  total       Float
-  status      OrderStatus
-  address     String
-  createdAt   DateTime     @default(now())
-  orderItems  OrderItem[]
-  payment     Payment[]    // Changed to one-to-many relation
-  user        User         @relation(fields: [userId], references: [id])
-  vendor      Vendor       @relation("VendorOrders", fields: [vendorId], references: [id])
-  promoCode   String?
-  giftCard    String?
+model Chat {
+  id        String    @id @default(uuid())
+  userId    String
+  vendorId  String
+  user      User      @relation(fields: [userId], references: [id])
+  vendor    Vendor    @relation(fields: [vendorId], references: [id])
+  messages  Message[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([userId, vendorId])
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  chatId    String
+  content   String
+  senderId  String
+  isVendor  Boolean
+  chat      Chat     @relation(fields: [chatId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([chatId])
 }

@@ -1,0 +1,46 @@
+'use client';
+
+const PayOnDeliveryForm = ({ checkoutData, onBack }) => {
+  const handleConfirm = async () => {
+  console.log('Sending checkoutData:', checkoutData);
+
+  const res = await fetch('/api/user/orders', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      ...checkoutData,
+      paymentMethod: 'cod',
+    }),
+  });
+
+  const { orderId } = await res.json();
+  window.location.href = `/user/order/confirmation/${orderId}`;
+};
+
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-semibold text-indigo-700">Pay on Delivery</h2>
+      <p className="text-gray-600">You’ll pay when the order is delivered to your address.</p>
+
+      <div className="flex flex-col md:flex-row justify-between gap-4 pt-4">
+        <button
+          onClick={onBack}
+          className="w-full md:w-1/2 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg"
+        >
+          ← Back
+        </button>
+        <button
+          onClick={handleConfirm}
+          className="w-full md:w-1/2 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg"
+        >
+          Confirm Order
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default PayOnDeliveryForm;

@@ -21,7 +21,7 @@ export default function CartPage() {
             className="mb-6 opacity-50 rounded-full"
           />
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">Your cart is empty</h2>
-          <p className="text-gray-600 mb-8">Looks like you haven't added anything to your cart yet.</p>
+          <p className="text-gray-600 mb-8">Looks like you haven&apos;t added anything to your cart yet.</p>
           <button
             onClick={() => router.push('/user/dashboard')}
             className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors"

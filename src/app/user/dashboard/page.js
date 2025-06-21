@@ -190,7 +190,7 @@ export default function DashboardPage() {
                 <img
                   src={`/banner${i + 1}.jpg`}
                   alt={`Slide ${i + 1}`}
-                  className="w-full h-112 object-center"
+                  className="w-full h-118 object-center"
                 />
               </div>
             ))}

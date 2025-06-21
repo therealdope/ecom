@@ -18,7 +18,7 @@ export default function AddShopForm() {
   });
 
   const handleClose = () => {
-    router.push('/vendor/dashboard');
+    router.back();
   }
 
   const handleSubmit = async (e) => {
