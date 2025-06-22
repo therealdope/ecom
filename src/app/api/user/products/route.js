@@ -8,8 +8,8 @@ export async function GET() {
             include: {
                 category: true,
                 variants: true,
+                shop: true, // Include shop information
                 reviews: true,
-                shop: true // Include shop information
             },
             orderBy: {
                 createdAt: 'desc'

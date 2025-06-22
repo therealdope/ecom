@@ -32,6 +32,21 @@ enum PaymentMethod {
   RAZORPAY
 }
 
+enum NotificationType {
+  ORDER_PLACED
+  ORDER_CONFIRMED
+  ORDER_SHIPPED
+  ORDER_DELIVERED
+  ORDER_CANCELLED
+  PAYMENT_SUCCESS
+  PAYMENT_FAILED
+  NEW_MESSAGE
+  NEW_REVIEW
+  PROMO
+  LOW_STOCK_ALERT
+}
+
+
 model User {
   id            String         @id @default(uuid())
   name          String
@@ -47,6 +62,7 @@ model User {
   vendorReviews VendorReview[]
   createdAt     DateTime       @default(now())
   chats         Chat[]
+  userNotifications UserNotification[]
 }
 
 model Vendor {
@@ -61,6 +77,7 @@ model Vendor {
   shops     Shop[]
   createdAt DateTime       @default(now())
   chats     Chat[]
+  vendorNotifications VendorNotification[]
 }
 
 model UserProfile {
@@ -303,4 +320,27 @@ model Message {
   updatedAt DateTime @updatedAt
 
   @@index([chatId])
+}
+
+model UserNotification {
+  id         String           @id @default(uuid())
+  userId     String
+  content    String
+  type       NotificationType
+  read       Boolean          @default(false)
+  createdAt  DateTime         @default(now())
+
+  user       User             @relation(fields: [userId], references: [id])
+}
+
+
+model VendorNotification {
+  id         String   @id @default(uuid())
+  vendorId   String
+  content    String
+  type       NotificationType
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  vendor     Vendor   @relation(fields: [vendorId], references: [id])
 }

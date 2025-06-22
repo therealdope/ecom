@@ -37,42 +37,48 @@ export default function VendorReviewsPage() {
           </button>
         </div>
       </div>
-
-      <div className="overflow-x-auto">
-        <table className="w-full bg-white shadow-md rounded-xl overflow-hidden">
-          <thead className="bg-indigo-100">
-            <tr>
-              <th className="px-4 py-3 text-left">Customer</th>
-              {view === 'product' && <th className="px-4 py-3 text-left">Product</th>}
-              <th className="px-4 py-3 text-left">Rating</th>
-              <th className="px-4 py-3 text-left">Comment</th>
-              <th className="px-4 py-3 text-left">Date</th>
+      
+      <div className="overflow-x-auto bg-white shadow-md rounded-xl">
+        <table className="w-full table-auto">
+          <thead className="bg-indigo-100 text-indigo-900">
+            <tr className="text-left text-sm font-semibold">
+              <th className="px-6 py-4">Customer</th>
+              {view === 'product' && <th className="px-6 py-4">Product</th>}
+              <th className="px-6 py-4">Rating</th>
+              <th className="px-6 py-4">Comment</th>
+              <th className="px-6 py-4">Date</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="text-sm text-gray-800">
             {reviews.map((review, idx) => (
-              <tr key={idx} className="border-b hover:bg-indigo-50">
-                <td className="px-4 py-3 flex items-center gap-3">
+              <tr key={idx} className="border-t hover:bg-indigo-50 transition-colors duration-200">
+                <td className="px-6 py-4 flex items-center gap-3">
                   <img
                     src={review.user?.profile?.avatar || '/default-avatar.png'}
                     alt="avatar"
                     className="w-10 h-10 rounded-full object-cover"
                   />
-                  <span>{review.user?.name}</span>
+                  <span className="font-medium">{review.user?.name}</span>
                 </td>
+
                 {view === 'product' && (
-                  <td className="px-4 py-3">{review.product?.name || '—'}</td>
+                  <td className="px-6 py-4">{review.product?.name || '—'}</td>
                 )}
-                <td className="px-4 py-3 flex items-center gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <StarIcon
-                      key={i}
-                      className={`h-5 w-5 ${i < review.rating ? 'text-yellow-400' : 'text-gray-300'}`}
-                    />
-                  ))}
+
+                <td className="px-6 py-4">
+                  <div className="flex items-center">
+                    {[...Array(5)].map((_, i) => (
+                      <StarIcon
+                        key={i}
+                        className={`h-5 w-5 ${i < review.rating ? 'text-yellow-400' : 'text-gray-300'}`}
+                      />
+                    ))}
+                  </div>
                 </td>
-                <td className="px-4 py-3">{review.comment}</td>
-                <td className="px-4 py-3 text-sm text-gray-600">
+
+                <td className="px-6 py-4 max-w-xl break-words">{review.comment}</td>
+
+                <td className="px-6 py-4 text-gray-500 text-sm">
                   {new Date(review.createdAt).toLocaleDateString()}
                 </td>
               </tr>
@@ -87,6 +93,7 @@ export default function VendorReviewsPage() {
           </tbody>
         </table>
       </div>
+
     </div>
     </VendorLayout>
   );

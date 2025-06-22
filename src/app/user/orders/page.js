@@ -21,6 +21,42 @@ export default function UserOrdersPage() {
   const [filterPayment, setFilterPayment] = useState('ALL');
   const [copiedOrderId, setCopiedOrderId] = useState(false);
   const modalRef = useRef(null);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+const [reviewProductId, setReviewProductId] = useState(null);
+const [reviewProductName, setReviewProductName] = useState('');
+const [reviewRating, setReviewRating] = useState(0);
+const [reviewComment, setReviewComment] = useState('');
+
+const openReviewForm = (id, name) => {
+  setReviewProductId(id);
+  setReviewProductName(name);
+  setShowReviewForm(true);
+};
+
+const submitReview = async () => {
+  const res = await fetch('/api/user/products/review', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      productId: reviewProductId,
+      rating: reviewRating,
+      comment: reviewComment,
+    }),
+  });
+
+  const data = await res.json();
+  if (data.success) {
+    setShowReviewForm(false);
+    setReviewProductId(null);
+    setReviewRating(0);
+    setReviewComment('');
+    alert('Review submitted successfully!');
+  } else {
+    alert(data.error || 'Something went wrong');
+  }
+};
+
+
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -266,29 +302,90 @@ export default function UserOrdersPage() {
                 <strong>Items:</strong>
                 <ul className="mt-2 space-y-3">
                   {selectedOrder.orderItems.map((item) => (
-                    <li key={item.id} className="flex items-start gap-4">
-                      <img
-                        src={item.product.imageUrl}
-                        alt={item.product.name}
-                        className="h-16 w-16 rounded-md object-cover border"
-                      />
-                      <div>
-                        <p className="font-medium text-indigo-800">{item.product.name}</p>
-                        <p className="text-xs text-gray-500">
-                          Size: {item.variant.size || 'N/A'}, Color: {item.variant.color || 'N/A'}
-                        </p>
-                        <p className="text-sm">
-                          Quantity: {item.quantity} × ₹{item.price.toFixed(2)}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
+  <li key={item.id} className="flex items-start gap-4">
+    <img
+      src={item.product.imageUrl}
+      alt={item.product.name}
+      className="h-16 w-16 rounded-md object-cover border"
+    />
+    <div className="flex-1">
+      <p className="font-medium text-indigo-800">{item.product.name}</p>
+      <p className="text-xs text-gray-500">
+        Size: {item.variant.size || 'N/A'}, Color: {item.variant.color || 'N/A'}
+      </p>
+      <p className="text-sm mb-2">
+        Quantity: {item.quantity} × ₹{item.price.toFixed(2)}
+      </p>
+
+      {/* Review Button for Delivered Orders */}
+      {selectedOrder.status === 'DELIVERED' && (
+        <button
+          onClick={() =>
+            openReviewForm(item.product.id, item.product.name)
+          }
+          className="text-indigo-600 text-sm font-medium hover:underline"
+        >
+          Write a Review
+        </button>
+      )}
+    </div>
+  </li>
+))}
+
                 </ul>
               </div>
             </div>
           </div>
         )}
       </div>
+      {showReviewForm && (
+  <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4" onClick={() => setShowReviewForm(false)}>
+    <div className="bg-white p-6 rounded-xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+      <h4 className="text-lg font-semibold mb-4 text-indigo-700">
+        Review: {reviewProductName}
+      </h4>
+
+      <label className="block mb-2 text-sm">Rating</label>
+      <select
+        className="w-full border rounded px-3 py-2 mb-4"
+        value={reviewRating}
+        onChange={(e) => setReviewRating(parseInt(e.target.value))}
+      >
+        <option value={0}>Select Rating</option>
+        {[1, 2, 3, 4, 5].map((n) => (
+          <option key={n} value={n}>
+            {n} Star{n > 1 && 's'}
+          </option>
+        ))}
+      </select>
+
+      <label className="block mb-2 text-sm">Comment</label>
+      <textarea
+        className="w-full border rounded px-3 py-2 mb-4"
+        value={reviewComment}
+        onChange={(e) => setReviewComment(e.target.value)}
+        rows={3}
+        placeholder="Write your feedback..."
+      />
+
+      <div className="flex justify-end gap-2">
+        <button
+          onClick={() => setShowReviewForm(false)}
+          className="text-sm px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={submitReview}
+          className="text-sm px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+        >
+          Submit
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </UserDashboardLayout>
   );
 }

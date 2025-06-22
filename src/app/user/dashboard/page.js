@@ -87,22 +87,10 @@ export default function DashboardPage() {
       <div className="flex-1">
         <h4 className="font-medium truncate">{product.name}</h4>
         <p className="text-sm text-gray-600">{product.category.name}</p>
-        <p className="text-xs text-gray-500">{product.shop.name}</p>
+        <p className="text-xs text-gray-500"><span className="font-bold">sold by: </span>{product.shop.name}</p>
         <div className="flex items-center justify-between mt-1">
-          <span className="font-bold text-indigo-600">${product.variants[0]?.price || 'N/A'}</span>
-          <div className="flex items-center">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleWishlist(product.id);
-              }}
-              className="p-1 hover:text-indigo-600 transition-colors"
-            >
-              {isInWishlist(product.id) ? <HeartSolidIcon className="w-5 h-5 text-indigo-500" /> : <HeartIcon className="w-5 h-5" />}
-            </button>
-            <span className="text-yellow-400">★</span>
-            <span className="text-sm ml-1">{product.averageRating.toFixed(1)}</span>
-          </div>
+          <span className="font-bold text-indigo-600">₹{product.variants[0]?.price || 'N/A'}</span>
+
         </div>
       </div>
     </div>
@@ -152,7 +140,7 @@ export default function DashboardPage() {
             <span className="text-sm text-gray-500 ml-1">({product.reviews.length} reviews)</span>
           </div>
           <span className="font-bold text-lg text-indigo-600">
-            ${product.variants[0]?.price || 'N/A'}
+            ₹{product.variants[0]?.price || 'N/A'}
           </span>
         </div>
         <button
@@ -169,13 +157,14 @@ export default function DashboardPage() {
 
   return (
     <UserDashboardLayout>
-      <div className="p-4 space-y-6">
+      <div className="p-3 space-y-6 mt-12 md:mt-0">
         {/* Top nav buttons */}
         <div className="flex overflow-x-auto gap-4 whitespace-nowrap">
           {categories.map((cat, idx) => (
             <button
               key={idx}
               className="px-4 py-2 bg-indigo-100 text-indigo-800 rounded-full text-sm whitespace-nowrap hover:bg-indigo-200"
+              onClick={() => setSelectedCategory(cat)}
             >
               {cat}
             </button>
@@ -187,33 +176,73 @@ export default function DashboardPage() {
           <div className="swiper-wrapper">
             {[...Array(5)].map((_, i) => (
               <div key={i} className="swiper-slide">
+                {/* Mobile */}
+                <img
+                  src={`/mobile-banner${i + 1}.jpg`}
+                  alt={`Slide ${i + 1}`}
+                  className="block sm:hidden w-full h-112 object-cover"
+                />
+
+                {/* Tablet */}
+                <img
+                  src={`/tablet-banner${i + 1}.jpg`}
+                  alt={`Slide ${i + 1}`}
+                  className="hidden sm:block md:hidden w-full h-118 object-cover"
+                />
+
+                {/* Desktop */}
                 <img
                   src={`/banner${i + 1}.jpg`}
                   alt={`Slide ${i + 1}`}
-                  className="w-full h-118 object-center"
+                  className="hidden md:block w-full h-128 object-center"
                 />
               </div>
             ))}
           </div>
+
+
           <div className="swiper-pagination"></div>
         </div>
 
-        {/* Category buttons with image */}
-        <div className="grid grid-cols-2 gap-4 justify-center">
-          {categoryButtons.map((cat, idx) => (
-            <div key={idx} className="flex flex-col items-center bg-white p-2 rounded-2xl shadow">
-              <img
-                src={cat.image}
-                alt={cat.name}
-                className="w-20 h-19 object-cover p-2"
-              />
-              <span className="mt-2 font-medium text-sm">{cat.name}</span>
-            </div>
-          ))}
-          <div className="flex flex-col col-span-2 mx-auto justify-center items-center bg-indigo-100 mt-2 p-2 rounded-lg shadow hover:bg-indigo-200 transition duration-200">
-            <span className="text-indigo-600 font-semibold">Show All</span>
+        {/* Marquee */}
+        <div className="overflow-hidden whitespace-nowrap bg-indigo-50 py-2 rounded-xl">
+          <div className="inline-block animate-marquee text-indigo-700 font-medium text-sm">
+            Hot Offers Available Now! | New Arrivals Just In | Up to 50% OFF on Sports Gear | Trending Now — Don’t Miss Out!
           </div>
         </div>
+
+        {/* Category buttons with image */}
+        <div className="relative flex items-start">
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-opacity-10 rounded-xl z-0" />
+
+          {/* Grid container */}
+          <div className="relative z-10 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 p-3 flex-grow">
+            {categoryButtons.map((cat, idx) => (
+              <div
+                key={idx}
+                className="flex flex-col items-center bg-white p-4 rounded-2xl shadow-md"
+              >
+                <img
+                  src={cat.image}
+                  alt={cat.name}
+                  className="w-20 h-20 object-cover p-2"
+                />
+                <span className="mt-2 font-medium text-sm text-center">{cat.name}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Rotated Show All button */}
+          <div className="relative z-10 flex items-center justify-center ">
+            <div className="bg-indigo-100 rounded-xl shadow-md hover:bg-indigo-200 transition duration-300 py-5 mt-3 cursor-pointer animate-shine">
+              <span className="text-indigo-600 font-semibold transform rotate-90 origin-bottom-left block ml-10 mb-19">
+                Show All
+              </span>
+            </div>
+          </div>
+        </div>
+
 
         {/* Product Sections */}
         {loading ? (
@@ -251,7 +280,7 @@ export default function DashboardPage() {
             {/* Detailed product cards */}
             <div>
               <h2 className="text-2xl font-bold mb-4">Discover More Products</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {products.all.slice(0, 6).map(renderDetailedProduct)}
               </div>
             </div>

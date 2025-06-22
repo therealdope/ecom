@@ -121,9 +121,6 @@ export default function VendorMessagesPage() {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-
   return (
     <VendorLayout>
       <div className="flex h-screen">

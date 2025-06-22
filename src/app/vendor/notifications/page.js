@@ -1,64 +1,84 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ShoppingBagIcon,
   ChatBubbleLeftRightIcon,
   GiftIcon,
   ClockIcon,
   EnvelopeOpenIcon,
+  CheckCircleIcon,
+  StarIcon,
+  ExclamationTriangleIcon,
+  TruckIcon,
+  XCircleIcon,
+  CurrencyRupeeIcon,
 } from '@heroicons/react/24/outline';
 import VendorDashboardLayout from '@/components/vendor/layout/VendorLayout';
 
-const demoVendorNotifications = [
-  {
-    id: 1,
-    title: 'New Order Received!',
-    message: 'Order #ORD987 has been placed.',
-    icon: ShoppingBagIcon,
-    time: '1 hour ago',
-    read: false,
-  },
-  {
-    id: 2,
-    title: 'New Message from Customer',
-    message: 'Can you confirm product availability?',
-    icon: ChatBubbleLeftRightIcon,
-    time: '3 hours ago',
-    read: false,
-  },
-  {
-    id: 3,
-    title: 'Promo: Feature your shop!',
-    message: 'Upgrade to premium listing and boost visibility.',
-    icon: GiftIcon,
-    time: 'Yesterday',
-    read: true,
-  },
-  {
-    id: 4,
-    title: 'Order Delivered Successfully',
-    message: 'Order #ORD986 has been delivered.',
-    icon: ShoppingBagIcon,
-    time: '2 days ago',
-    read: true,
-  },
-];
+const iconMap = {
+  ORDER_PLACED: ShoppingBagIcon,
+  ORDER_CONFIRMED: CheckCircleIcon,
+  ORDER_SHIPPED: TruckIcon,
+  ORDER_DELIVERED: CheckCircleIcon,
+  ORDER_CANCELLED: XCircleIcon,
+  PAYMENT_SUCCESS: CurrencyRupeeIcon,
+  PAYMENT_FAILED: ExclamationTriangleIcon,
+  NEW_MESSAGE: ChatBubbleLeftRightIcon,
+  NEW_REVIEW: StarIcon,
+  PROMO: GiftIcon,
+  LOW_STOCK_ALERT: ExclamationTriangleIcon,
+};
 
 export default function VendorNotificationsPage() {
-  const [notifications, setNotifications] = useState(demoVendorNotifications);
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const markAsRead = (id) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
+  const fetchNotifications = async () => {
+    try {
+      const res = await fetch('/api/vendor/notifications');
+      const data = await res.json();
+      if (Array.isArray(data)) setNotifications(data);
+      else setNotifications([]);
+    } catch (err) {
+      console.error('Fetch failed:', err);
+      setNotifications([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  const markAsRead = async (id) => {
+    try {
+      await fetch('/api/vendor/notifications', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+      fetchNotifications();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const hasUnread = notifications.some((n) => !n.read);
+  const markAllAsRead = async () => {
+    try {
+      await fetch('/api/vendor/notifications', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ all: true }),
+      });
+      fetchNotifications();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const hasUnread = Array.isArray(notifications) && notifications.some((n) => !n.read);
 
   return (
     <VendorDashboardLayout>
@@ -77,39 +97,46 @@ export default function VendorNotificationsPage() {
         </div>
 
         <div className="space-y-4">
-          {notifications.length === 0 ? (
+          {loading ? (
+            <p className="text-gray-500">Loading notifications...</p>
+          ) : notifications.length === 0 ? (
             <p className="text-gray-500">No notifications yet.</p>
           ) : (
-            notifications.map((notification) => (
-              <div
-                key={notification.id}
-                className={`flex items-start justify-between bg-white rounded-lg p-4 shadow-sm border-l-4 ${
-                  notification.read ? 'border-gray-300' : 'border-indigo-600'
-                } hover:shadow-md transition`}
-              >
-                <div className="flex items-start gap-4">
-                  <notification.icon className="h-6 w-6 text-indigo-600 mt-1" />
-                  <div>
-                    <h3 className="text-md font-semibold text-gray-800">
-                      {notification.title}
-                    </h3>
-                    <p className="text-sm text-gray-600">{notification.message}</p>
-                    <div className="flex items-center text-xs text-gray-400 mt-1 gap-1">
-                      <ClockIcon className="h-4 w-4" />
-                      <span>{notification.time}</span>
+            notifications.map((notification) => {
+              const Icon = iconMap[notification.type] || ClockIcon;
+              const timeAgo = new Date(notification.createdAt).toLocaleString();
+
+              return (
+                <div
+                  key={notification.id}
+                  className={`flex items-start justify-between bg-white rounded-lg p-4 shadow-sm border-l-4 ${
+                    notification.read ? 'border-gray-300' : 'border-indigo-600'
+                  } hover:shadow-md transition`}
+                >
+                  <div className="flex items-start gap-4">
+                    <Icon className="h-6 w-6 text-indigo-600 mt-1" />
+                    <div>
+                      <h3 className="text-md font-semibold text-gray-800">
+                        {notification.type.replace(/_/g, ' ')}
+                      </h3>
+                      <p className="text-sm text-gray-600">{notification.content}</p>
+                      <div className="flex items-center text-xs text-gray-400 mt-1 gap-1">
+                        <ClockIcon className="h-4 w-4" />
+                        <span>{timeAgo}</span>
+                      </div>
                     </div>
                   </div>
+                  {!notification.read && (
+                    <button
+                      onClick={() => markAsRead(notification.id)}
+                      className="text-sm text-indigo-600 hover:underline"
+                    >
+                      Mark as read
+                    </button>
+                  )}
                 </div>
-                {!notification.read && (
-                  <button
-                    onClick={() => markAsRead(notification.id)}
-                    className="text-sm text-indigo-600 hover:underline"
-                  >
-                    Mark as read
-                  </button>
-                )}
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>

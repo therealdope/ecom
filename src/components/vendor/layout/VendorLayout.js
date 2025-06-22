@@ -87,10 +87,9 @@ export default function DashboardLayout({ children }) {
     { name: 'Overview', href: '/vendor/dashboard', icon: HomeIcon },
     { name: 'Products', href: '/vendor/products', icon: ShoppingBagIcon },
     { name: 'Orders', href: '/vendor/orders', icon: ShoppingCartIcon },
-    { name: 'Messages', href: '/vendor/messages', icon: ChatBubbleLeftRightIcon },
     { name: 'Payments', href: '/vendor/payments', icon: CreditCardIcon },
-    { name: 'Customers', href: '/vendor/customers', icon: UsersIcon },
-    { name: 'Shop Settings', href: '/vendor/settings', icon: Cog6ToothIcon },
+    { name: 'Messages', href: '/vendor/messages', icon: ChatBubbleLeftRightIcon },
+    { name: 'Notifications', href: '/vendor/notifications', icon: BellIcon },
   ];
   
   // Close dropdowns when clicking outside
@@ -265,6 +264,14 @@ export default function DashboardLayout({ children }) {
                       >
                         <StarIcon className="w-5 h-5 mr-2 text-gray-500" />
                         Reviews
+                      </Link>
+                      <Link 
+                        href="/vendor/customers" 
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" 
+                        role="menuitem"
+                      >
+                        <UsersIcon className="w-5 h-5 mr-2 text-gray-500" />
+                        Customers
                       </Link>
                       <Link 
                         href="/vendor/settings" 
