@@ -10,7 +10,9 @@ import {
   XMarkIcon,
   ClipboardIcon,
   CheckIcon,
+  StarIcon as StarOutline
 } from '@heroicons/react/24/outline';
+import { StarIcon as StarSolid } from '@heroicons/react/24/solid';
 
 export default function UserOrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -26,6 +28,10 @@ const [reviewProductId, setReviewProductId] = useState(null);
 const [reviewProductName, setReviewProductName] = useState('');
 const [reviewRating, setReviewRating] = useState(0);
 const [reviewComment, setReviewComment] = useState('');
+const [searchOrderId, setSearchOrderId] = useState('');
+const [showFilters, setShowFilters] = useState(false);
+
+
 
 const openReviewForm = (id, name) => {
   setReviewProductId(id);
@@ -89,25 +95,47 @@ const submitReview = async () => {
   };
 
   const filteredOrders = orders.filter((order) => {
-    const matchStatus = filterStatus === 'ALL' || order.status === filterStatus;
-    const matchPayment = filterPayment === 'ALL' || (order.payment?.[0]?.status || 'PENDING') === filterPayment;
-    const matchDate =
-      (!startDate || !endDate) ||
-      isWithinInterval(parseISO(order.createdAt), {
-        start: new Date(startDate),
-        end: new Date(endDate),
-      });
-    return matchStatus && matchPayment && matchDate;
-  });
+  const matchStatus = filterStatus === 'ALL' || order.status === filterStatus;
+  const matchPayment = filterPayment === 'ALL' || (order.payment?.[0]?.status || 'PENDING') === filterPayment;
+  const matchDate =
+    (!startDate || !endDate) ||
+    isWithinInterval(parseISO(order.createdAt), {
+      start: new Date(startDate),
+      end: new Date(endDate),
+    });
+  const matchSearch = order.id.toLowerCase().includes(searchOrderId.toLowerCase());
+  return matchStatus && matchPayment && matchDate && matchSearch;
+});
 
   return (
     <UserDashboardLayout>
       <div className="px-4 py-6 sm:px-6 lg:px-8 relative">
+        <h2 className="text-2xl font-semibold text-indigo-700 mb-4">Your Orders</h2>
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
-          <h2 className="text-2xl font-semibold text-indigo-700">Your Orders</h2>
-
+        <div className="mb-6">
+          <div className="flex justify-between items-center sm:hidden mb-4">
+    <h2 className="text-2xl font-semibold text-indigo-700">Your Orders</h2>
+    <div
+      onClick={() => setShowFilters(!showFilters)}
+      className="text-sm bg-indigo-100 text-indigo-700 px-3 py-1 rounded-lg shadow hover:bg-indigo-200"
+    >
+      {showFilters ? 'Hide Filters' : 'Show Filters'}
+    </div>
+  </div>
+  <div className={`grid gap-4 sm:flex sm:flex-wrap sm:items-end sm:justify-between transition-all duration-300 ${showFilters ? 'block' : 'hidden'} sm:block`}>
           <div className="flex flex-wrap gap-4 items-end">
+            <div className="flex flex-col">
+              <label className="text-sm text-gray-600 mb-1">Id</label>
+              <input
+                type="text"
+                placeholder="Search by Order ID"
+                value={searchOrderId}
+                onChange={(e) => setSearchOrderId(e.target.value)}
+                className="w-full sm:w-80 px-4 py-2 border border-indigo-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-400 text-sm text-indigo-800"
+              />
+            </div>
+
+            
             <div className="flex flex-col">
               <label className="text-sm text-gray-600 mb-1">Status</label>
               <select
@@ -171,6 +199,7 @@ const submitReview = async () => {
             )}
           </div>
         </div>
+  </div>
 
         {/* Order Cards */}
         {filteredOrders.length === 0 ? (
@@ -303,21 +332,23 @@ const submitReview = async () => {
                 <ul className="mt-2 space-y-3">
                   {selectedOrder.orderItems.map((item) => (
   <li key={item.id} className="flex items-start gap-4">
-    <img
-      src={item.product.imageUrl}
-      alt={item.product.name}
-      className="h-16 w-16 rounded-md object-cover border"
-    />
+    <a href={`/user/product/${item.product.id}`} className="block">
+      <img
+        src={item.product.imageUrl}
+        alt={item.product.name}
+        className="h-16 w-16 rounded-md object-cover border"
+      />
+    </a>
     <div className="flex-1">
-      <p className="font-medium text-indigo-800">{item.product.name}</p>
+      <a href={`/user/product/${item.product.id}`} className="font-medium text-indigo-800 hover:underline">
+        {item.product.name}
+      </a>
       <p className="text-xs text-gray-500">
         Size: {item.variant.size || 'N/A'}, Color: {item.variant.color || 'N/A'}
       </p>
       <p className="text-sm mb-2">
         Quantity: {item.quantity} × ₹{item.price.toFixed(2)}
       </p>
-
-      {/* Review Button for Delivered Orders */}
       {selectedOrder.status === 'DELIVERED' && (
         <button
           onClick={() =>
@@ -332,6 +363,7 @@ const submitReview = async () => {
   </li>
 ))}
 
+
                 </ul>
               </div>
             </div>
@@ -345,19 +377,24 @@ const submitReview = async () => {
         Review: {reviewProductName}
       </h4>
 
-      <label className="block mb-2 text-sm">Rating</label>
-      <select
-        className="w-full border rounded px-3 py-2 mb-4"
-        value={reviewRating}
-        onChange={(e) => setReviewRating(parseInt(e.target.value))}
-      >
-        <option value={0}>Select Rating</option>
-        {[1, 2, 3, 4, 5].map((n) => (
-          <option key={n} value={n}>
-            {n} Star{n > 1 && 's'}
-          </option>
-        ))}
-      </select>
+<label className="block mb-2 text-sm text-gray-700">Rating</label>
+<div className="flex items-center gap-1 mb-4">
+  {[1, 2, 3, 4, 5].map((n) => (
+    <button
+      key={n}
+      type="button"
+      onClick={() => setReviewRating(n)}
+      className="w-8 h-8 flex items-center justify-center"
+    >
+      {reviewRating >= n ? (
+        <StarSolid className="h-6 w-6 text-indigo-500" />
+      ) : (
+        <StarOutline className="h-6 w-6 text-gray-400" />
+      )}
+    </button>
+  ))}
+</div>
+
 
       <label className="block mb-2 text-sm">Comment</label>
       <textarea

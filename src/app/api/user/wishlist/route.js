@@ -16,11 +16,15 @@ export async function GET(request) {
             include: {
                 product: {
                     include: {
-                        variants: true
+                        variants: true,
+                        vendor: true,
+                        shop: true,
                     }
                 }
             },
         });
+
+
 
         return NextResponse.json(wishlistItems);
     } catch (error) {
@@ -79,7 +83,7 @@ export async function POST(request) {
             include: {
                 product: {
                     include: {
-                        variants: true
+                        variants: true,
                     }
                 },
             },

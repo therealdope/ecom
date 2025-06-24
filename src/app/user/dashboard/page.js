@@ -157,14 +157,13 @@ export default function DashboardPage() {
 
   return (
     <UserDashboardLayout>
-      <div className="p-3 space-y-6 mt-12 md:mt-0">
+      <div className="p-3 mb-12 space-y-6 mt-12 md:mt-0">
         {/* Top nav buttons */}
         <div className="flex overflow-x-auto gap-4 whitespace-nowrap">
           {categories.map((cat, idx) => (
             <button
               key={idx}
               className="px-4 py-2 bg-indigo-100 text-indigo-800 rounded-full text-sm whitespace-nowrap hover:bg-indigo-200"
-              onClick={() => setSelectedCategory(cat)}
             >
               {cat}
             </button>

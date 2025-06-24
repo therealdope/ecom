@@ -140,25 +140,68 @@ export default function UserProfilePage() {
         {/* Left Sidebar */}
         <aside className="md:w-1/4 w-full bg-indigo-200/30 backdrop-blur-md p-6 rounded-2xl shadow-md space-y-6">
           <div className="flex flex-col items-center">
-            {avatarFile ? (
-              <img src={avatarFile} width={100} height={100} className="rounded-full" alt="Avatar Preview" />
-            ) : (
-              profile.avatar ? (
-                <Image src={profile.avatar} width={100} height={100} className="rounded-full" alt="Avatar" />
-              ) : (
-                <div className="w-24 h-24 bg-indigo-300 rounded-full flex items-center justify-center">
-                  <UserIcon className="w-10 h-10 text-indigo-700" />
-                </div>
-              )
-            )}
-            <input type="file" className="hidden" ref={fileInputRef} onChange={handleAvatarChange} accept="image/*" />
-            <button onClick={() => fileInputRef.current.click()} className="mt-2 text-sm text-indigo-700 hover:underline flex items-center gap-1">
-              <PencilSquareIcon className="w-4 h-4" /> {avatarFile ? 'Preview Avatar' : 'Edit Avatar'}
-            </button>
-            {avatarFile && (
-              <button onClick={saveAvatar} className="mt-2 bg-indigo-600 text-white px-4 py-1 rounded">Upload Avatar</button>
-            )}
-          </div>
+  <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100">
+    {avatarFile ? (
+      <img
+        src={avatarFile}
+        width={96}
+        height={96}
+        className="w-full h-full object-cover"
+        alt="Avatar Preview"
+      />
+    ) : profile.avatar ? (
+      <Image
+        src={profile.avatar}
+        width={96}
+        height={96}
+        className="w-full h-full object-cover"
+        alt="Avatar"
+      />
+    ) : (
+      <div className="w-full h-full flex items-center justify-center bg-indigo-300">
+        <UserIcon className="w-10 h-10 text-indigo-700" />
+      </div>
+    )}
+  </div>
+
+  <input
+    type="file"
+    className="hidden"
+    ref={fileInputRef}
+    onChange={handleAvatarChange}
+    accept="image/*"
+  />
+
+  <div className="mt-2 flex items-center gap-2">
+    <button
+      onClick={() => fileInputRef.current.click()}
+      className="text-sm text-indigo-700 hover:underline flex items-center gap-1"
+    >
+      <PencilSquareIcon className="w-4 h-4" />
+      {avatarFile ? 'Change' : 'Edit Avatar'}
+    </button>
+
+    {avatarFile && (
+      <button
+        onClick={() => setAvatarFile(null)}
+        className="text-sm text-gray-600 hover:underline"
+      >
+        Cancel
+      </button>
+    )}
+  </div>
+
+  {avatarFile && (
+    <button
+      onClick={saveAvatar}
+      className="mt-2 bg-indigo-600 text-white px-4 py-1 rounded"
+    >
+      Upload Avatar
+    </button>
+  )}
+</div>
+
+
 
           {Object.entries(sections).map(([key, { icon, label }]) => (
             <button key={key} onClick={() => setSelectedSection(key)}
@@ -228,7 +271,7 @@ export default function UserProfilePage() {
                   {['street', 'city', 'state', 'country', 'zipCode'].map(f => (
                     <div key={f}>
                       <label className="text-sm capitalize">{f}</label>
-                      <input value={addrForm[f]} onChange={e => setAddrForm(a => ({ ...a, [f]: e.target.value }))} className="mt-1 w-full p-2 rounded-md" />
+                      <input value={addrForm[f]} onChange={e => setAddrForm(a => ({ ...a, [f]: e.target.value }))} className="mt-1 w-full p-2 rounded-md bg-indigo-50" />
                     </div>
                   ))}
                   <div className="flex items-center">

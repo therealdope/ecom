@@ -13,7 +13,7 @@ const AddressForm = ({ onSubmit }) => {
     city: '',
     state: '',
     country: '',
-    zipCode: ''
+    zipCode: '',
   });
 
   useEffect(() => {
@@ -22,12 +22,8 @@ const AddressForm = ({ onSubmit }) => {
         const res = await fetch('/api/user/address');
         const data = await res.json();
         setAddresses(data);
-
-        // Auto-select default address
-        const defaultAddr = data.find(addr => addr.isDefault);
-        if (defaultAddr) {
-          setSelectedAddressId(defaultAddr.id);
-        }
+        const defaultAddr = data.find((addr) => addr.isDefault);
+        if (defaultAddr) setSelectedAddressId(defaultAddr.id);
       } catch (err) {
         console.error('Error fetching addresses:', err);
       }
@@ -41,130 +37,148 @@ const AddressForm = ({ onSubmit }) => {
     setShowNewForm(false);
   };
 
-  const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSaveNewAddress = async () => {
+    const isEmpty = Object.values(newAddress).some((val) => !val.trim());
+    if (isEmpty) {
+      alert('Please fill in all fields.');
+      return;
+    }
 
-  if (selectedAddressId) {
-    const address = addresses.find(a => a.id === selectedAddressId);
-    onSubmit(address);
-    return;
-  }
+    try {
+      const res = await fetch('/api/user/address', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...newAddress }),
+      });
 
-  if (!showNewForm) {
-    alert("Please select an address or add a new one.");
-    return;
-  }
+      const saved = await res.json();
+      setAddresses((prev) => [...prev, saved]);
+      setSelectedAddressId(saved.id);
+      setShowNewForm(false);
+      setNewAddress({ street: '', city: '', state: '', country: '', zipCode: '' });
+    } catch (error) {
+      console.error('Address save failed:', error);
+    }
+  };
 
-  const isEmpty = Object.values(newAddress).some(val => !val.trim());
-  if (isEmpty) {
-    alert("Please fill in all fields for the new address.");
-    return;
-  }
-
-  try {
-    const res = await fetch('/api/user/address', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...newAddress }),
-    });
-
-    const saved = await res.json();
-    onSubmit(saved);
-  } catch (error) {
-    console.error('Address save failed:', error);
-  }
-};
-
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const selected = addresses.find((a) => a.id === selectedAddressId);
+    if (!selected) {
+      alert('Please select or save an address.');
+      return;
+    }
+    onSubmit(selected);
+  };
 
   return (
-      <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl mx-auto">
-        {addresses.length > 0 && (
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Saved Addresses</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {addresses.map((address) => (
-                <div
-                  key={address.id}
-                  className={`border rounded-md p-4 cursor-pointer transition ${
-                    selectedAddressId === address.id
-                      ? 'border-indigo-500 bg-indigo-50'
-                      : 'hover:border-indigo-300'
-                  }`}
-                  onClick={() => handleSelect(address.id)}
-                >
-                  <p className="text-sm">{address.street}</p>
-                  <p className="text-sm">{address.city}, {address.state}</p>
-                  <p className="text-sm">{address.country} - {address.zipCode}</p>
-                  {address.isDefault && <span className="text-xs text-green-600">Default</span>}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6 bg-white border border-gray-200 shadow-sm rounded-lg p-6"
+    >
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-indigo-700">Select Shipping Address</h2>
+        <button
+          type="button"
+          onClick={() => {
+            setSelectedAddressId(null);
+            setShowNewForm((prev) => !prev);
+          }}
+          className="text-sm font-medium text-indigo-600 bg-indigo-100 px-3 py-1 rounded hover:bg-indigo-200 transition"
+        >
+          {showNewForm ? 'Cancel' : 'Add New Address'}
+        </button>
+      </div>
 
-        <div className="text-center">
+      {addresses.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {addresses.map((address) => (
+            <div
+              key={address.id}
+              className={`bg-gray-50 border border-gray-300 rounded p-4 cursor-pointer transition ${
+                selectedAddressId === address.id
+                  ? 'bg-indigo-100 border-indigo-500'
+                  : 'hover:bg-indigo-50'
+              }`}
+              onClick={() => handleSelect(address.id)}
+            >
+              <p className="text-sm text-gray-700">{address.street}</p>
+              <p className="text-sm text-gray-700">
+                {address.city}, {address.state}
+              </p>
+              <p className="text-sm text-gray-700">
+                {address.country} - {address.zipCode}{' '}
+                {address.isDefault && <span className="text-indigo-600 font-semibold">Default</span>}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {showNewForm && (
+        <div>
+          <h3 className="text-lg font-semibold mb-2 text-gray-800">Add New Address</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input
+              type="text"
+              placeholder="Street"
+              value={newAddress.street}
+              onChange={(e) => setNewAddress({ ...newAddress, street: e.target.value })}
+              className="p-3 border border-gray-300 rounded bg-indigo-50"
+            />
+            <input
+              type="text"
+              placeholder="City"
+              value={newAddress.city}
+              onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
+              className="p-3 border border-gray-300 rounded bg-indigo-50"
+            />
+            <input
+              type="text"
+              placeholder="State"
+              value={newAddress.state}
+              onChange={(e) => setNewAddress({ ...newAddress, state: e.target.value })}
+              className="p-3 border border-gray-300 rounded bg-indigo-50"
+            />
+            <input
+              type="text"
+              placeholder="Country"
+              value={newAddress.country}
+              onChange={(e) => setNewAddress({ ...newAddress, country: e.target.value })}
+              className="p-3 border border-gray-300 rounded bg-indigo-50"
+            />
+            <input
+              type="text"
+              placeholder="Zip Code"
+              value={newAddress.zipCode}
+              onChange={(e) => setNewAddress({ ...newAddress, zipCode: e.target.value })}
+              className="p-3 border border-gray-300 rounded bg-indigo-50"
+            />
+          </div>
+
+          <div className="mt-4 text-right">
+            <button
+              type="button"
+              onClick={handleSaveNewAddress}
+              className="text-sm bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition"
+            >
+              Save Address
+            </button>
+          </div>
+        </div>
+      )}
+
+      {selectedAddressId && (
+        <div className="pt-4 text-right mt-4">
           <button
-            type="button"
-            onClick={() => {
-              setSelectedAddressId(null);
-              setShowNewForm(prev => !prev);
-            }}
-            className="text-indigo-600 hover:underline"
+            type="submit"
+            className="text-sm bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg transition"
           >
-            {showNewForm ? 'Cancel New Address' : 'Add New Address'}
+            Continue to Promotions →
           </button>
         </div>
-
-        {showNewForm && (
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Add New Address</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input
-                type="text"
-                placeholder="Street"
-                value={newAddress.street}
-                onChange={(e) => setNewAddress({ ...newAddress, street: e.target.value })}
-                className="p-2 border rounded"
-              />
-              <input
-                type="text"
-                placeholder="City"
-                value={newAddress.city}
-                onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
-                className="p-2 border rounded"
-              />
-              <input
-                type="text"
-                placeholder="State"
-                value={newAddress.state}
-                onChange={(e) => setNewAddress({ ...newAddress, state: e.target.value })}
-                className="p-2 border rounded"
-              />
-              <input
-                type="text"
-                placeholder="Country"
-                value={newAddress.country}
-                onChange={(e) => setNewAddress({ ...newAddress, country: e.target.value })}
-                className="p-2 border rounded"
-              />
-              <input
-                type="text"
-                placeholder="Zip Code"
-                value={newAddress.zipCode}
-                onChange={(e) => setNewAddress({ ...newAddress, zipCode: e.target.value })}
-                className="p-2 border rounded"
-              />
-            </div>
-          </div>
-        )}
-
-        <button
-          type="submit"
-          className="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700"
-        >
-          Continue to Promotions
-        </button>
-      </form>
+      )}
+    </form>
   );
 };
 

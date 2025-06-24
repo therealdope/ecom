@@ -2,12 +2,13 @@
 import { useState, useEffect, useRef } from 'react'
 import UserDashboardLayout from '@/components/user/layout/UserDashboardLayout'
 import { format } from 'date-fns'
-import { StarIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { StarIcon as StarOutline, XMarkIcon } from '@heroicons/react/24/outline'
+import { StarIcon as StarSolid } from '@heroicons/react/24/solid';
 
 export default function UserVendorsPage() {
   const [vendors, setVendors] = useState([])
   const [reviewing, setReviewing] = useState(null)
-  const [rating, setRating] = useState(5)
+  const [reviewRating, setReviewRating] = useState(0);
   const [comment, setComment] = useState('')
   const modalRef = useRef(null)
 
@@ -32,7 +33,7 @@ export default function UserVendorsPage() {
     await fetch('/api/user/shoppers/review', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ vendorId: reviewing, rating, comment }),
+      body: JSON.stringify({ vendorId: reviewing, rating: reviewRating, comment }),
     })
     setReviewing(null)
   }
@@ -62,7 +63,7 @@ export default function UserVendorsPage() {
                       className="flex items-center gap-1 text-indigo-600 hover:text-indigo-800"
                       onClick={() => openReview(v.vendorId)}
                     >
-                      <StarIcon className="w-5 h-5" /> Review
+                      <StarOutline className="w-5 h-5" /> Review
                     </button>
                   </td>
                 </tr>
@@ -82,14 +83,23 @@ export default function UserVendorsPage() {
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm text-gray-700 mb-1">Rating:</label>
-                  <select
-                    value={rating}
-                    onChange={e => setRating(Number(e.target.value))}
-                    className="border px-3 py-2 rounded w-full"
-                  >
-                    {[5,4,3,2,1].map(i => <option key={i} value={i}>{i} Star{i>1?'s':''}</option>)}
-                  </select>
+                  <label className="block mb-2 text-sm text-gray-700">Rating</label>
+<div className="flex items-center gap-1 mb-4">
+  {[1, 2, 3, 4, 5].map((n) => (
+    <button
+      key={n}
+      type="button"
+      onClick={() => setReviewRating(n)}
+      className="w-8 h-8 flex items-center justify-center"
+    >
+      {reviewRating >= n ? (
+        <StarSolid className="h-6 w-6 text-indigo-500" />
+      ) : (
+        <StarOutline className="h-6 w-6 text-gray-400" />
+      )}
+    </button>
+  ))}
+</div>
                 </div>
                 <div>
                   <label className="block text-sm text-gray-700 mb-1">Comment:</label>

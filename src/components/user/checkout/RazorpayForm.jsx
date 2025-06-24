@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
+import { CreditCardIcon } from '@heroicons/react/24/outline';
 
 const RazorpayForm = ({ checkoutData, onBack }) => {
   const { cartItems, getCartTotal } = useCart();
@@ -16,6 +17,9 @@ const RazorpayForm = ({ checkoutData, onBack }) => {
   const handlePayment = async () => {
     const orderRes = await fetch('/api/payment/razorpay-order', {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
         items: cartItems,
         address: checkoutData.address,
@@ -33,11 +37,9 @@ const RazorpayForm = ({ checkoutData, onBack }) => {
       currency: order.currency,
       order_id: order.id,
       name: 'Your Store',
-      description: 'Complete your purchase',
+      description: 'Complete your purchase securely with Razorpay',
       handler: function (response) {
-        // You can verify the payment here or redirect
-        console.log('Payment success:', response);
-        window.location.href = `/order/confirmation/${order.receipt}`;
+        window.location.href = `/user/orders/confirmation/${order.receipt}`;
       },
       prefill: {
         name: checkoutData.address.name || 'Guest',
@@ -54,18 +56,27 @@ const RazorpayForm = ({ checkoutData, onBack }) => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-semibold text-indigo-700">Secure Payment</h2>
-      <div className="space-y-4">
+      <div className="flex items-center gap-3">
+        
+        <h2 className="text-2xl font-bold text-indigo-700">Secure Payment</h2>
+      </div>
+
+      <p className="text-gray-600 text-sm leading-relaxed">
+        You’ll be redirected to Razorpay to complete your payment securely.
+      </p>
+
+      <div className="flex flex-col md:flex-row justify-between gap-4 pt-6">
         <button
           onClick={onBack}
-          className="w-full bg-gray-200 text-gray-700 py-2 rounded-lg"
+          className="text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 px-5 py-2 rounded-lg transition"
         >
           ← Back
         </button>
         <button
           onClick={handlePayment}
-          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg"
+          className="flex gap-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg transition"
         >
+          <CreditCardIcon className="w-5 h-5 text-white" />
           Pay ₹{getCartTotal().toFixed(2)}
         </button>
       </div>

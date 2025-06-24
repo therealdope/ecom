@@ -102,10 +102,10 @@ export default function ProductPage({ params }) {
 
   return (
     <UserDashboardLayout>
-      <div className="max-w-7xl mx-auto px-4 py-10">
+      <div className="max-w-7xl mb-8 mx-auto px-4 py-10 -mt-6">
         <button
   onClick={() => router.back()}
-  className="group mb-6 inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm text-indigo-600 border border-indigo-200 rounded-full px-4 py-2 shadow-sm hover:shadow-md hover:bg-indigo-50 transition-all duration-200"
+  className="group mb-8 hidden md:inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm text-indigo-600 border border-indigo-200 rounded-full px-4 py-2 shadow-sm hover:shadow-md hover:bg-indigo-50 transition-all duration-200"
 >
   <svg
     className="w-4 h-4 text-indigo-600 group-hover:-translate-x-0.5 transition-transform duration-200"
@@ -120,10 +120,11 @@ export default function ProductPage({ params }) {
 </button>
 
 
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden grid grid-cols-1 md:grid-cols-2">
-          {/* Product Image and Wishlist */}
-<div className="relative flex flex-col items-center p-6 bg-indigo-50">
-  <div className="relative w-full max-w-md h-96 rounded-xl overflow-hidden shadow">
+<div className="bg-white rounded-2xl md:shadow-lg grid grid-cols-1 md:grid-cols-2">
+
+{/* Product Image and Wishlist */}
+<div className="relative rounded-lg p-6 bg-white flex flex-col items-center justify-center gap-6 md:border-r border-gray-200">
+  <div className="relative w-full max-w-md aspect-square rounded-2xl overflow-hidden shadow-md transition-transform hover:scale-[1.005]">
     <Image
       src={product.imageUrl || '/placeholder.jpg'}
       alt={product.name}
@@ -132,45 +133,41 @@ export default function ProductPage({ params }) {
       priority
     />
     <button
-      onClick={(e) => {
-        e.stopPropagation();
-        toggleWishlist(product.id);
-      }}
-      className="absolute top-4 right-4 p-2 bg-white/80 rounded-full shadow hover:bg-white"
-    >
-      {isInWishlist(product.id) ? (
-        <HeartSolidIcon className="w-6 h-6 text-red-500" />
-      ) : (
-        <HeartIcon className="w-6 h-6 text-gray-600" />
-      )}
-    </button>
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleWishlist(product.id);
+          }}
+          className="absolute top-4 right-4 p-1 rounded-full transition bg-indigo-100/50 hover:bg-indigo-100/80"
+        >
+          {isInWishlist(product.id) ? (
+            <HeartSolidIcon className="w-7 h-7 text-indigo-600" />
+          ) : (
+            <HeartIcon className="w-7 h-7 text-indigo-600" />
+          )}
+        </button>
   </div>
 
-  {/* Quantity Controls */}
-  {quantity > 0 && (
-    <div className="mt-6 flex justify-center">
-      <div className="flex items-center border rounded-lg overflow-hidden bg-white shadow-sm">
-        <button
-          className="px-4 py-2 text-lg font-bold text-gray-600 hover:text-gray-800"
-          onClick={() => handleQuantityChange(-1)}
-        >
-          −
-        </button>
-        <span className="px-6 py-2">{quantity}</span>
-        <button
-          className="px-4 py-2 text-lg font-bold text-gray-600 hover:text-gray-800"
-          onClick={() => handleQuantityChange(1)}
-          disabled={quantity >= selectedVariant.stock}
-        >
-          +
-        </button>
-      </div>
+  {quantity > 0 ? (
+    <div className="flex items-center justify-center gap-4 bg-indigo-100 px-4 py-2 rounded-full shadow-md">
+      <button
+        className="text-2xl font-bold text-gray-600 hover:text-indigo-600 transition"
+        onClick={() => handleQuantityChange(-1)}
+      >
+        −
+      </button>
+      <span className="text-lg font-medium text-gray-800">{quantity}</span>
+      <button
+        className="text-2xl font-bold text-gray-600 hover:text-indigo-600 transition"
+        onClick={() => handleQuantityChange(1)}
+        disabled={quantity >= selectedVariant.stock}
+      >
+        +
+      </button>
     </div>
-  )}
-  {quantity === 0 && (
+  ) : (
     <button
       onClick={handleAddToCart}
-      className="w-full max-w-md mt-6 py-3 bg-indigo-600 text-white rounded-xl text-lg font-semibold hover:bg-indigo-700 transition"
+      className="w-full max-w-md py-3 bg-indigo-600 text-white rounded-full text-lg font-semibold hover:bg-indigo-700 transition shadow-md"
     >
       Add to Cart
     </button>
@@ -178,58 +175,95 @@ export default function ProductPage({ params }) {
 </div>
 
 
-          {/* Product Details */}
-          <div className="p-8 bg-white">
-            <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
-            <p className="text-sm text-gray-500 mb-1">{product.category.name}</p>
-            <p className="text-sm text-gray-600 mb-4">Sold by: {product.shop.name}</p>
 
-            <div className="flex items-center mb-4">
-              <span className="text-yellow-400 text-xl">★</span>
-              <span className="ml-1 text-gray-800 font-medium">{product.averageRating.toFixed(1)}</span>
-              <span className="mx-2 text-gray-400">•</span>
-              <span className="text-gray-600">{product.reviews.length} reviews</span>
-            </div>
+{/* Product Details */}
+<div className="p-6 mt-2 rounded-2xl space-y-4 backdrop-blur-sm border-gray-400">
+  <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
 
-            <p className="text-2xl text-indigo-600 font-bold mb-6">
-              ${selectedVariant?.price?.toFixed(2) || 'N/A'}
-            </p>
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div>
+      <p className="text-xs font-medium text-gray-500 uppercase">Category</p>
+      <p className="text-base text-gray-800">{product.category.name}</p>
+    </div>
 
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold mb-2">Description</h2>
-              <p className="text-gray-700 leading-relaxed">{product.description}</p>
-            </div>
+    <div>
+      <p className="text-xs font-medium text-gray-500 uppercase">Sold By</p>
+      <p className="text-base text-gray-800">{product.shop.name}</p>
+    </div>
 
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold mb-3">Variants</h2>
-              <div className="grid grid-cols-2 gap-3">
-                {product.variants.map((variant) => (
-                  <button
-                    key={variant.id}
-                    onClick={() => setSelectedVariant(variant)}
-                    className={`p-4 border rounded-xl text-left transition ${
-                      selectedVariant?.id === variant.id
-                        ? 'bg-indigo-100 border-indigo-500'
-                        : 'hover:border-gray-300'
-                    }`}
-                  >
-                    <p className="font-medium">
-                      {variant.size && `Size: ${variant.size}`}
-                      {variant.size && variant.color && ' • '}
-                      {variant.color && `Color: ${variant.color}`}
-                    </p>
-                    <p className="text-indigo-600 font-semibold">${variant.price}</p>
-                    <p className="text-sm text-gray-500">{variant.stock} in stock</p>
-                  </button>
-                ))}
-              </div>
-            </div>
-            
-          </div>
-        </div>
+    <div>
+      <p className="text-xs font-medium text-gray-500 uppercase">Rating</p>
+      <p className="text-base text-gray-800">
+        {product.averageRating.toFixed(1)} ★ ({product.reviews.length} reviews)
+      </p>
+    </div>
+
+    <div>
+      <p className="text-xs font-medium text-gray-500 uppercase">Price</p>
+      <p className="text-2xl font-bold text-indigo-600">
+        ${selectedVariant?.price?.toFixed(2) || 'N/A'}
+      </p>
+    </div>
+  </div>
+
+  <div>
+    <p className="text-xs font-medium text-gray-500 uppercase mb-1">Description</p>
+    <p className="text-gray-700 leading-relaxed">{product.description}</p>
+  </div>
+
+  <div className="rounded-2xl">
+    <p className="text-xs font-medium text-gray-500 uppercase mb-2">Variants</p>
+<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  {product.variants.map((variant) => (
+    <button
+      key={variant.id}
+      onClick={() => setSelectedVariant(variant)}
+      className={`p-4 rounded-2xl border-1 border-gray-200 hover:bg-gray-50 transition text-left shadow-sm space-y-1 ${
+        selectedVariant?.id === variant.id
+          ? 'bg-indigo-100 border-indigo-500'
+          : 'bg-white hover:border-gray-300'
+      }`}
+    >
+      <p className="text-sm text-gray-700">
+        <span className="font-medium text-gray-900">SKU:</span> {variant.sku}
+      </p>
+
+      {(variant.size || variant.color) && (
+        <p className="text-sm text-gray-700">
+          {variant.size && (
+            <span>
+              <span className="font-medium text-gray-900">Size:</span> {variant.size}
+            </span>
+          )}
+          {variant.size && variant.color && ' • '}
+          {variant.color && (
+  <span className="flex items-center gap-2">
+    <span className="font-medium text-gray-900">Color:</span>
+    <span className="capitalize text-gray-700">{variant.color}</span>
+    <span
+      className="w-5 h-5 rounded-full border border-gray-300"
+      style={{ backgroundColor: variant.color.toLowerCase() }}
+    />
+  </span>
+)}
+</p>
+      )}
+
+      <p className="text-sm text-indigo-600 font-semibold">
+        ₹{variant.price.toFixed(2)}
+      </p>
+      <p className="text-sm text-gray-500">{variant.stock} in stock</p>
+    </button>
+  ))}
+</div>
+
+  </div>
+</div>
+
+</div>
 
 {/* Reviews Section */}
-<div className="mt-12 bg-white p-8 rounded-2xl shadow-md">
+<div className="mt-12 bg-white p-8 rounded-2xl md:shadow-md">
   <h2 className="text-2xl font-bold mb-6">Customer Reviews</h2>
 
   {reviews.length > 0 ? (

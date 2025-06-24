@@ -8,23 +8,28 @@ const PromoCode = ({ onSubmit, onBack }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ promoCode, giftCard });
+    // Skip promo since it's not implemented
+    onSubmit({ promoCode: '', giftCard: '' });
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-indigo-700">Apply Offers</h2>
+        <h2 className="text-2xl font-bold text-indigo-700">Apply Offers</h2>
         <button
           type="button"
-          onClick={() => onSubmit({ promoCode: '', giftCard: '' })}
-          className="text-sm text-gray-500 hover:underline"
+          onClick={handleSubmit}
+          className="text-sm font-medium text-indigo-600 bg-indigo-100 px-3 py-1 rounded hover:bg-indigo-200 transition"
         >
-          Skip this step
+          Skip This Step →
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="p-6 bg-gray-50 border border-gray-200 rounded-lg shadow-sm opacity-60 pointer-events-none">
+        <p className="text-sm text-gray-500 mb-4">
+          Promo code and gift card functionality is coming soon. You can skip this step.
+        </p>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -35,7 +40,8 @@ const PromoCode = ({ onSubmit, onBack }) => {
               value={promoCode}
               onChange={(e) => setPromoCode(e.target.value)}
               placeholder="Enter promo code"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              disabled
+              className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed"
             />
           </div>
 
@@ -48,27 +54,30 @@ const PromoCode = ({ onSubmit, onBack }) => {
               value={giftCard}
               onChange={(e) => setGiftCard(e.target.value)}
               placeholder="Enter gift card number"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              disabled
+              className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed"
             />
           </div>
         </div>
+      </div>
 
-        <div className="flex flex-col md:flex-row justify-between gap-4 pt-4">
-          <button
-            type="button"
-            onClick={onBack}
-            className="w-full md:w-1/2 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg transition"
-          >
-            ← Back
-          </button>
-          <button
-            type="submit"
-            className="w-full md:w-1/2 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg transition"
-          >
-            Continue to Summary →
-          </button>
-        </div>
-      </form>
+      <div className="flex justify-between pt-6">
+        <button
+          type="button"
+          onClick={onBack}
+          className="text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 px-5 py-2 rounded-lg transition"
+        >
+          ← Back
+        </button>
+
+        <button
+          type="button"
+          onClick={handleSubmit}
+          className="text-sm bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg transition"
+        >
+          Continue to Summary →
+        </button>
+      </div>
     </div>
   );
 };

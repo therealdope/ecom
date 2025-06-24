@@ -5,32 +5,24 @@ import { useCart } from '@/context/CartContext';
 import UserDashboardLayout from '@/components/user/layout/UserDashboardLayout';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { StarIcon } from '@heroicons/react/24/solid';
 
 export default function WishlistPage() {
-  const { wishlistItems: globalWishlistItems, toggleWishlist, addToCart } = useCart();
+  const { wishlistItems: globalWishlistItems, toggleWishlist } = useCart();
   const [wishlistItems, setWishlistItems] = useState(globalWishlistItems);
   const router = useRouter();
 
   useEffect(() => {
-    // Keep local state in sync with global context
     setWishlistItems(globalWishlistItems);
   }, [globalWishlistItems]);
 
   const removeFromWishlist = async (productId) => {
     try {
-      const response = await fetch(`/api/user/wishlist/${productId}`, {
-        method: 'DELETE',
-      });
 
-      if (response.ok) {
-        // Call toggleWishlist to update global state
-        toggleWishlist(productId);
-        // Filter out removed item from local state
-        const updatedWishlist = wishlistItems.filter(item => item.product.id !== productId);
-        setWishlistItems(updatedWishlist);
-      } else {
-        console.error('Failed to remove item from wishlist');
-      }
+      toggleWishlist(productId);
+      const updatedWishlist = wishlistItems.filter(item => item.product.id !== productId);
+      setWishlistItems(updatedWishlist);
+    
     } catch (error) {
       console.error('Error removing from wishlist:', error);
     }
@@ -63,49 +55,88 @@ export default function WishlistPage() {
   return (
     <UserDashboardLayout>
       <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Back button */}
+        <button
+          onClick={() => router.push('/user/dashboard')}
+          className="group mb-8 hidden md:inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm text-indigo-600 border border-indigo-200 rounded-full px-4 py-2 shadow-sm hover:shadow-md hover:bg-indigo-50 transition-all duration-200"
+        >
+          <svg
+            className="w-4 h-4 text-indigo-600 group-hover:-translate-x-0.5 transition-transform duration-200"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+          <span className="font-medium text-sm">Go Back</span>
+        </button>
         <h1 className="text-2xl font-bold mb-8">My Wishlist</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {wishlistItems.map((item) => (
-            <div key={item.id} className="bg-white rounded-lg shadow overflow-hidden">
-              <div className="relative h-48 w-full">
-                <Image
-                  src={item.product.imageUrl}
-                  alt={item.product.name}
-                  fill
-                  className="object-cover"
-                />
-              </div>
+          {wishlistItems.map((item) => {
+            const product = item.product;
+            const variant = product.variants[0];
+            const stock = variant?.stock ?? 0;
+            const price = variant?.price ?? 'N/A';
 
-              <div className="p-4">
-                <h3
-                  onClick={() => router.push(`/user/product/${item.productId}`)}
-                  className="font-semibold text-lg mb-2 cursor-pointer hover:text-indigo-600 transition-colors"
-                >
-                  {item.product.name}
-                </h3>
-                <p className="text-gray-600 text-sm mb-2">{item.product.category}</p>
-                <p className="text-indigo-600 font-medium mb-4">
-                  ${item.product.variants[0]?.price || 'N/A'}
-                </p>
+            return (
+              <div key={item.id} className="bg-white rounded-xl shadow p-4 flex flex-col">
+                <div className="relative h-48 w-full rounded-md overflow-hidden">
+                  <Image
+                    src={product.imageUrl}
+                    alt={product.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
 
-                <div className="flex gap-2">
-                  <button
+                <div className="mt-4 flex flex-col flex-1">
+                  <h3
                     onClick={() => router.push(`/user/product/${item.productId}`)}
-                    className="flex-1 bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 transition-colors"
+                    className="text-lg font-semibold text-gray-800 cursor-pointer hover:text-indigo-600"
                   >
-                    View Product
-                  </button>
-                  <button
-                    onClick={() => removeFromWishlist(item.product.id)}
-                    className="px-3 py-2 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
-                  >
-                    Remove
-                  </button>
+                    {product.name}
+                  </h3>
+
+                  <p className="text-sm text-gray-600 line-clamp-2">{product.description}</p>
+
+                  <div className="mt-2 flex items-center justify-between text-sm text-gray-500">
+                    <span className="font-medium text-indigo-600">₹{price}</span>
+                    <span>{stock > 0 ? 'In Stock' : 'Out of Stock'}</span>
+                  </div>
+
+                  <div className="mt-1 text-sm text-gray-500">
+                    <span className="font-semibold">Seller:</span> {product.vendor?.name || 'Vendor'}
+                  </div>
+
+                  <div className="text-sm text-gray-500">
+                    <span className="font-semibold">Shop:</span> {product.shop?.name || 'Unknown Shop'}
+                  </div>
+
+                  <p className="text-xs text-gray-400 mt-1">
+                    Wishlisted on: {new Date(item.createdAt).toLocaleDateString()}
+                  </p>
+
+                  <div className="mt-auto pt-4 flex gap-2">
+                    <button
+                      onClick={() => router.push(`/user/product/${product.id}`)}
+                      className="flex-1 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700 transition"
+                    >
+                      View Product
+                    </button>
+
+                    <button
+                      onClick={() => removeFromWishlist(product.id)}
+                      className="px-3 py-2 border border-gray-300 rounded hover:bg-gray-100 transition"
+                    >
+                      Remove
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </UserDashboardLayout>

@@ -1,6 +1,8 @@
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import Image from 'next/image';
+import Link from 'next/link';
 import prisma from '@/lib/prisma';
 import UserDashboardLayout from '@/components/user/layout/UserDashboardLayout';
 
@@ -59,30 +61,55 @@ export default async function OrderConfirmationPage({ params }) {
 
       <div className="mt-6">
         <h3 className="text-xl font-semibold text-gray-800 mb-2">🛍 Order Items</h3>
-        <div className="space-y-3">
-          {order.orderItems.map((item) => (
-            <div key={item.id} className="flex justify-between bg-gray-100 p-4 rounded">
-              <div>
-                <p className="font-medium text-gray-800">{item.product.name}</p>
-                {item.variant && (
-                  <p className="text-sm text-gray-500">
-                    Variant: {item.variant.size || 'N/A'} {item.variant.color ? `- ${item.variant.color}` : ''} {item.variant.price ? `(₹${item.variant.price.toFixed(2)})` : ''}
-                  </p>
-                )}
+                  <div className="space-y-3">
+            {order.orderItems.map((item) => (
+              <div
+                key={item.id}
+                className="flex items-start gap-4 bg-white shadow-sm rounded-lg p-4"
+              >
+                <Image
+                  src={item.product.imageUrl}
+                  alt={item.product.name}
+                  width={80}
+                  height={80}
+                  className="rounded object-cover border"
+                />
+                <div className="flex-1 space-y-1">
+                  <p className="font-medium text-gray-800">{item.product.name}</p>
+                  {item.variant && (
+                    <p className="text-sm text-gray-500">
+                      Size: {item.variant.size || 'N/A'} | Color: {item.variant.color || 'N/A'}
+                    </p>
+                  )}
+                  
+                </div>
+                <div className="flex flex-col">
+                <div className="text-right font-semibold text-indigo-700">
+                  ₹{item.price.toFixed(2)}
+                </div>
+                <div className="text-sm text-gray-600">
+                  Quantity: {item.quantity}
+                </div>
+                </div>
               </div>
-              <div>
-                <p className="text-gray-700">Qty: {item.quantity}</p>
-                <p className="text-gray-700">₹{item.price.toFixed(2)}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
       </div>
 
-      <div className="mt-10 text-center">
-        <a href="/user/orders" className="text-indigo-600 hover:underline">
-          📦 View My Orders
-        </a>
+      <div className="mt-10 p-2 text-center flex justify-between">
+
+        <Link href="/user/dashboard">
+        <button className='text-white text-lg py-2 px-4 rounded-lg bg-indigo-600 hover:bg-indigo-700'>
+        Explore more !!
+        </button>
+        </Link>
+
+        <Link href="/user/orders">
+        <button className='text-white text-lg py-2 px-4 rounded-lg bg-indigo-600 hover:bg-indigo-700'>
+        View My Orders
+        </button>
+        </Link>
+        
       </div>
     </div>
     </UserDashboardLayout>
