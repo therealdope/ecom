@@ -34,8 +34,6 @@ enum PaymentMethod {
 
 enum NotificationType {
   ORDER_PLACED
-  ORDER_CONFIRMED
-  ORDER_SHIPPED
   ORDER_DELIVERED
   ORDER_CANCELLED
   PAYMENT_SUCCESS
@@ -93,10 +91,10 @@ model VendorProfile {
   id              String         @id @default(uuid())
   vendorId        String         @unique
   phoneNumber     String?
-  storeName       String
+  storeName       String?
   description     String?
   logo            String?
-  businessAddress String
+  businessAddress String?
   taxId           String?
   bankDetails     String?
   rating          Float          @default(0)

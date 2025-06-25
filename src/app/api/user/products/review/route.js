@@ -54,5 +54,5 @@ export async function POST(req) {
     },
   });
 
-  return NextResponse.json({ success: true, review });
+  return NextResponse.json({ success: true, review, productName: product.name, vendorId: product.vendorId });
 }

@@ -5,7 +5,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { signOut } from 'next-auth/react';
 import MobileBottomNav from './MobileBottomNav';
+import RightNav from './RightNav';
 import { useRouter } from 'next/navigation';
+import UserFooter from './UserFooter';
 import {
   MagnifyingGlassIcon,
   HeartIcon,
@@ -84,7 +86,7 @@ export default function UserDashboardLayout({ children }) {
   }, [searchQuery]);
 
   return (
-    <div className='bg-gray-50'>
+    <div className='bg-gray-50 min-h-screen'>
       <div className="hidden md:block">
         {/* Top Header */}
         <header className="bg-white shadow-md shadow-indigo-50 sticky z-50">
@@ -131,7 +133,7 @@ export default function UserDashboardLayout({ children }) {
                             className="p-4 hover:bg-gray-50 cursor-pointer search-result-item"
                             onClick={(e) => {
                               e.stopPropagation();
-                              window.location.href = `/user/product/${result.id}`;
+                              router.push(`/user/product/${result.id}`);
                             }}
                           >
                             <div className="flex items-center gap-4">
@@ -156,6 +158,18 @@ export default function UserDashboardLayout({ children }) {
                             </div>
                           </div>
                         ))}
+                        <div className="p-4 text-center flex justify-center search-result-item">
+                    <button
+                      onClick={(e) => {
+                          e.stopPropagation();
+                          setIsSearchOpen(false)
+                          router.push(`/user/product/show-all?searchquery=${searchQuery}`);
+                        }}
+                      className="bg-indigo-600 text-white block px-4 py-2 rounded-md hover:bg-indigo-700"
+                    >
+                      View All Results
+                    </button>
+                  </div>
                       </div>
                     ) : searchQuery.trim() !== '' && (
                       <div className="p-4 text-center text-gray-500">
@@ -303,22 +317,18 @@ export default function UserDashboardLayout({ children }) {
 
       <div className="sm:block md:hidden">
         {/*bottom header for small screens*/}
-        <div className="fixed top-0 left-0 z-50 w-full">
-          <div className='flex justify-center p-2'>
-            <Link href="/user/dashboard">
-                <Image
-                  src="/logo.png"
-                  alt="Your Brand"
-                  width={100}
-                  height={50}
-                  className="h-12 w-full"
-                  priority
-                />
-            </Link>
-          </div>
+        <div className="fixed top-0 left-0 w-full z-50 flex justify-center pointer-events-none">
+          <Link href="#" className="inline-block p-2">
+            <Image
+              src="/logo.png"
+              alt="Your Brand"
+              width={100}
+              height={50}
+              className="h-12 w-auto"
+              priority
+            />
+          </Link>
         </div>
-        
-
 
           {/* Search Results Overlay */}
         {isSearchOpen && (
@@ -343,7 +353,7 @@ export default function UserDashboardLayout({ children }) {
               />
             </div>
         
-            <div className="overflow-y-auto h-[calc(100vh-60px)]">
+            <div className="overflow-y-auto h-[calc(100vh-100px)]">
               {isLoading ? (
                 <div className="p-4 text-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500 mx-auto"></div>
@@ -356,7 +366,7 @@ export default function UserDashboardLayout({ children }) {
                       className="p-4 active:bg-gray-50 search-result-item"
                       onClick={(e) => {
                         e.stopPropagation();
-                        window.location.href = `/user/product/${result.id}`;
+                        router.push(`/user/product/${result.id}`);
                       }}
                     >
                       <div className="flex items-center gap-4">
@@ -381,7 +391,19 @@ export default function UserDashboardLayout({ children }) {
                       </div>
                     </div>
                   ))}
-                </div>
+                    <div className="p-4 text-center flex justify-center search-result-item">
+                      <div
+                        onClick={(e) => {
+                        e.stopPropagation();
+                        setIsSearchOpen(false)
+                        router.push(`/user/product/show-all?searchquery=${searchQuery}`);
+                      }}
+                        className="bg-indigo-600 text-white block px-4 py-2 rounded-md hover:bg-indigo-700"
+                      >
+                        View All Results
+                      </div>
+                    </div>
+                  </div>
               ) : searchQuery.trim() !== '' && (
                 <div className="p-8 text-center text-gray-500">
                   <p className="text-lg">No results found</p>
@@ -442,7 +464,10 @@ export default function UserDashboardLayout({ children }) {
       
       
       {/* Main content */}
-      <main className="p-4 max-w-7xl mx-auto">{children}</main>
+      <main className="p-4 max-w-7xl mx-auto min-h-[calc(100vh-395px)]">{children}</main>
+
+      <RightNav/>
+      <UserFooter/>
     </div>
   );
 }

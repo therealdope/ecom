@@ -21,18 +21,26 @@ const PayOnDeliveryForm = ({ checkoutData, onBack }) => {
         }),
       });
 
-      if (!res.ok) {
-        alert('Failed to place order. Try again.');
-        return;
-      }
-
-      const { orderId } = await res.json();
-      await clearCart();
-      router.push(`/user/orders/confirmation/${orderId}`);
+    await clearCart();
+    const data = await res.json();
+    if(res.ok) {
+      const { orderId, vendorId } = data;
+      await fetch('/api/user/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          vendorId,
+          type: 'ORDER_PLACED',
+          content: `order ${orderId} has been placed.`,
+        }),
+      });
+      router.push(`user/orders/confirmation/${orderId}`);
+    }
     } catch (err) {
       alert('Something went wrong while placing your order.');
     }
   };
+
 
   return (
     <div className="space-y-6 bg-white border border-gray-200 shadow-sm rounded-lg p-6">

@@ -55,11 +55,22 @@ const CheckoutPage = () => {
       }),
     });
 
-    const { orderId } = await res.json();
-
     await clearCart();
-
-    router.push(`/order/confirmation/${orderId}`);
+    const data = await res.json();
+    if(res.ok) {
+    const { orderId, vendorId } = data;
+    await fetch('/api/user/notifications', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      vendorId,
+      type: 'ORDER_PLACED',
+      content: `order ${orderId} has been placed.`,
+    }),
+  });
+      router.push(`/order/confirmation/${orderId}`);
+    }
+    else {alert('Something went wrong while placing the order.');}
   } catch (err) {
     console.error('Order placement failed:', err);
     alert('Something went wrong while placing the order.');

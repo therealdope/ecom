@@ -76,6 +76,7 @@ export default function UserSettingsPage() {
     <UserDashboardLayout>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
         <h1 className="text-3xl font-bold text-indigo-800 mb-8">User Settings</h1>
+        <div className="text-red-500 text-2xl text-center uppercase mb-4">comming soon...</div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {settingItems.map((item) => (
             <div

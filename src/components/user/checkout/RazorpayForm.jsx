@@ -65,6 +65,10 @@ const RazorpayForm = ({ checkoutData, onBack }) => {
         You’ll be redirected to Razorpay to complete your payment securely.
       </p>
 
+      <div className='text-red-500 text-2xl uppercase'>
+        currently not available due to razorpay issue
+      </div>
+
       <div className="flex flex-col md:flex-row justify-between gap-4 pt-6">
         <button
           onClick={onBack}
@@ -74,7 +78,8 @@ const RazorpayForm = ({ checkoutData, onBack }) => {
         </button>
         <button
           onClick={handlePayment}
-          className="flex gap-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg transition"
+          disabled
+          className="flex gap-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg transition hover:disabled:cursor-not-allowed"
         >
           <CreditCardIcon className="w-5 h-5 text-white" />
           Pay ₹{getCartTotal().toFixed(2)}

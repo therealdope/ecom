@@ -8,7 +8,7 @@ export async function GET() {
             include: {
                 category: true,
                 variants: true,
-                shop: true, // Include shop information
+                shop: true,
                 reviews: true,
             },
             orderBy: {

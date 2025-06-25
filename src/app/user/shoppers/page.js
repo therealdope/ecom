@@ -20,7 +20,7 @@ export default function UserVendorsPage() {
 
   function openReview(vid) {
     setReviewing(vid)
-    setRating(5)
+    setReviewRating(5)
     setComment('')
   }
 
@@ -30,12 +30,27 @@ export default function UserVendorsPage() {
   }
 
   async function submitReview() {
-    await fetch('/api/user/shoppers/review', {
+    const res = await fetch('/api/user/shoppers/review', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ vendorId: reviewing, rating: reviewRating, comment }),
     })
-    setReviewing(null)
+    
+    const data = await res.json();
+    if(data.success){
+      const { vendorId } = data;
+      await fetch('/api/user/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          vendorId,
+          type: 'NEW_REVIEW',
+          content: `New review for you added for ${vendorId}`,
+        }),
+      });
+      alert('Review submitted successfully!');
+      setReviewing(null)
+    }
   }
 
   return (

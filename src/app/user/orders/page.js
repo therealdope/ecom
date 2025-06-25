@@ -50,8 +50,18 @@ const submitReview = async () => {
     }),
   });
 
-  const data = await res.json();
+  const data = await res.json();  
   if (data.success) {
+    const { productName, vendorId } = data;
+    await fetch('/api/user/notifications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        vendorId,
+        type: 'NEW_REVIEW',
+        content: `New Product review for ${productName}`,
+      }),
+    });
     setShowReviewForm(false);
     setReviewProductId(null);
     setReviewRating(0);

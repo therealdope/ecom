@@ -3,7 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import UserDashboardLayout from '@/components/user/layout/UserDashboardLayout';
-import { UserIcon, ArrowLeftIcon } from '@heroicons/react/24/solid';
+import {
+  ArrowLeftIcon,
+  UserCircleIcon,
+  PhoneIcon,
+  XMarkIcon,
+} from '@heroicons/react/24/solid';
 
 export default function MessagesPage() {
   const { data: session } = useSession();
@@ -15,6 +20,17 @@ export default function MessagesPage() {
   const [selectedChat, setSelectedChat] = useState(null);
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
+  const [showChatWindow, setShowChatWindow] = useState(false);
+  const [isMobileView, setIsMobileView] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobileView(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     if (session?.user?.id) {
@@ -44,11 +60,21 @@ export default function MessagesPage() {
     }
   };
 
+  const fetchMessages = async (chatId) => {
+    try {
+      const response = await fetch(`/api/messages?chatId=${chatId}`);
+      if (!response.ok) throw new Error('Failed to fetch messages');
+      const data = await response.json();
+      setMessages(data);
+    } catch (err) {
+      console.error('Error fetching messages:', err);
+    }
+  };
+
   const handleSearch = async (e) => {
     const query = e.target.value;
     setSearchQuery(query);
-
-    if (query.length < 2) {
+    if (!query) {
       setSearchResults([]);
       return;
     }
@@ -58,10 +84,12 @@ export default function MessagesPage() {
       if (!response.ok) throw new Error('Search failed');
       const data = await response.json();
       setSearchResults(data);
+      console.log(data);
     } catch (err) {
       console.error('Search error:', err);
     }
   };
+
 
   const handleChatSelect = async (vendor) => {
     try {
@@ -82,23 +110,13 @@ export default function MessagesPage() {
 
       const data = await response.json();
       setSelectedChat(data.chatId);
+      if (isMobileView) setShowChatWindow(true);
       setSearchQuery('');
       setSearchResults([]);
       await fetchChats();
       await fetchMessages(data.chatId);
     } catch (err) {
       console.error('Chat initialization error:', err);
-    }
-  };
-
-  const fetchMessages = async (chatId) => {
-    try {
-      const response = await fetch(`/api/messages?chatId=${chatId}`);
-      if (!response.ok) throw new Error('Failed to fetch messages');
-      const data = await response.json();
-      setMessages(data);
-    } catch (err) {
-      console.error('Error fetching messages:', err);
     }
   };
 
@@ -130,57 +148,76 @@ export default function MessagesPage() {
 
   return (
     <UserDashboardLayout>
-      <div className="flex h-screen">
-        {/* Chat list (sidebar) - hidden on mobile when a chat is selected */}
-        <div
-          className={`md:block w-full md:w-1/3 border-r p-4 overflow-auto bg-white ${
-            selectedChat ? 'hidden' : ''
-          }`}
-        >
-          <input
-            type="text"
-            placeholder="Search vendors..."
-            value={searchQuery}
-            onChange={handleSearch}
-            className="w-full p-2 border rounded mb-4"
-          />
+      <div className="flex h-[calc(100vh-96px)] shadow-lg border border-gray-200/80 rounded-xl bg-white text-gray-800">
+
+        {/* Sidebar */}
+        <div className={`md:block w-full md:w-1/3 p-4 overflow-auto bg-gray-100 rounded-l-xl ${isMobileView && showChatWindow ? 'hidden' : ''}`}>
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search vendors..."
+              value={searchQuery}
+              onChange={handleSearch}
+              className="w-full py-2 px-4 mb-2 rounded-xl border-[0.2px] border-gray-300 shadow-sm"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => {
+                  setSearchQuery('');
+                  setSearchResults([]);
+                }}
+                className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+              >
+                <XMarkIcon className="w-5 h-5" />
+              </button>
+            )}
+          </div>
+
           {searchResults.length > 0 && (
-            <div className="mb-4 border rounded bg-white">
+            <div className="mb-4 rounded-xl">
               {searchResults.map((vendor) => (
                 <div
                   key={vendor.id}
                   onClick={() => handleChatSelect(vendor)}
-                  className="p-2 hover:bg-gray-100 cursor-pointer"
+                  className="p-3 mt-2 rounded-xl cursor-pointer flex items-center gap-3 hover:bg-gray-200"
                 >
-                  {vendor.name}
+                  {vendor.profile?.logo ? (
+                    <img src={vendor.profile.logo} className="w-10 h-10 rounded-full" />
+                  ) : (
+                    <UserCircleIcon className="w-10 h-10 text-gray-400" />
+                  )}
+                  <div>
+                    <div className="font-semibold">{vendor.name}</div>
+                    <div className="text-sm flex items-center text-gray-500">
+                      <PhoneIcon className="w-4 h-4 mr-1" />
+                      {vendor.profile?.phoneNumber || 'N/A'}
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
           )}
 
-          {chats.map((chat) => (
+          {searchResults.length === 0 && chats.map((chat) => (
             <div
               key={chat.id}
               onClick={() => {
                 setSelectedChat(chat.id);
                 fetchMessages(chat.id);
+                if (isMobileView) setShowChatWindow(true);
               }}
-              className={`p-2 rounded cursor-pointer flex items-center space-x-2 ${
-                selectedChat === chat.id ? 'bg-blue-100' : 'hover:bg-gray-100'
+              className={`p-3 mt-2 rounded-xl cursor-pointer flex items-center gap-3 ${
+                selectedChat === chat.id ? 'bg-indigo-100' : 'hover:bg-gray-200'
               }`}
             >
               {chat.vendor.profile?.logo ? (
-                <img
-                  src={chat.vendor.profile.logo}
-                  alt={chat.vendor.name}
-                  className="w-8 h-8 rounded-full"
-                />
+                <img src={chat.vendor.profile.logo} className="w-10 h-10 rounded-full" />
               ) : (
-                <UserIcon className="w-8 h-8 text-gray-400" />
+                <UserCircleIcon className="w-10 h-10 text-gray-400" />
               )}
               <div>
                 <div className="font-semibold">{chat.vendor.name}</div>
-                {chat.messages[0] && (
+                                {chat.messages[0] && (
                   <div className="text-sm text-gray-500 truncate max-w-[150px]">
                     {chat.messages[0].content}
                   </div>
@@ -190,24 +227,20 @@ export default function MessagesPage() {
           ))}
         </div>
 
-        {/* Chat window */}
-        <div
-          className={`flex-1 flex flex-col ${
-            !selectedChat ? 'hidden md:flex' : 'flex'
-          }`}
-        >
+        {/* Chat Window */}
+        <div className={`flex-1 flex flex-col border-l-[0.2px] border-gray-300 rounded-r-xl ${isMobileView && !showChatWindow ? 'hidden' : ''}`}>
           {selectedChat ? (
             <>
-              {/* Chat header with back button on small screens */}
-              <div className="flex items-center px-4 py-3 border-b bg-white shadow-sm space-x-3">
-                {/* Back button on small screens */}
+              {/* Header */}
+              <div className="flex items-center px-4 py-3 bg-indigo-100 rounded-tr-xl gap-3 shadow-sm">
                 <button
-                  onClick={() => setSelectedChat(null)}
-                  className="md:hidden focus:outline-none"
+                  onClick={() => {
+                    if (isMobileView) setShowChatWindow(false);
+                  }}
+                  className="md:hidden"
                 >
-                  <ArrowLeftIcon className="w-6 h-6 text-gray-600" />
+                  <ArrowLeftIcon className="w-6 h-6 text-gray-700" />
                 </button>
-
                 {(() => {
                   const chatInfo = chats.find((c) => c.id === selectedChat);
                   if (!chatInfo) return null;
@@ -215,17 +248,16 @@ export default function MessagesPage() {
                   return (
                     <>
                       {profile?.logo ? (
-                        <img
-                          src={profile.logo}
-                          alt={chatInfo.vendor.name}
-                          className="w-10 h-10 rounded-full"
-                        />
+                        <img src={profile.logo} className="w-10 h-10 rounded-full" />
                       ) : (
-                        <UserIcon className="w-10 h-10 text-gray-400" />
+                        <UserCircleIcon className="w-10 h-10 text-gray-400" />
                       )}
                       <div>
-                        <div className="font-semibold">{chatInfo.vendor.name}</div>
-                        <div className="text-sm text-gray-500">Online</div>
+                        <div className="font-semibold text-gray-800">{chatInfo.vendor.name}</div>
+                        <div className="text-sm text-gray-500 flex items-center">
+                          <PhoneIcon className="w-4 h-4 mr-1" />
+                          {profile?.phoneNumber || 'N/A'}
+                        </div>
                       </div>
                     </>
                   );
@@ -237,31 +269,29 @@ export default function MessagesPage() {
                 {messages.map((msg) => (
                   <div
                     key={msg.id}
-                    className={`mb-4 flex flex-col ${
+                    className={`mb-3 flex flex-col ${
                       msg.isVendor ? 'items-start' : 'items-end'
                     }`}
                   >
                     <div
-                      className={`inline-block p-3 rounded-xl max-w-xs text-sm leading-snug ${
-                        msg.isVendor
-                          ? 'bg-white border text-gray-900'
-                          : 'bg-blue-500 text-white'
+                      className={`px-4 py-2 rounded-xl max-w-xs text-sm leading-tight ${
+                        msg.isVendor ? 'bg-gray-200 text-gray-800' : 'bg-indigo-500 text-white'
                       }`}
                     >
                       {msg.content}
                     </div>
-                    <div className="text-xs text-gray-400 mt-1">
+                    <div className="text-xs text-gray-400 mt-1 ml-1">
                       {new Date(msg.createdAt).toLocaleTimeString([], {
                         hour: '2-digit',
-                        minute: '2-digit'
+                        minute: '2-digit',
                       })}
                     </div>
                   </div>
                 ))}
               </div>
 
-              {/* Message input */}
-              <form onSubmit={handleSendMessage} className="p-4 border-t bg-white">
+              {/* Input */}
+              <form onSubmit={handleSendMessage} className="p-4 bg-white rounded-b-xl shadow-inner">
                 <div className="flex space-x-2">
                   <textarea
                     rows={1}
@@ -274,11 +304,11 @@ export default function MessagesPage() {
                       }
                     }}
                     placeholder="Type a message..."
-                    className="flex-1 p-2 border rounded resize-none"
+                    className="flex-1 p-2 rounded-xl resize-none border-[0.2px] border-gray-300 bg-gray-100"
                   />
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    className="px-4 py-2 rounded-xl bg-indigo-500 text-white hover:bg-indigo-600"
                   >
                     Send
                   </button>
@@ -286,7 +316,7 @@ export default function MessagesPage() {
               </form>
             </>
           ) : (
-            <div className="flex-1 flex items-center justify-center text-gray-500">
+            <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">
               Select a chat or start a new conversation
             </div>
           )}

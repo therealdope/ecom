@@ -104,7 +104,7 @@ export async function POST(req) {
       return order;
     });
 
-    return NextResponse.json({ orderId: result.id });
+    return NextResponse.json({ orderId: result.id, vendorId: result.vendorId });
   } catch (err) {
     console.error('Order creation failed:', err);
     return NextResponse.json({ error: err.message || 'Internal Server Error' }, { status: 500 });

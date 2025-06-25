@@ -25,6 +25,36 @@ export async function GET() {
   }
 }
 
+export async function POST(req) {
+  try {
+    const body = await req.json();
+    const {userId, type, content } = body;
+
+    const session = await getServerSession(authOptions);
+    const vendorId = session?.user?.id;
+
+    if (!userId || !vendorId || !type || !content) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+
+    const notification = await prisma.userNotification.create({
+      data: {
+        userId,
+        type,
+        content,
+      },
+    });
+
+    return NextResponse.json({ success: true, notification }, { status: 201 });
+  } catch (error) {
+    console.error('Notification POST error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
 // PATCH /api/vendor/notifications — mark one or all as read
 export async function PATCH(req) {
   try {
