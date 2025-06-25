@@ -342,3 +342,11 @@ model VendorNotification {
 
   vendor     Vendor   @relation(fields: [vendorId], references: [id])
 }
+
+model OtpCode {
+  id        String   @id @default(cuid())
+  email     String
+  code      String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+}

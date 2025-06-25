@@ -3,10 +3,12 @@
 import { useCart } from '@/context/CartContext';
 import { useRouter } from 'next/navigation';
 import { TruckIcon } from '@heroicons/react/24/outline';
+import { useToast } from '@/context/ToastContext';
 
 const PayOnDeliveryForm = ({ checkoutData, onBack }) => {
   const { clearCart } = useCart();
   const router = useRouter();
+  const { showToast } = useToast();
 
   const handleConfirm = async () => {
     try {
@@ -34,7 +36,11 @@ const PayOnDeliveryForm = ({ checkoutData, onBack }) => {
           content: `order ${orderId} has been placed.`,
         }),
       });
-      router.push(`user/orders/confirmation/${orderId}`);
+      router.push(`/user/orders/confirmation/${orderId}`);
+      showToast({
+        title: 'Order Placed',
+        description: 'Your order has been placed successfully.',
+      });
     }
     } catch (err) {
       alert('Something went wrong while placing your order.');

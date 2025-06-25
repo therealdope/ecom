@@ -68,9 +68,9 @@ const CheckoutPage = () => {
       content: `order ${orderId} has been placed.`,
     }),
   });
-      router.push(`/order/confirmation/${orderId}`);
+      router.push(`/user/orders/confirmation/${orderId}`);
     }
-    else {alert('Something went wrong while placing the order.');}
+    else {alert('Something went wrong while placing the order. Please try again.');}
   } catch (err) {
     console.error('Order placement failed:', err);
     alert('Something went wrong while placing the order.');

@@ -4,6 +4,7 @@ import UserDashboardLayout from '@/components/user/layout/UserDashboardLayout'
 import { format } from 'date-fns'
 import { StarIcon as StarOutline, XMarkIcon } from '@heroicons/react/24/outline'
 import { StarIcon as StarSolid } from '@heroicons/react/24/solid';
+import { useToast } from '@/context/ToastContext';
 
 export default function UserVendorsPage() {
   const [vendors, setVendors] = useState([])
@@ -11,6 +12,7 @@ export default function UserVendorsPage() {
   const [reviewRating, setReviewRating] = useState(0);
   const [comment, setComment] = useState('')
   const modalRef = useRef(null)
+  const { showToast } = useToast();
 
   useEffect(() => {
     fetch('/api/user/shoppers')
@@ -48,7 +50,10 @@ export default function UserVendorsPage() {
           content: `New review for you added for ${vendorId}`,
         }),
       });
-      alert('Review submitted successfully!');
+      showToast({
+        title: 'Success',
+        description: 'Review submitted successfully',
+      })
       setReviewing(null)
     }
   }

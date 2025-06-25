@@ -13,6 +13,7 @@ import {
   StarIcon as StarOutline
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarSolid } from '@heroicons/react/24/solid';
+import { useToast } from '@/context/ToastContext';
 
 export default function UserOrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -30,6 +31,7 @@ const [reviewRating, setReviewRating] = useState(0);
 const [reviewComment, setReviewComment] = useState('');
 const [searchOrderId, setSearchOrderId] = useState('');
 const [showFilters, setShowFilters] = useState(false);
+const { showToast } = useToast();
 
 
 
@@ -62,13 +64,19 @@ const submitReview = async () => {
         content: `New Product review for ${productName}`,
       }),
     });
+    showToast({
+      title: 'Success',
+      description: 'Review submitted successfully',
+    })
     setShowReviewForm(false);
     setReviewProductId(null);
     setReviewRating(0);
     setReviewComment('');
-    alert('Review submitted successfully!');
   } else {
-    alert(data.error || 'Something went wrong');
+    showToast({
+      title: 'Error',
+      description: data.error || 'Something went wrong',
+    })
   }
 };
 

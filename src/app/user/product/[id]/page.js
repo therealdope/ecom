@@ -201,7 +201,7 @@ export default function ProductPage({ params }) {
     <div>
       <p className="text-xs font-medium text-gray-500 uppercase">Price</p>
       <p className="text-2xl font-bold text-indigo-600">
-        ${selectedVariant?.price?.toFixed(2) || 'N/A'}
+        ₹{selectedVariant?.price?.toFixed(2) || 'N/A'}
       </p>
     </div>
   </div>

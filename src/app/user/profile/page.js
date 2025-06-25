@@ -9,10 +9,14 @@ import {
   MapPinIcon,
   Cog6ToothIcon,
   PlusIcon,
-  TrashIcon
+  TrashIcon,
+  LockClosedIcon,
+  LockOpenIcon,
 } from '@heroicons/react/24/outline';
+import { useToast } from '@/context/ToastContext';
 
 export default function UserProfilePage() {
+  const { showToast } = useToast();
   const [selectedSection, setSelectedSection] = useState('personal');
   const [user, setUser] = useState(null);
   const fileInputRef = useRef();
@@ -117,14 +121,33 @@ export default function UserProfilePage() {
 
   const changePass = async () => {
     if (passForm.new !== passForm.confirm) {
-      return alert('Passwords do not match');
+      return showToast({
+        title: 'Passwords do not match',
+        description: 'Please make sure the new password and confirm password fields match.',
+      });
     }
-    await fetch('/api/user/password', {
+    if (passForm.new.length < 6) {
+      return showToast({
+        title: 'Password too short',
+        description: 'Please make sure the new password is at least 6 characters long.',
+      });
+    }
+    const res = await fetch('/api/user/password', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ currentPassword: passForm.current, newPassword: passForm.new }),
     });
-    alert('Password changed');
+    if (!res.ok) {
+      const { error } = await res.json();
+      return showToast({
+        title: 'Error',
+        description: error,
+      });
+    }
+    showToast({
+      title: 'Success',
+      description: 'Password changed successfully',
+    });
     setEditingAccount(false);
     setPassForm({ current: '', new: '', confirm: '' });
   };

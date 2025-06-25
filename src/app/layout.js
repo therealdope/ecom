@@ -6,6 +6,7 @@ import { ShopProvider } from '@/context/ShopContext';
 import { CartProvider } from '@/context/CartContext';
 import Script from 'next/script';
 import "@styles/globals.css";
+import { ToastProvider } from '@/context/ToastContext';
 
 const robotoMono = Roboto_Mono({
   subsets: ["latin"],
@@ -29,11 +30,13 @@ export default function RootLayout({ children }) {
       </head>
       <body className="antialiased">
         <SessionProvider>
+          <ToastProvider>
           <CartProvider>
           <ShopProvider>
             {children}
           </ShopProvider>
           </CartProvider>
+          </ToastProvider>
         </SessionProvider>
 
         {/* Swiper JS */}

@@ -8,6 +8,7 @@
       "@context/*": ["./src/context/*"],
       "@app/*": ["./src/app/*"],
       "@lib/*": ["./src/lib/*"],
+      "@utils/*": ["./src/utils/*"],
 
     }
   }

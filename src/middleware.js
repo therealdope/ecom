@@ -6,6 +6,7 @@ const publicPaths = [
     '/', // Intro page
     '/auth/signin', // Sign in page
     '/auth/signup', // Sign up page
+    '/auth/forgot-password',
     '/api/auth/(.*)'
 ];
 

@@ -21,4 +21,16 @@ body {
             transform: translateX(-100%);
         }
     }
+    .animate-slide-in {
+        transition: all 0.3s ease-in-out;
+        transform: translateY(1rem);
+        opacity: 0;
+        animation: slideIn 0.3s forwards;
+    }
+    @keyframes slideIn {
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
 }

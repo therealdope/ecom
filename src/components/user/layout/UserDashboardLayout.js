@@ -8,6 +8,7 @@ import MobileBottomNav from './MobileBottomNav';
 import RightNav from './RightNav';
 import { useRouter } from 'next/navigation';
 import UserFooter from './UserFooter';
+import { useToast } from '@/context/ToastContext';
 import {
   MagnifyingGlassIcon,
   HeartIcon,
@@ -26,6 +27,7 @@ import {
 import { useCart } from '@/context/CartContext';
 
 export default function UserDashboardLayout({ children }) {
+  const { showToast } = useToast();
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isMobileProfileOpen, setIsMobileProfileOpen] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -84,6 +86,18 @@ export default function UserDashboardLayout({ children }) {
 
     return () => clearTimeout(timeoutId);
   }, [searchQuery]);
+
+    const handleLogout = async () => {
+    showToast({
+      title: 'Logout',
+      description: 'Logged out successfully',
+    });
+
+    // Wait 1 second before redirect + signOut
+    setTimeout(() => {
+      signOut({ callbackUrl: '/' });
+    }, 1000);
+  };
 
   return (
     <div className='bg-gray-50 min-h-screen'>
@@ -271,7 +285,7 @@ export default function UserDashboardLayout({ children }) {
                     <hr className=" text-gray-300" />
                     <button
                       type="button"
-                      onClick={() => signOut({ callbackUrl: '/' })}
+                      onClick={handleLogout}
                       className="flex items-center gap-2 rounded-lg px-4 py-2 text-red-600 hover:bg-gray-100 text-sm w-full text-left"
                       role="menuitem"
                     >
@@ -436,10 +450,7 @@ export default function UserDashboardLayout({ children }) {
               <MenuLink href="/user/payments" icon={CreditCardIcon} text="Payments" />
               <button
                 type="button"
-                onClick={() => {
-                  setIsMobileProfileOpen(false);
-                  signOut({ callbackUrl: '/' });
-                }}
+                onClick={handleLogout}
                 className="flex w-full items-center gap-3 px-4 py-3 text-red-600 hover:bg-gray-100 text-left"
               >
                 <ArrowRightOnRectangleIcon className="h-5 w-5" />
