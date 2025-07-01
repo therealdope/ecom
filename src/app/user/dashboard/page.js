@@ -234,9 +234,11 @@ export default function DashboardPage() {
                 key={idx}
                 className="flex flex-col items-center bg-white p-4 rounded-2xl shadow-md"
               >
-                <img
+                <Image
                   src={cat.image}
                   alt={cat.name}
+                  width={20}
+                  height={20}
                   className="w-20 h-20 object-cover p-2"
                 />
                 <span className="mt-2 font-medium text-sm text-center">{cat.name}</span>

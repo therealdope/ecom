@@ -16,6 +16,7 @@ import {
   CreditCardIcon,
   TruckIcon,
 } from '@heroicons/react/24/outline';
+import Image from 'next/image';
 
 const CheckoutPage = () => {
   const { cartItems, getCartTotal, clearCart} = useCart();
@@ -275,9 +276,11 @@ const CheckoutPage = () => {
           {cartItems.map((item) => (
             <div key={`${item.productId}-${item.variantId}`} className="flex items-center gap-3">
               <div className="relative w-16 h-16 rounded overflow-hidden border">
-                <img
+                <Image
                   src={item.product.imageUrl}
                   alt={item.product.name}
+                  width={16}
+                  height={16}
                   className="object-cover w-full h-full"
                 />
               </div>
