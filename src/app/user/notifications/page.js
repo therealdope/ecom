@@ -15,6 +15,7 @@ import {
   CurrencyRupeeIcon,
 } from '@heroicons/react/24/outline';
 import UserDashboardLayout from '@/components/user/layout/UserDashboardLayout';
+import { useCart } from '@/context/CartContext';
 
 const iconMap = {
   ORDER_PLACED: ShoppingBagIcon,
@@ -33,6 +34,7 @@ const iconMap = {
 export default function UserNotificationsPage() {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { setUnreadNotification } = useCart();
 
   const fetchNotifications = async () => {
     try {
@@ -65,6 +67,7 @@ export default function UserNotificationsPage() {
         body: JSON.stringify({ id }),
       });
       fetchNotifications();
+      setUnreadNotification((prevCount) => prevCount - 1);
     } catch (error) {
       console.error('Failed to mark as read:', error);
     }
@@ -78,6 +81,7 @@ export default function UserNotificationsPage() {
         body: JSON.stringify({ all: true }),
       });
       fetchNotifications();
+      setUnreadNotification(0);
     } catch (error) {
       console.error('Failed to mark all as read:', error);
     }

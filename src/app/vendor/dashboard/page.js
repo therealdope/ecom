@@ -33,10 +33,11 @@ export default function VendorDashboard() {
   const { data: session, status } = useSession();
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [timeRange, setTimeRange] = useState('week'); // week, month, year
+  const [timeRange, setTimeRange] = useState('week'); 
 
   useEffect(() => {
     const fetchDashboardData = async () => {
+      setLoading(true);
       try {
         const response = await fetch(`/api/vendor/dashboard?timeRange=${timeRange}`);
         const data = await response.json();
@@ -226,6 +227,11 @@ export default function VendorDashboard() {
             </table>
           </div>
         </div>
+        <div className="flex justify-center -mt-4 mb-8">
+  <button className="bg-white hover:bg-gray-50 text-gray-500 px-4 py-1.5 rounded-xl border border-gray-300 shadow-md transition-all duration-200">
+    All Orders
+  </button>
+</div>
       </div>
     </VendorLayout>
   );

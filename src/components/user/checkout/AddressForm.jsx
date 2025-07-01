@@ -8,6 +8,7 @@ const AddressForm = ({ onSubmit }) => {
   const [addresses, setAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [showNewForm, setShowNewForm] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [newAddress, setNewAddress] = useState({
     street: '',
     city: '',
@@ -17,6 +18,7 @@ const AddressForm = ({ onSubmit }) => {
   });
 
   useEffect(() => {
+    setLoading(true);
     const fetchAddresses = async () => {
       try {
         const res = await fetch('/api/user/address');
@@ -26,10 +28,11 @@ const AddressForm = ({ onSubmit }) => {
         if (defaultAddr) setSelectedAddressId(defaultAddr.id);
       } catch (err) {
         console.error('Error fetching addresses:', err);
+      } finally {
+        setLoading(false);
       }
     };
-
-    if (session?.user?.id) fetchAddresses();
+    fetchAddresses();
   }, [session]);
 
   const handleSelect = (id) => {
@@ -38,6 +41,7 @@ const AddressForm = ({ onSubmit }) => {
   };
 
   const handleSaveNewAddress = async () => {
+    setLoading(true);
     const isEmpty = Object.values(newAddress).some((val) => !val.trim());
     if (isEmpty) {
       alert('Please fill in all fields.');
@@ -58,10 +62,13 @@ const AddressForm = ({ onSubmit }) => {
       setNewAddress({ street: '', city: '', state: '', country: '', zipCode: '' });
     } catch (error) {
       console.error('Address save failed:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
+    setLoading(true);
     e.preventDefault();
     const selected = addresses.find((a) => a.id === selectedAddressId);
     if (!selected) {
@@ -69,6 +76,7 @@ const AddressForm = ({ onSubmit }) => {
       return;
     }
     onSubmit(selected);
+    setLoading(false);
   };
 
   return (
@@ -90,7 +98,9 @@ const AddressForm = ({ onSubmit }) => {
         </button>
       </div>
 
-      {addresses.length > 0 && (
+      {loading ? (
+        <div>Loading...</div>
+      ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {addresses.map((address) => (
             <div

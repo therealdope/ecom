@@ -25,6 +25,7 @@ export async function GET() {
   }
 }
 
+// POST: vendor sends notification to user
 export async function POST(req) {
   try {
     const body = await req.json();

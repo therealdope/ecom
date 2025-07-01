@@ -7,9 +7,13 @@ export async function GET() {
         const products = await prisma.product.findMany({
             include: {
                 category: true,
-                variants: true,
                 shop: true,
                 reviews: true,
+                variants: {
+                    where: {
+                        NOT: { inOrder: 1 } // Exclude variants with inOrder === 1
+                    }
+                }
             },
             orderBy: {
                 createdAt: 'desc'

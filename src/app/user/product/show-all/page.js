@@ -7,8 +7,17 @@ import Link from 'next/link';
 import UserDashboardLayout from '@/components/user/layout/UserDashboardLayout';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { ChevronDownIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { Suspense } from 'react';
 
 export default function ShowAllProductsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ShowAllProducts />
+    </Suspense>
+  );
+}
+
+function ShowAllProducts() {
   const searchParams = useSearchParams();
   const query = searchParams.get('searchquery') || '';
   const [products, setProducts] = useState([]);

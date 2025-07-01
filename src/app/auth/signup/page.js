@@ -46,23 +46,23 @@ export default function SignUp() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, role })
-      });
+  const response = await fetch('/api/auth/signup', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...formData, role }),
+  });
 
-      if (response.ok) {
-        router.push('/auth/signin');
-      } else {
-        const data = await response.json();
-        setError(data.message || 'Signup failed');
-      }
-    } catch (err) {
-      setError('An error occurred during signup');
-    } finally {
-      setIsLoading(false);
-    }
+  if (response.ok) {
+    router.push('/auth/signin');
+  } else {
+    const data = await response.json();
+    setError(data.error || 'Signup failed. Change email or password');
+  }
+} catch (err) {
+  setError('An error occurred during signup');
+} finally {
+  setIsLoading(false);
+}
   };
 
   if (status === 'loading' || isLoading) return <Loader />;
@@ -169,7 +169,7 @@ export default function SignUp() {
                 className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 placeholder="Email address"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value.trim().toLowerCase() })}
               />
             </div>
 
@@ -188,7 +188,7 @@ export default function SignUp() {
                 className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 placeholder="Password"
                 value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value.trim() })}
               />
             </div>
 
@@ -207,7 +207,7 @@ export default function SignUp() {
                 className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 placeholder="Re-enter your password"
                 value={formData.confirmPassword}
-                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value.trim() })}
               />
             </div>
 

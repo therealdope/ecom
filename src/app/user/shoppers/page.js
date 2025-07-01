@@ -5,6 +5,7 @@ import { format } from 'date-fns'
 import { StarIcon as StarOutline, XMarkIcon } from '@heroicons/react/24/outline'
 import { StarIcon as StarSolid } from '@heroicons/react/24/solid';
 import { useToast } from '@/context/ToastContext';
+import Loader from '@/components/shared/Loader';
 
 export default function UserVendorsPage() {
   const [vendors, setVendors] = useState([])
@@ -13,12 +14,19 @@ export default function UserVendorsPage() {
   const [comment, setComment] = useState('')
   const modalRef = useRef(null)
   const { showToast } = useToast();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    setLoading(true)
     fetch('/api/user/shoppers')
       .then(r => r.json())
-      .then(d => setVendors(d.vendors || []))
+      .then(d => {
+        setVendors(d.vendors || [])
+        setLoading(false)
+      })
   }, [])
+
+  if (loading) return <Loader />
 
   function openReview(vid) {
     setReviewing(vid)

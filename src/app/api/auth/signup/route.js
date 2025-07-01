@@ -30,7 +30,7 @@ export async function POST(req) {
         if (role === 'USER') {
             user = await prisma.user.create({
                 data: {
-                    name,
+                    name: name.trim(),
                     email,
                     password: hashedPassword,
                 },
@@ -38,7 +38,7 @@ export async function POST(req) {
         } else if (role === 'VENDOR') {
             user = await prisma.vendor.create({
                 data: {
-                    name,
+                    name: name.trim(),
                     email,
                     password: hashedPassword,
                 },
@@ -49,7 +49,6 @@ export async function POST(req) {
 
         return NextResponse.json({ message: 'Account created successfully' });
     } catch (error) {
-        console.error('Signup error:', error);
         return NextResponse.json({ error: 'Error creating account: ' + error.message }, { status: 500 });
     }
 }

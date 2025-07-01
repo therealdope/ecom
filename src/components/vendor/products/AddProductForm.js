@@ -2,9 +2,12 @@ import { useState, useEffect, useRef} from 'react';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useShop } from '@/context/ShopContext';
+import { useToast } from '@/context/ToastContext';
+import { TagIcon, DocumentTextIcon, Squares2X2Icon, PlusIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 export default function AddProductForm({ isOpen, onClose, onProductAdded }) {
   const { data: session } = useSession();
+  const { showToast } = useToast();
   const { selectedShop } = useShop(); // Get selected shop from context
   const [isLoading, setIsLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
@@ -95,12 +98,14 @@ const handleRemoveCategory = () => {
   
 
   // Update the category selection JSX
-  const renderCategorySelection = () => (
-    <div className="space-y-2">
+const renderCategorySelection = () => {
+
+  return (
+    <div className="space-y-2 relative">
       <label className="block text-sm font-medium text-gray-700">
         Category <span className="text-red-500">*</span>
       </label>
-  
+
       <div className="relative">
         <input
           type="text"
@@ -108,10 +113,11 @@ const handleRemoveCategory = () => {
           value={categorySearch}
           onChange={(e) => handleCategorySearch(e.target.value)}
           disabled={!!formData.category}
-          className="w-full rounded-lg border px-4 py-3 pr-10 bg-white"
+          className={`w-full pl-10 pr-10 py-3 rounded-md border border-gray-300 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500
+          ${errors.category?"border-red-500":""}`}
         />
-  
-        {/* Remove icon */}
+        <Squares2X2Icon className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+
         {formData.category && (
           <button
             type="button"
@@ -136,8 +142,7 @@ const handleRemoveCategory = () => {
             </svg>
           </button>
         )}
-  
-        {/* Loading spinner */}
+
         {isSearching && (
           <div className="absolute right-10 top-1/2 -translate-y-1/2">
             <svg
@@ -153,100 +158,98 @@ const handleRemoveCategory = () => {
                 r="10"
                 stroke="currentColor"
                 strokeWidth="4"
-              ></circle>
+              />
               <path
                 className="opacity-75"
                 fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+              />
             </svg>
           </div>
         )}
       </div>
-  
-      {/* Filtered categories list */}
+
       {!formData.category && getFilteredCategories().length > 0 && (
-        <ul className="mt-2 max-h-40 overflow-auto border rounded-md shadow-sm">
+        <ul className="absolute z-10 w-full mt-1 max-h-48 overflow-auto bg-white border border-indigo-300 rounded-md shadow-lg">
           {getFilteredCategories().map((category) => (
             <li
               key={category.id}
-              className="flex justify-between items-center cursor-pointer p-2 hover:bg-gray-50"
+              onClick={() => {
+                setFormData({ ...formData, category: category.name });
+                setCategorySearch(category.name);
+              }}
+              className="cursor-pointer px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 transition"
             >
-              <span
-                onClick={() => {
-                  setFormData({ ...formData, category: category.name });
-                  setCategorySearch(category.name);
-                }}
-                className="flex-grow"
-              >
-                {category.name}
-              </span>
+              {category.name}
             </li>
           ))}
         </ul>
       )}
-  
-      {/* Create new category if no match */}
+
       {!formData.category &&
         categorySearch &&
         getFilteredCategories().length === 0 && (
           <button
             type="button"
             onClick={handleCreateCategory}
-            className="mt-2 w-full py-2 px-4 text-sm text-blue-600 hover:bg-blue-50 rounded-md border border-blue-200"
+            className="mt-2 w-full py-2 px-4 text-sm text-indigo-600 hover:bg-indigo-100 rounded-md border border-indigo-300 bg-white transition"
           >
             Create new category &quot;{categorySearch}&quot;
           </button>
         )}
-  
-      {/* Validation error */}
-      {errors.category && (
-        <p className="mt-1 text-sm text-red-600">{errors.category}</p>
-      )}
     </div>
   );
-  
-  
+};
 
-
-  const renderStep1 = () => (
+const renderStep1 = () => {
+  return (
     <div className="space-y-6 p-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+      {/* Product Name */}
+      <div className="relative">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
           Product Name <span className="text-red-500">*</span>
           <span className="ml-1 text-xs text-gray-500">(Required)</span>
         </label>
-        <input
-          type="text"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className={`mt-1 block w-full rounded-lg border px-4 py-3 ${errors.name ? 'border-red-300' : 'border-gray-300'}`}
-          placeholder="Enter product name"
-        />
-        {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
+        <div className="relative">
+          <input
+            type="text"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            placeholder="Enter product name"
+            className={`pl-10 pr-4 py-3 w-full rounded-lg border text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition ${
+              errors.name ? 'border-red-300' : 'border-gray-300'
+            }`}
+          />
+          <TagIcon className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+        </div>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+      {/* Description */}
+      <div className="relative">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
           Description <span className="text-red-500">*</span>
         </label>
-        <textarea
-          value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          rows={4}
-          className={`mt-1 block w-full rounded-lg border px-4 py-3 ${errors.description ? 'border-red-300' : 'border-gray-300'}`}
-          placeholder="Enter product description"
-        />
-        {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description}</p>}
+        <div className="relative">
+          <textarea
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            rows={4}
+            placeholder="Enter product description"
+            className={`pl-10 pr-4 py-3 w-full rounded-lg border text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition resize-none ${
+              errors.description ? 'border-red-300' : 'border-gray-300'
+            }`}
+          />
+          <DocumentTextIcon className="w-5 h-5 text-gray-400 absolute left-3 top-3 pointer-events-none" />
+        </div>
       </div>
 
+      {/* Category */}
       <div className="space-y-2">
         {renderCategorySelection()}
       </div>
     </div>
   );
-
-
+};
 
   const handleRemoveVariant = (index) => {
     setFormData(prev => ({
@@ -266,45 +269,52 @@ const handleRemoveCategory = () => {
   // Update the renderStep3 function
   const renderStep3 = () => (
   <div className="space-y-6 p-4">
-    <div className="flex justify-between items-center mb-6">
-      <h3 className="text-xl font-semibold">Product Variants <span className="text-red-500">*</span></h3>
+    {/* Header */}
+    <div className="flex flex-col md:flex-row justify-between md:items-center mb-4 gap-3">
+      <h3 className="text-xl font-semibold text-indigo-800">
+        Product Variants <span className="text-red-500">*</span>
+      </h3>
+
       <button
         type="button"
-        onClick={() => setFormData(prev => ({
-          ...prev,
-          variants: [...prev.variants, { size: '', color: '', sku: '', price: '', stock: '' }]
-        }))}
-        className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+        onClick={() =>
+          setFormData((prev) => ({
+            ...prev,
+            variants: [...prev.variants, { size: '', color: '', sku: '', price: '', stock: '' }],
+          }))
+        }
+        className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow transition"
       >
-        <svg className="-ml-1 mr-2 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M10 5a1 1 0 011 1v3h3a1 1 0 010 2h-3v3a1 1 0 01-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" />
-        </svg>
+        <PlusIcon className="h-5 w-5 mr-2" />
         Add Variant
       </button>
     </div>
 
     {formData.variants.map((variant, index) => (
-      <div key={index} className="border-1 rounded-xl p-6 shadow-md bg-white space-y-4">
-        <div className="flex justify-between items-center border-b pb-2">
-          <h4 className="text-lg font-medium">Variant {index + 1}</h4>
+      <div
+        key={index}
+        className="rounded-2xl p-6 bg-indigo-100/20 border border-indigo-200/50 shadow backdrop-blur-md space-y-6 transition"
+      >
+        <div className="flex justify-between items-center border-b border-indigo-200/50 pb-3">
+          <h4 className="text-lg font-medium text-indigo-900">Variant {index + 1}</h4>
           {formData.variants.length > 1 && (
             <button
               type="button"
               onClick={() => handleRemoveVariant(index)}
-              className="text-gray-400 hover:text-red-500 transition p-1 rounded-full hover:bg-red-50"
+              className="text-gray-400 hover:text-red-500 transition p-1 rounded-full hover:bg-red-100"
             >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <XMarkIcon className="h-5 w-5" />
             </button>
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Size Input */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {/* Size */}
           <div className="space-y-2">
-            <label className="block text-sm font-semibold">Size</label>
-            <div className="flex space-x-2 items-center">
+            <label className="block text-sm font-semibold text-indigo-900">
+              Size <span className="text-red-500">*</span>
+            </label>
+            <div className="flex gap-2 items-center">
               <input
                 type="text"
                 placeholder="Size"
@@ -313,92 +323,106 @@ const handleRemoveCategory = () => {
                   const newSize = e.target.value + (sizeUnit === 'custom' ? customSizeUnit : sizeUnit);
                   handleVariantChange(index, 'size', newSize);
                 }}
-                className="flex-1 border rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
+                className={`flex-1 rounded-xl px-4 py-2 bg-indigo-50 shadow-sm focus:ring-2 focus:ring-indigo-300 ${
+                  errors[index]?.size ? 'border border-red-400' : ''
+                }`}
               />
               <select
                 value={sizeUnit}
                 onChange={(e) => setSizeUnit(e.target.value)}
-                className="border rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
+                className="rounded-xl px-4 py-2 bg-indigo-50 shadow-sm focus:ring-2 focus:ring-indigo-300"
               >
-                {['cm', 'in', 'L', 'ml', 'kg', 'gm', 'custom'].map(unit => (
-                  <option key={unit} value={unit}>{unit}</option>
+                {['cm', 'in', 'L', 'ml', 'kg', 'gm', 'custom'].map((unit) => (
+                  <option key={unit} value={unit}>
+                    {unit}
+                  </option>
                 ))}
               </select>
             </div>
             {sizeUnit === 'custom' && (
               <input
                 type="text"
-                placeholder="Custom unit (e.g. yards)"
+                placeholder="Custom unit"
                 value={customSizeUnit}
                 onChange={(e) => setCustomSizeUnit(e.target.value)}
-                className="w-full border rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full rounded-xl px-4 py-2 bg-indigo-50 shadow-sm focus:ring-2 focus:ring-indigo-300"
               />
             )}
           </div>
 
-            {/* Color Input with Inline Preview and Picker */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700">Color (Hex)</label>
-              <div className="flex items-center space-x-3 relative">
-                {/* Text input for hex value */}
-                <input
-                  type="text"
-                  placeholder="#RRGGBB"
-                  value={variant.color}
-                  onChange={(e) => handleVariantChange(index, 'color', e.target.value)}
-                  className="flex-1 border border-black rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
+          {/* Color */}
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-indigo-900">
+              Color <span className="text-red-500">*</span>
+            </label>
+            <div className="flex items-center space-x-3">
+              <input
+                type="text"
+                placeholder="#RRGGBB"
+                value={variant.color}
+                onChange={(e) => handleVariantChange(index, 'color', e.target.value)}
+                className={`flex-1 rounded-xl px-4 py-2 bg-indigo-50 shadow-sm focus:ring-2 focus:ring-indigo-300 ${
+                  !/^#([0-9A-F]{3}){1,2}$/i.test(variant.color) && variant.color ? 'border border-red-400' : ''
+                }`}
+              />
+              <div className="relative">
+                <div
+                  className="w-10 h-10 rounded-lg border border-gray-300 cursor-pointer"
+                  style={{
+                    backgroundColor: /^#([0-9A-F]{3}){1,2}$/i.test(variant.color)
+                      ? variant.color
+                      : '#ffffff',
+                  }}
+                  onClick={() => setColorPickerIndex(index)}
                 />
-
-                {/* Color preview with inline color input */}
-                <div className="relative">
-                  <div
-                    className="w-10 h-10 rounded-lg border border-black cursor-pointer"
-                    style={{ backgroundColor: /^#([0-9A-F]{3}){1,2}$/i.test(variant.color) ? variant.color : '#ffffff' }}
-                    onClick={() => setColorPickerIndex(index)}
-                    title="Click to pick color"
+                {colorPickerIndex === index && (
+                  <input
+                    type="color"
+                    ref={(el) => (colorInputRefs.current[index] = el)}
+                    value={variant.color || '#000000'}
+                    onChange={(e) => handleVariantChange(index, 'color', e.target.value)}
+                    className="absolute top-0 left-0 w-10 h-10 opacity-0 cursor-pointer"
+                    onBlur={() => setColorPickerIndex(null)}
                   />
-                  {colorPickerIndex === index && (
-                    <input
-                      type="color"
-                      ref={(el) => (colorInputRefs.current[index] = el)}
-                      value={variant.color || '#000000'}
-                      onChange={(e) => handleVariantChange(index, 'color', e.target.value)}
-                      className="absolute top-0 left-0 w-10 h-10 opacity-0 cursor-pointer"
-                      onBlur={() => setColorPickerIndex(null)}
-                    />
-                  )}
-                </div>
+                )}
               </div>
-
-              {/* Optional invalid warning */}
-              {!/^#([0-9A-F]{3}){1,2}$/i.test(variant.color) && variant.color && (
-                <p className="text-xs text-red-500">Invalid hex code</p>
-              )}
             </div>
+            {!/^#([0-9A-F]{3}){1,2}$/i.test(variant.color) && variant.color && (
+              <p className="text-xs text-red-500">Invalid hex code</p>
+            )}
+          </div>
 
           {/* SKU */}
           <div className="space-y-2">
-            <label className="block text-sm font-semibold">SKU</label>
+            <label className="block text-sm font-semibold text-indigo-900">
+              SKU <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
               placeholder="Stock Keeping Unit"
               value={variant.sku}
               onChange={(e) => handleVariantChange(index, 'sku', e.target.value)}
-              className="w-full border rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
+              className={`w-full rounded-xl px-4 py-2 bg-indigo-50 shadow-sm focus:ring-2 focus:ring-indigo-300 ${
+                errors[index]?.sku ? 'border border-red-400' : ''
+              }`}
             />
           </div>
 
           {/* Price */}
           <div className="space-y-2">
-            <label className="block text-sm font-semibold">Price</label>
+            <label className="block text-sm font-semibold text-indigo-900">
+              Price <span className="text-red-500">*</span>
+            </label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">₹</span>
               <input
                 type="number"
                 placeholder="0.00"
                 value={variant.price}
                 onChange={(e) => handleVariantChange(index, 'price', e.target.value)}
-                className="w-full border rounded-lg pl-8 pr-4 py-2 focus:ring-blue-500 focus:border-blue-500"
+                className={`w-full rounded-xl pl-8 pr-4 py-2 bg-indigo-50 shadow-sm focus:ring-2 focus:ring-indigo-300 ${
+                  errors?.price ? 'border border-red-400' : ''
+                }`}
                 min="0"
                 step="0.01"
               />
@@ -406,14 +430,18 @@ const handleRemoveCategory = () => {
           </div>
 
           {/* Stock */}
-          <div className="space-y-2 md:col-span-2">
-            <label className="block text-sm font-semibold">Stock</label>
+          <div className="space-y-2 sm:col-span-2">
+            <label className="block text-sm font-semibold text-indigo-900">
+              Stock <span className="text-red-500">*</span>
+            </label>
             <input
               type="number"
               placeholder="Quantity in stock"
               value={variant.stock}
               onChange={(e) => handleVariantChange(index, 'stock', e.target.value)}
-              className="w-full border rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
+              className={`w-full rounded-xl px-4 py-2 bg-indigo-50 shadow-sm focus:ring-2 focus:ring-indigo-300 ${
+                errors[index]?.stock ? 'border border-red-400' : ''
+              }`}
               min="0"
             />
           </div>
@@ -441,7 +469,7 @@ const renderStep2 = () => (
       Product Image <span className="text-red-500">*</span>
     </label>
 
-    <div className="flex justify-center items-center border-2 border-gray-400 border-dashed rounded-xl bg-gray-50 hover:border-blue-600 transition-colors min-h-[300px]">
+    <div className="flex justify-center items-center border-2 border-gray-400 border-dashed rounded-xl bg-gray-50 hover:border-indigo-600 transition-colors min-h-[300px]">
       <div className="w-full text-center p-3">
         {previewImage ? (
           <div className="relative group mx-auto w-full max-w-md aspect-square rounded-xl overflow-hidden">
@@ -453,7 +481,7 @@ const renderStep2 = () => (
               className="rounded-xl"
             />
             {/* Overlay and remove icon on hover */}
-            <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
+            <div className="absolute inset-0 bg-black/80 bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
               <button
                 type="button"
                 onClick={() => {
@@ -484,7 +512,7 @@ const renderStep2 = () => (
               />
             </svg>
 
-            <label className="cursor-pointer inline-flex items-center space-x-2 px-4 py-1.5 text-sm font-medium text-blue-600 bg-white border border-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition">
+            <label className="cursor-pointer inline-flex items-center space-x-2 px-4 py-1.5 text-sm font-medium text-indigo-600 bg-white border border-indigo-600 rounded-lg hover:bg-indigo-600 hover:text-white transition">
               <span>Upload Image</span>
               <input
                 type="file"
@@ -596,9 +624,19 @@ const renderStep2 = () => (
         },
         body: JSON.stringify(productData),
       });
-
+      
+      const data = await response.json();
       if (!response.ok) {
-        throw new Error('Failed to create product');
+        showToast({
+          title: 'Error',
+          description: data.error
+        });
+      }
+      if(response.ok){
+        showToast({
+        title: 'Product Added',
+        description: 'Product has been added successfully'
+      });
       }
 
       onProductAdded();
@@ -629,7 +667,7 @@ const renderStep2 = () => (
         {/* Progress bar */}
         <div className="w-full h-2 bg-gray-200 rounded-full mb-6">
           <div
-            className="h-full bg-blue-600 rounded-full transition-all duration-300"
+            className="h-full bg-indigo-600 rounded-full transition-all duration-300"
             style={{ width: `${(currentStep / 3) * 100}%` }}
           />
         </div>
@@ -639,19 +677,19 @@ const renderStep2 = () => (
           {currentStep === 2 && renderStep2()}
           {currentStep === 3 && renderStep3()}
           
-          <div className="flex justify-end space-x-4 mt-6 sticky bottom-0 bg-white p-4 border-t">
+          <div className="flex justify-end space-x-4 sticky bottom-0 bg-white p-4 ">
             {currentStep > 1 && (
               <button
                 type="button"
                 onClick={() => setCurrentStep(currentStep - 1)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+                className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
               >
                 Back
               </button>
             )}
             <button
               type="submit"
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md"
+              className="px-4 py-2 text-white bg-indigo-600 hover:bg-indigo-700 rounded-md"
               disabled={isLoading}
             >
               {isLoading ? 'Loading...' : currentStep === 3 ? 'Submit' : 'Next'}

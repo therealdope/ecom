@@ -9,37 +9,69 @@ export async function GET() {
     return NextResponse.json({ customers: [] }, { status: 401 });
   }
 
-  // Fetch vendorId from session or profile
+  // Get vendor
   const vendor = await prisma.vendor.findUnique({
     where: { email: session.user.email },
   });
-  if (!vendor) return NextResponse.json({ customers: [] }, { status: 403 });
+  if (!vendor) {
+    return NextResponse.json({ customers: [] }, { status: 403 });
+  }
 
-  // Aggregate per customer
-  const data = await prisma.payment.groupBy({
-    by: ['userId'],
-    where: { vendorId: vendor.id, status: 'PAID' },
-    _sum: { amount: true },
-    _count: { orderId: true },
+  // Get all distinct users who placed orders for this vendor
+  const orders = await prisma.order.findMany({
+    where: {
+      vendorId: vendor.id,
+      status: 'DELIVERED', // Optional: filter by completed orders
+    },
+    select: {
+      userId: true,
+      createdAt: true,
+      total: true,
+    },
   });
 
-  // Fetch user and last order info
-  const customers = await Promise.all(data.map(async (grp) => {
-    const user = await prisma.user.findUnique({ where: { id: grp.userId } });
-    const lastPayment = await prisma.payment.findFirst({
-      where: { userId: grp.userId, vendorId: vendor.id, status: 'PAID' },
-      orderBy: { createdAt: 'desc' },
-    });
-    return {
-      userId: grp.userId,
-      name: user?.name || 'Unknown',
-      email: user?.email || '',
-      joinedOn: user?.createdAt,
-      totalAmount: grp._sum.amount,
-      totalOrders: grp._count.orderId,
-      lastOrdered: lastPayment?.createdAt,
-    };
-  }));
+  const userOrderMap = new Map();
 
-  return NextResponse.json({ customers });
+  for (const order of orders) {
+    if (!userOrderMap.has(order.userId)) {
+      userOrderMap.set(order.userId, {
+        userId: order.userId,
+        totalOrders: 1,
+        totalAmount: order.total,
+        lastOrdered: order.createdAt,
+      });
+    } else {
+      const entry = userOrderMap.get(order.userId);
+      entry.totalOrders += 1;
+      entry.totalAmount += order.total;
+      if (new Date(order.createdAt) > new Date(entry.lastOrdered)) {
+        entry.lastOrdered = order.createdAt;
+      }
+    }
+  }
+
+  const customerDetails = await Promise.all(
+    [...userOrderMap.keys()].map(async (userId) => {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        include: {
+          profile: true,
+        },
+      });
+
+      const entry = userOrderMap.get(userId);
+      return {
+        userId,
+        name: user?.name || 'Unknown',
+        email: user?.email || '',
+        phone: user?.profile?.phoneNumber || '',
+        joinedOn: user?.createdAt,
+        totalOrders: entry.totalOrders,
+        totalAmount: entry.totalAmount,
+        lastOrdered: entry.lastOrdered,
+      };
+    })
+  );
+
+  return NextResponse.json({ customers: customerDetails });
 }

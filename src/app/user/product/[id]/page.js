@@ -8,6 +8,7 @@ import UserDashboardLayout from '@/components/user/layout/UserDashboardLayout';
 import { useCart } from '@/context/CartContext';
 import { HeartIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
+import Loader from '@/components/shared/Loader';
 
 export default function ProductPage({ params }) {
   const { addToCart, removeFromCart, updateCartItemQuantity, cartItems, toggleWishlist, isInWishlist } = useCart();
@@ -31,8 +32,11 @@ export default function ProductPage({ params }) {
       if (productRes.ok) {
         setProduct(productData);
         if (productData?.variants?.length > 0) {
-          setSelectedVariant(productData.variants[0]);
-        }
+  const selectable = productData.variants.find((v) => parseInt(v.inOrder) !== 1 && v.stock > 0);
+  if (selectable) {
+    setSelectedVariant(selectable);
+  }
+}
       } else {
         console.error('Failed to fetch product:', productData.error);
       }
@@ -63,24 +67,20 @@ export default function ProductPage({ params }) {
     }
   };
 
-  const handleQuantityChange = async (delta) => {
+  const handleQuantityChange = (delta) => {
     if (!product || !selectedVariant) return;
     
     const newQuantity = quantity + delta;
     if (newQuantity <= 0) {
-      await removeFromCart(product.id, selectedVariant.id);
+       removeFromCart(product.id, selectedVariant.id);
     } else if (newQuantity <= selectedVariant.stock) {
-      await updateCartItemQuantity(product.id, selectedVariant.id, newQuantity);
+       updateCartItemQuantity(product.id, selectedVariant.id, newQuantity);
     }
   };
 
   if (loading) {
     return (
-      <UserDashboardLayout>
-        <div className="flex justify-center items-center min-h-screen">
-          <div className="animate-spin rounded-full h-24 w-24 border-t-4 border-b-4 border-indigo-500" />
-        </div>
-      </UserDashboardLayout>
+        <Loader/>
     );
   }
 
@@ -129,7 +129,7 @@ export default function ProductPage({ params }) {
       src={product.imageUrl || '/placeholder.jpg'}
       alt={product.name}
       fill
-      className="object-cover"
+      className="object-contain"
       priority
     />
     <button
@@ -174,8 +174,6 @@ export default function ProductPage({ params }) {
   )}
 </div>
 
-
-
 {/* Product Details */}
 <div className="p-6 mt-2 rounded-2xl space-y-4 backdrop-blur-sm border-gray-400">
   <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
@@ -214,47 +212,53 @@ export default function ProductPage({ params }) {
   <div className="rounded-2xl">
     <p className="text-xs font-medium text-gray-500 uppercase mb-2">Variants</p>
 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-  {product.variants.map((variant) => (
-    <button
-      key={variant.id}
-      onClick={() => setSelectedVariant(variant)}
-      className={`p-4 rounded-2xl border-1 border-gray-200 hover:bg-gray-50 transition text-left shadow-sm space-y-1 ${
-        selectedVariant?.id === variant.id
-          ? 'bg-indigo-100 border-indigo-500'
-          : 'bg-white hover:border-gray-300'
-      }`}
-    >
-      <p className="text-sm text-gray-700">
-        <span className="font-medium text-gray-900">SKU:</span> {variant.sku}
-      </p>
-
-      {(variant.size || variant.color) && (
+  {Array.isArray(product.variants) &&
+  product.variants
+    .filter(
+      (variant) => variant.stock > 0 && parseInt(variant.inOrder) !== 1
+    )
+    .map((variant) => (
+      <button
+        key={variant.id}
+        onClick={() => setSelectedVariant(variant)}
+        className={`p-4 rounded-2xl border border-gray-200 hover:bg-gray-50 transition text-left shadow-sm space-y-1 ${
+          selectedVariant?.id === variant.id
+            ? 'bg-indigo-100 border-indigo-500'
+            : 'bg-white hover:border-gray-300'
+        }`}
+      >
         <p className="text-sm text-gray-700">
-          {variant.size && (
-            <span>
-              <span className="font-medium text-gray-900">Size:</span> {variant.size}
-            </span>
-          )}
-          {variant.size && variant.color && ' • '}
-          {variant.color && (
-  <span className="flex items-center gap-2">
-    <span className="font-medium text-gray-900">Color:</span>
-    <span className="capitalize text-gray-700">{variant.color}</span>
-    <span
-      className="w-5 h-5 rounded-full border border-gray-300"
-      style={{ backgroundColor: variant.color.toLowerCase() }}
-    />
-  </span>
-)}
-</p>
-      )}
+          <span className="font-medium text-gray-900">SKU:</span> {variant.sku}
+        </p>
 
-      <p className="text-sm text-indigo-600 font-semibold">
-        ₹{variant.price.toFixed(2)}
-      </p>
-      <p className="text-sm text-gray-500">{variant.stock} in stock</p>
-    </button>
-  ))}
+        {(variant.size || variant.color) && (
+          <p className="text-sm text-gray-700">
+            {variant.size && (
+              <span>
+                <span className="font-medium text-gray-900">Size:</span> {variant.size}
+              </span>
+            )}
+            {variant.size && variant.color && ' • '}
+            {variant.color && (
+              <span className="flex items-center gap-2">
+                <span className="font-medium text-gray-900">Color:</span>
+                <span className="capitalize text-gray-700">{variant.color}</span>
+                <span
+                  className="w-5 h-5 rounded-full border border-gray-300"
+                  style={{ backgroundColor: variant.color.toLowerCase() }}
+                />
+              </span>
+            )}
+          </p>
+        )}
+
+        <p className="text-sm text-indigo-600 font-semibold">
+          ₹{variant.price.toFixed(2)}
+        </p>
+        <p className="text-sm text-gray-500">{variant.stock} in stock</p>
+      </button>
+    ))}
+  
 </div>
 
   </div>

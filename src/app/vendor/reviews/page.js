@@ -8,11 +8,14 @@ import VendorLayout from '@/components/vendor/layout/VendorLayout';
 export default function VendorReviewsPage() {
   const [view, setView] = useState('vendor'); // 'vendor' or 'product'
   const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     fetch(`/api/vendor/reviews?type=${view}`)
       .then(res => res.json())
-      .then(setReviews);
+      .then(setReviews)
+      .finally(() => setLoading(false));
   }, [view]);
 
   return (
@@ -86,7 +89,7 @@ export default function VendorReviewsPage() {
             {reviews.length === 0 && (
               <tr>
                 <td colSpan={view === 'product' ? 5 : 4} className="text-center py-6 text-gray-500">
-                  No reviews found
+                  {loading ? 'Loading...' : 'No reviews found'}
                 </td>
               </tr>
             )}

@@ -33,7 +33,6 @@ export async function GET() {
 
 export async function POST(req) {
   const session = await getServerSession(authOptions);
-
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -45,66 +44,106 @@ export async function POST(req) {
   }
 
   try {
-    const result = await prisma.$transaction(async (tx) => {
-      // 1. Stock check
-      for (const item of items) {
-        const variant = await tx.productVariant.findUnique({
-          where: { id: item.variantId },
-        });
+    // Pre-fetch all variants in one go
+    const variantIds = items.map(item => item.variantId);
+    const variants = await prisma.productVariant.findMany({
+      where: { id: { in: variantIds } },
+    });
 
-        if (!variant || variant.stock < item.quantity) {
-          throw new Error(`Insufficient stock for variant ${item.variantId}`);
+    const variantsMap = Object.fromEntries(variants.map(v => [v.id, v]));
+
+    // Group items by vendor
+    const vendorItemsMap = {};
+    items.forEach(item => {
+      const vendorId = item.product.vendorId;
+      if (!vendorItemsMap[vendorId]) vendorItemsMap[vendorId] = [];
+      vendorItemsMap[vendorId].push(item);
+    });
+
+    // Store generated OTPs to insert later
+    const otpDataList = [];
+    const createdOrders = [];
+
+    // Run all orders in a single transaction
+    await prisma.$transaction(async (tx) => {
+      for (const [vendorId, vendorItems] of Object.entries(vendorItemsMap)) {
+        // Stock checks
+        for (const item of vendorItems) {
+          const variant = variantsMap[item.variantId];
+          if (!variant || variant.stock < item.quantity) {
+            throw new Error(`Insufficient stock for variant ${item.variantId}`);
+          }
         }
-      }
 
-      // 2. Create order
-      const order = await tx.order.create({
-        data: {
-          userId: session.user.id,
-          vendorId: items[0]?.product?.vendorId || '',
-          total,
-          address: `${address.street}, ${address.city}, ${address.state}, ${address.country} - ${address.zipCode}`,
-          promoCode: promoCode || null,
-          giftCard: giftCard || null,
-          paymentMethod: paymentMethod.toUpperCase(),
-          status: 'PENDING',
-          orderItems: {
-            create: items.map((item) => ({
-              productId: item.productId,
-              variantId: item.variantId,
-              quantity: item.quantity,
-              price: item.variant?.price || 0,
-            })),
-          },
-        },
-      });
-
-      // 3. Generate OTP
-      const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
-
-      await tx.orderOtp.create({
-        data: {
-          orderId: order.id,
-          otp,
-        },
-      });
-
-      // 4. Decrease stock
-      for (const item of items) {
-        await tx.productVariant.update({
-          where: { id: item.variantId },
+        // Create order
+        const order = await tx.order.create({
           data: {
-            stock: {
-              decrement: item.quantity,
+            userId: session.user.id,
+            vendorId,
+            total: vendorItems.reduce((acc, item) => acc + (item.variant?.price || 0) * item.quantity, 0),
+            address: `${address.street}, ${address.city}, ${address.state}, ${address.country} - ${address.zipCode}`,
+            promoCode: promoCode || null,
+            giftCard: giftCard || null,
+            paymentMethod: paymentMethod.toUpperCase(),
+            status: 'PENDING',
+            orderItems: {
+              create: vendorItems.map((item) => ({
+                productId: item.productId,
+                variantId: item.variantId,
+                quantity: item.quantity,
+                price: item.variant?.price || 0,
+              })),
             },
           },
         });
-      }
 
-      return order;
+        createdOrders.push(order);
+
+        // Prepare OTP (create outside transaction)
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        otpDataList.push({ orderId: order.id, otp });
+
+        // Update stock and set inOrder
+        for (const item of vendorItems) {
+          await tx.productVariant.update({
+            where: { id: item.variantId },
+            data: {
+              stock: {
+                decrement: item.quantity,
+              },
+              inOrder: 3,
+            },
+          });
+
+          // Low stock notification
+          if ((variantsMap[item.variantId]?.stock - item.quantity) < 5) {
+            await tx.vendorNotification.create({
+              data: {
+                vendorId,
+                type: 'LOW_STOCK_ALERT',
+                content: `Low stock for ${item.variant?.name || 'a product'}`,
+              },
+            });
+          }
+        }
+      }
+    }, {
+      timeout: 10000 // 10 seconds transaction timeout
     });
 
-    return NextResponse.json({ orderId: result.id, vendorId: result.vendorId });
+    // Create OTPs outside transaction
+    for (const otpEntry of otpDataList) {
+      await prisma.orderOtp.create({
+        data: otpEntry,
+      });
+    }
+
+    return NextResponse.json({
+      orders: createdOrders.map((order) => ({
+        orderId: order.id,
+        vendorId: order.vendorId,
+      })),
+    });
   } catch (err) {
     console.error('Order creation failed:', err);
     return NextResponse.json({ error: err.message || 'Internal Server Error' }, { status: 500 });

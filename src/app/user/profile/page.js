@@ -14,6 +14,7 @@ import {
   LockOpenIcon,
 } from '@heroicons/react/24/outline';
 import { useToast } from '@/context/ToastContext';
+import Loader from '@/components/shared/Loader';
 
 export default function UserProfilePage() {
   const { showToast } = useToast();
@@ -49,6 +50,11 @@ export default function UserProfilePage() {
   const handleAvatarChange = e => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > 500 * 1024) { // 500KB in bytes
+      showToast({ title: 'Image Size Error',
+        description: 'Image size exceeds 500KB. Please choose a smaller image.', });
+      return;
+    }
     const reader = new FileReader();
     reader.onload = () => setAvatarFile(reader.result);
     reader.readAsDataURL(file);
@@ -56,6 +62,12 @@ export default function UserProfilePage() {
 
   const saveAvatar = async () => {
     if (!avatarFile) return;
+
+    if (avatarFile.size > 500 * 1024) { // 500KB in bytes
+      showToast({ title: 'Image Size Error',
+        description: 'Image size exceeds 500KB. Please choose a smaller image.', });
+      return;
+    }
     await fetch('/api/user/avatar', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -152,7 +164,7 @@ export default function UserProfilePage() {
     setPassForm({ current: '', new: '', confirm: '' });
   };
 
-  if (!user) return <UserLayout><div className="p-8">Loading...</div></UserLayout>;
+  if (!user) return <Loader/>;
 
   const profile = user.profile || {};
   const addresses = profile.addresses || [];

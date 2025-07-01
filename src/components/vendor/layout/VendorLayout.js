@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useShop } from '@/context/ShopContext';
-
+import { useToast } from '@/context/ToastContext';
 // Updated Icons import for v1
 import { 
   HomeIcon, 
@@ -22,23 +22,28 @@ import {
   ChatBubbleLeftRightIcon,
   ChevronDownIcon,
   ChevronLeftIcon,
-  StarIcon
+  StarIcon,
+  ArrowPathIcon,
+  UserIcon
 } from '@heroicons/react/24/outline';
 
 // Add this import at the top with other imports
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 
 export default function DashboardLayout({ children }) {
   // Remove the local selectedShop state
+  const session = useSession();
   const [shops, setShops] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isShopDropdownOpen, setIsShopDropdownOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
+  const [logo, setLogo] = useState(null);
+  const { showToast } = useToast();
+
   // Use the shop context
-  const { selectedShop, setSelectedShop } = useShop();
+  const { selectedShop, setSelectedShop, unreadNotificationCount } = useShop();
   const defaultSet = useRef(false);
 
   // Fetch shops from API
@@ -48,6 +53,12 @@ export default function DashboardLayout({ children }) {
         const response = await fetch('/api/vendor/shops');
         if (!response.ok) throw new Error('Failed to fetch shops');
         const data = await response.json();
+        if(data.length === 0){
+          showToast({
+            title: 'No Shops',
+            description: 'You have not created any shops yet'
+          });
+        }
         const allShopsOption = { id: 'all', name: 'All Shops' };
         const updatedShops = [allShopsOption, ...data];
         setShops(updatedShops);
@@ -56,15 +67,29 @@ export default function DashboardLayout({ children }) {
           setSelectedShop(allShopsOption); // ensure it's set
           defaultSet.current = true;
         }
+        
       } catch (error) {
-        console.error('Error fetching shops:', error);
+        showToast({
+          title: 'Error',
+          description: error.message
+        });
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchShops();
   }, []);
+
+  useEffect(() => {
+    const fetchLogo = async () => {
+      const response = await fetch('/api/vendor/avatar');
+      const data = await response.json();
+      setLogo(data.logo);
+    };
+    fetchLogo();
+    console.log(logo);
+  }, []);
+
 
   // Handle shop selection
   const selectShop = (shop) => {
@@ -132,6 +157,18 @@ export default function DashboardLayout({ children }) {
   // Toggle mobile menu
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const handleLogout = async () => {
+    showToast({
+      title: 'Logout',
+      description: 'Logged out successfully',
+    });
+
+    // Wait 1 second before redirect + signOut
+    setTimeout(() => {
+      signOut({ callbackUrl: '/' });
+    }, 1000);
   };
   
   return (
@@ -220,12 +257,17 @@ export default function DashboardLayout({ children }) {
             </div>
             
             {/* Right section: Notification, Messages, Profile */}
-            <div className="flex items-center">
-              <Link href="/vendor/notifications">
-                <button className="p-2 rounded-full text-gray-400 hover:text-gray-500 hover:bg-gray-100">
-                  <BellIcon className="h-6 w-6" aria-hidden="true" />
-                </button>
-              </Link>
+            <div className="flex items-center gap-[2px]">
+              <Link href="/vendor/notifications" className="relative inline-block">
+  <button className="p-2 rounded-full text-gray-400 hover:text-gray-500 hover:bg-gray-100 relative">
+    <BellIcon className="h-6 w-6" aria-hidden="true" />
+    {unreadNotificationCount > 0 && (
+      <span className="absolute top-0 right-0 bg-indigo-500 text-white text-xs font-semibold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
+        {unreadNotificationCount}
+      </span>
+    )}
+  </button>
+</Link>
               <Link href="/vendor/messages">
                 <button className="p-2 rounded-full text-gray-400 hover:text-gray-500 hover:bg-gray-100">
                   <ChatBubbleLeftRightIcon className="h-6 w-6" aria-hidden="true" />
@@ -239,10 +281,19 @@ export default function DashboardLayout({ children }) {
                     onClick={toggleProfileDropdown}
                     className="flex items-center max-w-xs rounded-full text-sm focus:outline-none"
                   >
-                    <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-700 font-semibold">
-                      VP
-                    </div>
-                    <ChevronDownIcon className="ml-1 h-5 w-5 text-gray-400" aria-hidden="true" />
+                    {logo ? (
+                      <Image
+                        src={logo}
+                        alt="Vendor Logo"
+                        width={30}
+                        height={30}
+                        className="h-9 w-9 object-cover rounded-full"
+                      />
+                    ) : (
+                      <UserIcon className="h-7 w-7 text-gray-500" />
+                    )}
+
+                    <ChevronDownIcon className="ml-0.5 h-5 w-5 text-gray-400" aria-hidden="true" />
                   </button>
                 </div>
                 
@@ -282,8 +333,8 @@ export default function DashboardLayout({ children }) {
                         Settings
                       </Link>
                       <button 
-                        onClick={() => signOut({ callbackUrl: '/' })} 
-                        className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-red-600" 
+                        onClick={handleLogout}
+                        className="flex items-center w-full border-t border-gray-300 text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-red-600" 
                         role="menuitem"
                       >
                         <ArrowRightOnRectangleIcon className="w-5 h-5 mr-2"/>

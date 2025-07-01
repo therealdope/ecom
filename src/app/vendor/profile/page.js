@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import VendorLayout from '@/components/vendor/layout/VendorLayout';
+import {useToast} from '@/context/ToastContext';
 import {
   UserIcon,
   BuildingStorefrontIcon,
@@ -13,6 +14,7 @@ import {
   TrashIcon,
   PlusIcon
 } from '@heroicons/react/24/outline';
+import Loader from '@/components/shared/Loader';
 
 export default function VendorProfilePage() {
   const [selectedSection, setSelectedSection] = useState('personal');
@@ -23,7 +25,7 @@ export default function VendorProfilePage() {
   const fileInputRef = useRef();
   const [editingAccount, setEditingAccount] = useState(false);
   const [passForm, setPassForm] = useState({ current: '', new: '', confirm: '' });
-
+  const {showToast} = useToast();
   const [editingStore, setEditingStore] = useState(false);
   const [storeForm, setStoreForm] = useState({ storeName: '', description: '', businessAddress: '', bankDetails: '' });
 
@@ -61,6 +63,11 @@ export default function VendorProfilePage() {
   const handleLogoChange = e => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > 500 * 1024) { // 500KB in bytes
+      showToast({ title: 'Image Size Error',
+        description: 'Image size exceeds 500KB. Please choose a smaller image.', });
+      return;
+    }
     const reader = new FileReader();
     reader.onload = () => setLogoFile(reader.result);
     reader.readAsDataURL(file);
@@ -79,6 +86,11 @@ export default function VendorProfilePage() {
 
   const saveLogo = async () => {
     if (!logoFile) return;
+    if (logoFile.size > 500 * 1024) { // 500KB in bytes
+      showToast({ title: 'Image Size Error',
+        description: 'Image size exceeds 500KB. Please choose a smaller image.', });
+      return;
+    }
     await fetch('/api/vendor/avatar', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -160,7 +172,7 @@ export default function VendorProfilePage() {
 };
 
 
-  if (!vendor) return <VendorLayout><div className="p-8">Loading...</div></VendorLayout>;
+  if (!vendor) return <Loader/>;
 
   const profile = vendor.profile || {};
 
@@ -168,24 +180,59 @@ export default function VendorProfilePage() {
     <VendorLayout>
       <div className="flex flex-col md:flex-row gap-6 px-4 py-8 max-w-6xl mx-auto">
         <aside className="md:w-1/4 w-full bg-indigo-200/30 backdrop-blur-md p-6 rounded-2xl shadow-md space-y-6">
-          <div className="flex flex-col items-center">
-            {logoFile ? (
-              <img src={logoFile} className="rounded-full w-24 h-24 object-cover" alt="Logo Preview" />
-            ) : profile.logo ? (
-              <Image src={profile.logo} width={100} height={100} className="rounded-full" alt="Store Image" />
-            ) : (
-              <div className="w-24 h-24 bg-indigo-300 rounded-full flex items-center justify-center">
-                <BuildingStorefrontIcon className="w-10 h-10 text-indigo-700" />
-              </div>
-            )}
-            <input type="file" className="hidden" ref={fileInputRef} onChange={handleLogoChange} accept="image/*" />
-            <button onClick={() => fileInputRef.current.click()} className="mt-2 text-sm text-indigo-700 hover:underline flex items-center gap-1">
-              <PencilSquareIcon className="w-4 h-4" /> {logoFile ? 'Preview Logo' : 'Edit Image'}
-            </button>
-            {logoFile && (
-              <button onClick={saveLogo} className="mt-2 bg-indigo-600 text-white px-4 py-1 rounded">Upload Logo</button>
-            )}
-          </div>
+          <div className="flex flex-col items-center space-y-2">
+  {/* Circle Container for Image/Fallback */}
+  <div className="w-24 h-24 rounded-full overflow-hidden border border-gray-300 shadow-sm flex items-center justify-center bg-white">
+    {logoFile ? (
+      <img
+        src={logoFile}
+        alt="Logo Preview"
+        className="w-full h-full object-cover"
+      />
+    ) : profile.logo ? (
+      <Image
+        src={profile.logo}
+        width={96}
+        height={96}
+        alt="Store Image"
+        className="w-full h-full object-cover"
+      />
+    ) : (
+      <div className="flex items-center justify-center w-full h-full bg-indigo-100">
+        <BuildingStorefrontIcon className="w-10 h-10 text-indigo-700" />
+      </div>
+    )}
+  </div>
+
+  {/* File Input */}
+  <input
+    type="file"
+    className="hidden"
+    ref={fileInputRef}
+    onChange={handleLogoChange}
+    accept="image/*"
+  />
+
+  {/* Edit Button */}
+  <button
+    onClick={() => fileInputRef.current.click()}
+    className="text-sm text-indigo-700 hover:underline flex items-center gap-1"
+  >
+    <PencilSquareIcon className="w-4 h-4" />
+    {logoFile ? 'Change Logo' : 'Edit Image'}
+  </button>
+
+  {/* Upload Button (only when previewing) */}
+  {logoFile && (
+    <button
+      onClick={saveLogo}
+      className="bg-indigo-600 text-white px-4 py-1 rounded text-sm hover:bg-indigo-700 transition"
+    >
+      Upload Logo
+    </button>
+  )}
+</div>
+
           {Object.entries(sections).map(([key, { icon, label }]) => (
             <button key={key} onClick={() => setSelectedSection(key)}
               className={`w-full flex items-center gap-2 px-4 py-2 rounded-xl ${
@@ -283,7 +330,7 @@ export default function VendorProfilePage() {
             <div className="bg-indigo-100/30 p-6 rounded-2xl shadow-md">
               <h3 className="text-xl font-semibold mb-4">Reviews</h3>
               {profile.reviews && profile.reviews.length > 0 ? profile.reviews.map((r, i) => (
-                <div key={i} className="bg-white/70 p-4 rounded-xl shadow-sm">
+                <div key={i} className="bg-white/70 p-4 mb-3 rounded-xl shadow-sm">
                   <p className="text-sm text-gray-500">Rating: {r.rating}</p>
                   <p>{r.comment}</p>
                 </div>

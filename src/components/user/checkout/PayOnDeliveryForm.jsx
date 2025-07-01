@@ -4,14 +4,18 @@ import { useCart } from '@/context/CartContext';
 import { useRouter } from 'next/navigation';
 import { TruckIcon } from '@heroicons/react/24/outline';
 import { useToast } from '@/context/ToastContext';
+import Loader from '@/components/shared/Loader';
+import { useState } from 'react';
 
 const PayOnDeliveryForm = ({ checkoutData, onBack }) => {
   const { clearCart } = useCart();
   const router = useRouter();
   const { showToast } = useToast();
+  const [loading, setLoading] = useState(false);
 
   const handleConfirm = async () => {
     try {
+      setLoading(true);
       const res = await fetch('/api/user/orders', {
         method: 'POST',
         headers: {
@@ -26,17 +30,22 @@ const PayOnDeliveryForm = ({ checkoutData, onBack }) => {
     await clearCart();
     const data = await res.json();
     if(res.ok) {
-      const { orderId, vendorId } = data;
-      await fetch('/api/user/notifications', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          vendorId,
-          type: 'ORDER_PLACED',
-          content: `order ${orderId} has been placed.`,
-        }),
-      });
-      router.push(`/user/orders/confirmation/${orderId}`);
+      const { orders } = data;
+
+      await Promise.all(
+        orders.map(({ vendorId, orderId }) =>
+          fetch('/api/user/notifications', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              vendorId,
+              type: 'ORDER_PLACED',
+              content: `Order ${orderId} has been placed.`,
+            }),
+          })
+        )
+      );
+      router.push(`/user/dashboard`);
       showToast({
         title: 'Order Placed',
         description: 'Your order has been placed successfully.',
@@ -46,6 +55,10 @@ const PayOnDeliveryForm = ({ checkoutData, onBack }) => {
       alert('Something went wrong while placing your order.');
     }
   };
+
+  if(loading) {
+    return <Loader/>
+  }
 
 
   return (

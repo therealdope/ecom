@@ -10,7 +10,6 @@ export async function GET(req) {
     if (!session || session.user.role !== 'VENDOR') {
         return NextResponse.json({ error: 'Unauthorized access' }, { status: 401 });
     }
-    console.log("session id: ",session.user.id);
     // Get shopId from URL params
     const { searchParams } = new URL(req.url);
     const shopId = searchParams.get('shopId');
@@ -109,7 +108,9 @@ export async function POST(request) {
                     vendorId: session.user.id
                 }
             });
-
+            if(allshops.length === 0) {
+                return NextResponse.json({ error: 'No shops found for this vendor' }, { status: 404 });
+            }
             const createdProducts = [];
 
             for (const shop of allshops) {
@@ -137,7 +138,8 @@ export async function POST(request) {
                                 color: variant.color,
                                 sku: variant.sku,
                                 price: parseFloat(variant.price),
-                                stock: parseInt(variant.stock)
+                                stock: parseInt(variant.stock),
+                                inOrder:2
                             }))
                         }
                     },
@@ -193,7 +195,8 @@ export async function POST(request) {
                         color: variant.color,
                         sku: variant.sku,
                         price: parseFloat(variant.price),
-                        stock: parseInt(variant.stock)
+                        stock: parseInt(variant.stock),
+                        inOrder:2
                     }))
                 }
             },

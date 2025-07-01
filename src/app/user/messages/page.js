@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import UserDashboardLayout from '@/components/user/layout/UserDashboardLayout';
+import Loader from '@/components/shared/Loader';
+import { useToast } from '@/context/ToastContext';
+
 import {
   ArrowLeftIcon,
   UserCircleIcon,
@@ -14,6 +17,7 @@ export default function MessagesPage() {
   const { data: session } = useSession();
   const [chats, setChats] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -22,6 +26,7 @@ export default function MessagesPage() {
   const [messages, setMessages] = useState([]);
   const [showChatWindow, setShowChatWindow] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
     const checkMobile = () => {
@@ -143,8 +148,8 @@ export default function MessagesPage() {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (loading) return <Loader/>;
+  if (error) return showToast({ title: 'Error', description: error });
 
   return (
     <UserDashboardLayout>

@@ -34,6 +34,11 @@ export async function GET() {
         select: {
           name: true,
           email: true,
+          profile: {
+            select: {
+              phoneNumber: true,
+            },
+          },
         },
       },
       orderOtp: false,

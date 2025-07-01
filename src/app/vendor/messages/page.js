@@ -9,6 +9,7 @@ import {
   PhoneIcon,
   XMarkIcon,
 } from '@heroicons/react/24/solid';
+import Loader from '@/components/shared/Loader';
 
 export default function VendorMessagesPage() {
   const { data: session } = useSession();
@@ -131,7 +132,7 @@ export default function VendorMessagesPage() {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <Loader/>;
   if (error) return <div>Error: {error}</div>;
 
   return (

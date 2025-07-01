@@ -37,7 +37,7 @@ export default function UserDashboardLayout({ children }) {
   const [isLoading, setIsLoading] = useState(false);
   const profileRef = useRef(null);
   const searchRef = useRef(null);
-  const { cartItems, wishlistItems } = useCart();
+  const { cartItems, wishlistItems, unreadNotificationCount } = useCart();
   const router = useRouter();
 
   // Close dropdown on outside click
@@ -243,6 +243,11 @@ export default function UserDashboardLayout({ children }) {
                         onClick={() => setProfileMenuOpen(false)}
                       >
                         <BellIcon className="h-4 w-4" /> Notifications
+                        {unreadNotificationCount > 0 && (
+                          <span className="absolute top-20 right-2 z-50 bg-indigo-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                            {unreadNotificationCount}
+                          </span>
+                        )}
                       </button>
                     </Link>
                     <Link href="/user/shoppers">
@@ -443,7 +448,7 @@ export default function UserDashboardLayout({ children }) {
             <div className="divide-y divide-gray-200">
               <MenuLink href="/user/profile" icon={UserIcon} text="Profile" />
               <MenuLink href="/user/messages" icon={EnvelopeIcon} text="Messages" />
-              <MenuLink href="/user/notifications" icon={BellIcon} text="Notifications" />
+              <MenuLink href="/user/notifications" icon={BellIcon} text="Notifications" unreadNotification={unreadNotificationCount} />
               <MenuLink href="/user/shoppers" icon={BuildingStorefrontIcon} text="Shoppers" />
               <MenuLink href="/user/settings" icon={Cog6ToothIcon} text="Settings" />
               <MenuLink href="/user/orders" icon={CubeIcon} text="Orders" />
@@ -483,7 +488,7 @@ export default function UserDashboardLayout({ children }) {
   );
 }
 
-const MenuLink = ({ href, icon: Icon, text }) => (
+const MenuLink = ({ href, icon: Icon, text, unreadNotification }) => (
   <Link href={href}>
     <button
       onClick={() => setIsMobileProfileOpen(false)}
@@ -491,6 +496,11 @@ const MenuLink = ({ href, icon: Icon, text }) => (
     >
       <Icon className="h-5 w-5" />
       {text}
+      {unreadNotification>0 && (
+        <span className="ml-auto bg-indigo-500 text-white rounded-full px-2 py-1 text-xs">
+          {unreadNotification}
+        </span>
+      )}
     </button>
   </Link>
 );

@@ -7,11 +7,16 @@ import { format } from 'date-fns';
 export default function VendorPaymentsPage() {
   const [payments, setPayments] = useState([]);
   const [copiedId, setCopiedId] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     fetch('/api/vendor/payments')
       .then((res) => res.json())
-      .then((data) => setPayments(data.payments || []));
+      .then((data) => {
+        setPayments(data.payments || []);
+        setLoading(false);
+      });
   }, []);
 
   const handleCopy = (orderId) => {
@@ -26,7 +31,7 @@ export default function VendorPaymentsPage() {
         <h2 className="text-2xl font-semibold text-indigo-700 mb-6">Received Payments</h2>
 
         {payments.length === 0 ? (
-          <p className="text-gray-500 text-center py-12">No payment history yet.</p>
+          <p className="text-gray-500 text-center py-12">{loading ? 'Loading...' : 'No payment history yet.'}</p>
         ) : (
           <div className="overflow-x-auto rounded-xl shadow border border-indigo-200/50 backdrop-blur-md bg-indigo-100/20">
             <table className="min-w-full divide-y divide-indigo-200 relative">

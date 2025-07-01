@@ -76,6 +76,9 @@ export default function VendorSettingsPage() {
     <VendorDashboardLayout>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
         <h1 className="text-3xl font-bold text-indigo-800 mb-8">Vendor Settings</h1>
+        <h1 className="text-red-600 mb-6 uppercase text-center text-2xl">
+          coming soon...
+        </h1>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {settingItems.map((item) => (
             <div

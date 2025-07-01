@@ -43,10 +43,13 @@ export default function SignIn() {
 
     try {
       const result = await signIn('credentials', {
-        ...formData,
-        role,
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password,
+        role: role.toUpperCase(),
+        rememberMe: rememberMe.toString(),
         redirect: false,
       });
+
 
       if (result?.error) {
         setError('Invalid email or password');

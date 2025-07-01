@@ -15,6 +15,7 @@ import {
   CurrencyRupeeIcon,
 } from '@heroicons/react/24/outline';
 import VendorDashboardLayout from '@/components/vendor/layout/VendorLayout';
+import { useShop } from '@/context/ShopContext';
 
 const iconMap = {
   ORDER_PLACED: ShoppingBagIcon,
@@ -33,6 +34,7 @@ const iconMap = {
 export default function VendorNotificationsPage() {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { setUnreadNotification } = useShop();
 
   const fetchNotifications = async () => {
     try {
@@ -60,6 +62,7 @@ export default function VendorNotificationsPage() {
         body: JSON.stringify({ id }),
       });
       fetchNotifications();
+      setUnreadNotification((prev) => prev - 1);
     } catch (err) {
       console.error(err);
     }
@@ -73,6 +76,7 @@ export default function VendorNotificationsPage() {
         body: JSON.stringify({ all: true }),
       });
       fetchNotifications();
+      setUnreadNotification(0);
     } catch (err) {
       console.error(err);
     }
