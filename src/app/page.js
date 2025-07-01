@@ -160,7 +160,7 @@ export default function Home() {
             <div className="hidden md:block absolute transform -rotate-[-20deg] -right-23 top-11">
               <div className="relative">
                 <Image 
-                  src="/drawnarrow.png" 
+                  src="https://res.cloudinary.com/db52gpmt7/image/upload/v1751356279/drawnarrow_wzqvyj.png"
                   alt="Arrow pointing to developer links" 
                   width={100} 
                   height={60} 
