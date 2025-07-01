@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useShop } from '@/context/ShopContext';
-import Loader from '@/components/shared/Loader';
 import VendorLayout from '@/components/vendor/layout/VendorLayout';
 import AddProductForm from '@/components/vendor/products/AddProductForm';
 import ProductListPage from '@/components/vendor/products/ProductListPage';
@@ -16,31 +15,32 @@ export default function VendorProducts() {
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    if (selectedShop?.id) {
-      fetchProducts();
-    } else {
-      setProducts([]);
-      setIsLoading(false);
+const fetchProducts = useCallback(async () => {
+  try {
+    setIsLoading(true);
+    const response = await fetch(`/api/vendor/products?shopId=${selectedShop.id}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch products');
     }
-  }, [selectedShop]);
+    const data = await response.json();
+    setProducts(Array.isArray(data) ? data : []);
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    setProducts([]);
+  } finally {
+    setIsLoading(false);
+  }
+}, [selectedShop?.id]);
 
-  const fetchProducts = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch(`/api/vendor/products?shopId=${selectedShop.id}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch products');
-      }
-      const data = await response.json();
-      setProducts(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      setProducts([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+useEffect(() => {
+  if (selectedShop?.id) {
+    fetchProducts();
+  } else {
+    setProducts([]);
+    setIsLoading(false);
+  }
+}, [selectedShop, fetchProducts]);
+
 
   if (status === 'loading' || isLoading) {
     return (

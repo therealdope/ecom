@@ -184,10 +184,12 @@ export default function VendorProfilePage() {
   {/* Circle Container for Image/Fallback */}
   <div className="w-24 h-24 rounded-full overflow-hidden border border-gray-300 shadow-sm flex items-center justify-center bg-white">
     {logoFile ? (
-      <img
+      <Image
         src={logoFile}
         alt="Logo Preview"
         className="w-full h-full object-cover"
+        width={96}
+        height={96}
       />
     ) : profile.logo ? (
       <Image
@@ -331,7 +333,10 @@ export default function VendorProfilePage() {
               <h3 className="text-xl font-semibold mb-4">Reviews</h3>
               {profile.reviews && profile.reviews.length > 0 ? profile.reviews.map((r, i) => (
                 <div key={i} className="bg-white/70 p-4 mb-3 rounded-xl shadow-sm">
-                  <p className="text-sm text-gray-500">Rating: {r.rating}</p>
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm text-gray-500">Rating: {r.rating}</p>
+                    <p className="text-sm text-gray-500">{new Date(r.createdAt).toLocaleDateString()}</p>
+                  </div>
                   <p>{r.comment}</p>
                 </div>
               )) : <p>No reviews yet.</p>}

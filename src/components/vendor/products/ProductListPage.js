@@ -131,9 +131,9 @@ const stockMatch =
 
   useEffect(() => {
     if (currentPage > totalPages) {
-      setCurrentPage(totalPages || 1);
+      setCurrentPage(totalPages);
     }
-  }, [totalPages]);
+  }, [currentPage, totalPages]);
 
   const handleCategoryChange = (cat) => {
     setCurrentPage(1);

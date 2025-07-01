@@ -177,7 +177,7 @@ export default function UserProfilePage() {
           <div className="flex flex-col items-center">
   <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100">
     {avatarFile ? (
-      <img
+      <Image
         src={avatarFile}
         width={96}
         height={96}

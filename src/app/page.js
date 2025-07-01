@@ -164,8 +164,10 @@ export default function Home() {
                   alt="Arrow pointing to developer links" 
                   width={100} 
                   height={60} 
-                  className="transform rotate-[15deg]"
+                  className="transform rotate-[15deg] w-auto h-auto"
+                  priority
                 />
+
                 <span className="absolute text-lg top-20 left-0 text-indigo-600 font-bold transform -rotate-[-20deg] whitespace-nowrap" style={{fontFamily: "'Comic Sans MS', cursive, sans-serif"}}>
                   Developer
                 </span>

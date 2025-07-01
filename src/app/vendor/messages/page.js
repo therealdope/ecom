@@ -10,6 +10,7 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/solid';
 import Loader from '@/components/shared/Loader';
+import Image from 'next/image';
 
 export default function VendorMessagesPage() {
   const { data: session } = useSession();
@@ -171,7 +172,13 @@ export default function VendorMessagesPage() {
                   className="p-3 mt-2 rounded-xl cursor-pointer flex items-center gap-3 hover:bg-gray-200"
                 >
                   {user.profile?.avatar ? (
-                    <img src={user.profile.avatar} className="w-10 h-10 rounded-full" />
+                    <Image
+                      src={user.profile.avatar}
+                      alt={user.name}
+                      width={100}
+                      height={100}
+                      className="w-10 h-10 rounded-full"
+                    />
                   ) : (
                     <UserCircleIcon className="w-10 h-10 text-gray-400" />
                   )}
@@ -200,7 +207,13 @@ export default function VendorMessagesPage() {
               }`}
             >
               {chat.user.profile?.avatar ? (
-                <img src={chat.user.profile.avatar} className="w-10 h-10 rounded-full" />
+                <Image
+                  src={chat.user.profile.avatar}
+                  alt={chat.user.name}
+                  width={100}
+                  height={100}
+                  className="w-10 h-10 rounded-full"
+                />
               ) : (
                 <UserCircleIcon className="w-10 h-10 text-gray-400" />
               )}
@@ -235,7 +248,13 @@ export default function VendorMessagesPage() {
                   return (
                     <>
                       {profile?.avatar ? (
-                        <img src={profile.avatar} className="w-10 h-10 rounded-full" />
+                        <Image
+                          src={profile.avatar}
+                          alt={chatInfo.user.name}
+                          width={100}
+                          height={100}
+                          className="w-10 h-10 rounded-full"
+                        />
                       ) : (
                         <UserCircleIcon className="w-10 h-10 text-gray-400" />
                       )}

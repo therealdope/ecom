@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { StarIcon } from '@heroicons/react/24/solid';
 import VendorLayout from '@/components/vendor/layout/VendorLayout';
-
+import Image from 'next/image';
 
 export default function VendorReviewsPage() {
   const [view, setView] = useState('vendor'); // 'vendor' or 'product'
@@ -56,9 +56,11 @@ export default function VendorReviewsPage() {
             {reviews.map((review, idx) => (
               <tr key={idx} className="border-t hover:bg-indigo-50 transition-colors duration-200">
                 <td className="px-6 py-4 flex items-center gap-3">
-                  <img
+                  <Image
                     src={review.user?.profile?.avatar || '/default-avatar.png'}
                     alt="avatar"
+                    width={32}
+                    height={32}
                     className="w-10 h-10 rounded-full object-cover"
                   />
                   <span className="font-medium">{review.user?.name}</span>

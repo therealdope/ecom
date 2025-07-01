@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import UserDashboardLayout from '@/components/user/layout/UserDashboardLayout';
 import Loader from '@/components/shared/Loader';
 import { useToast } from '@/context/ToastContext';
+import Image from 'next/image';
 
 import {
   ArrowLeftIcon,
@@ -187,7 +188,13 @@ export default function MessagesPage() {
                   className="p-3 mt-2 rounded-xl cursor-pointer flex items-center gap-3 hover:bg-gray-200"
                 >
                   {vendor.profile?.logo ? (
-                    <img src={vendor.profile.logo} className="w-10 h-10 rounded-full" />
+                    <Image
+                      src={vendor.profile.logo}
+                      alt={vendor.name}
+                      width={100}
+                      height={100}
+                      className="w-10 h-10 rounded-full"
+                    />
                   ) : (
                     <UserCircleIcon className="w-10 h-10 text-gray-400" />
                   )}
@@ -216,7 +223,13 @@ export default function MessagesPage() {
               }`}
             >
               {chat.vendor.profile?.logo ? (
-                <img src={chat.vendor.profile.logo} className="w-10 h-10 rounded-full" />
+                <Image
+                  src={chat.vendor.profile.logo}
+                  alt={chat.vendor.name}
+                  width={100}
+                  height={100}
+                  className="w-10 h-10 rounded-full"
+                />
               ) : (
                 <UserCircleIcon className="w-10 h-10 text-gray-400" />
               )}
@@ -253,7 +266,13 @@ export default function MessagesPage() {
                   return (
                     <>
                       {profile?.logo ? (
-                        <img src={profile.logo} className="w-10 h-10 rounded-full" />
+                        <Image
+                          src={profile.logo}
+                          alt={chatInfo.vendor.name}
+                          width={100}
+                          height={100}
+                          className="w-10 h-10 rounded-full"
+                        />
                       ) : (
                         <UserCircleIcon className="w-10 h-10 text-gray-400" />
                       )}

@@ -23,7 +23,6 @@ import {
   ChevronDownIcon,
   ChevronLeftIcon,
   StarIcon,
-  ArrowPathIcon,
   UserIcon
 } from '@heroicons/react/24/outline';
 
@@ -78,7 +77,7 @@ export default function DashboardLayout({ children }) {
       }
     };
     fetchShops();
-  }, []);
+  }, [selectedShop, setSelectedShop, showToast]);
 
   useEffect(() => {
     const fetchLogo = async () => {
@@ -87,8 +86,7 @@ export default function DashboardLayout({ children }) {
       setLogo(data.logo);
     };
     fetchLogo();
-    console.log(logo);
-  }, []);
+  }, [logo]);
 
 
   // Handle shop selection

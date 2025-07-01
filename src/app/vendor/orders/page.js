@@ -12,6 +12,7 @@ import {
   CheckIcon,
 } from '@heroicons/react/24/outline';
 import {useToast} from '@/context/ToastContext';
+import Image from 'next/image';
 
 export default function VendorOrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -360,7 +361,13 @@ export default function VendorOrdersPage() {
                 <ul className="mt-2 space-y-3">
                   {selectedOrder.orderItems.map((item) => (
                     <li key={item.id} className="flex items-start gap-4">
-                      <img src={item.product.imageUrl} alt={item.product.name} className="h-16 w-16 rounded-md object-cover border" />
+                      <Image
+                        src={item.product.imageUrl}
+                        alt={item.product.name}
+                        width={100}
+                        height={100}
+                        className="h-16 w-16 rounded-md object-cover border"
+                      />
                       <div>
                         <p className="font-medium text-indigo-800">{item.product.name}</p>
                         <p className="text-xs text-gray-500">Size: {item.variant.size || 'N/A'}, Color: {item.variant.color || 'N/A'}</p>

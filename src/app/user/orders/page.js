@@ -14,6 +14,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarSolid } from '@heroicons/react/24/solid';
 import { useToast } from '@/context/ToastContext';
+import Image from 'next/image';
 
 export default function UserOrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -349,17 +350,19 @@ const submitReview = async () => {
                 <strong>Items:</strong>
                 <ul className="mt-2 space-y-3">
                   {selectedOrder.orderItems.map((item) => (
-  <li key={item.id} className="flex items-start gap-4">
-    <a href={`/user/product/${item.product.id}`} className="block">
-      <img
-        src={item.product.imageUrl}
-        alt={item.product.name}
-        className="h-16 w-16 rounded-md object-cover border"
-      />
-    </a>
-    <div className="flex-1">
-      <a href={`/user/product/${item.product.id}`} className="font-medium text-indigo-800 hover:underline">
-        {item.product.name}
+                    <li key={item.id} className="flex items-start gap-4">
+                      <a href={`/user/product/${item.product.id}`} className="block">
+                        <Image
+                          src={item.product.imageUrl}
+                          alt={item.product.name}
+                          width={100}
+                          height={100}
+                          className="h-16 w-16 rounded-md object-cover border"
+                        />
+                      </a>
+                      <div className="flex-1">
+                        <a href={`/user/product/${item.product.id}`} className="font-medium text-indigo-800 hover:underline">
+                          {item.product.name}
       </a>
       <p className="text-xs text-gray-500">
         Size: {item.variant.size || 'N/A'}, Color: {item.variant.color || 'N/A'}

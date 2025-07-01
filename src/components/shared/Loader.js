@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from 'react';
 
-export default function Loader() {
-  const [videoError, setVideoError] = useState(false);
-  const [videoSrc, setVideoSrc] = useState(null);
-
   // List of loader videos
   const loaderVideos = [
     '/loader/1.mp4',
@@ -12,6 +8,10 @@ export default function Loader() {
     '/loader/4.mp4',
     '/loader/5.mp4',
   ];
+
+export default function Loader() {
+  const [videoError, setVideoError] = useState(false);
+  const [videoSrc, setVideoSrc] = useState(null);
 
   useEffect(() => {
     const randomIndex = Math.floor(Math.random() * loaderVideos.length);
