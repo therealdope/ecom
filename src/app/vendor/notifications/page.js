@@ -88,7 +88,7 @@ export default function VendorNotificationsPage() {
     <VendorDashboardLayout>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold text-indigo-800">Notifications</h1>
+          <h1 className="text-3xl font-bold text-indigo-700">Notifications</h1>
           {hasUnread && (
             <button
               onClick={markAllAsRead}

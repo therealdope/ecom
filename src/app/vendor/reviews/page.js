@@ -22,7 +22,7 @@ export default function VendorReviewsPage() {
     <VendorLayout>
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold">
+        <h2 className="text-2xl font-semibold text-indigo-700">
           {view === 'vendor' ? 'Vendor Reviews' : 'Product Reviews'}
         </h2>
         <div className="space-x-2">

@@ -64,7 +64,7 @@ function ShowAllProducts() {
 
   return (
     <UserDashboardLayout>
-      <div className="max-w-6xl mx-auto px-4 mt-6">
+      <div className="max-w-6xl mx-auto px-4 mt-10 md:mt-6">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
           <h2 className="text-xl sm:text-2xl font-semibold">
             {showAll ? 'Showing All Products' : `Results for:`}{' '}

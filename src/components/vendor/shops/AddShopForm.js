@@ -61,20 +61,20 @@ export default function AddShopForm() {
   };
 
   return (
-    <div className="relative max-w-3xl mx-auto mt-12 p-4 sm:p-6 lg:p-8 rounded-lg border shadow-sm border-gray-200">
+    <div className="relative max-w-3xl mx-auto md:mt-12 p-6 sm:p-6 lg:p-8 rounded-lg md:border md:shadow-sm md:border-gray-200">
       {/* Close Icon */}
       <button
         onClick={handleClose}
-        className="absolute top-4 right-4 text-gray-400 hover:text-gray-500 z-10"
+        className="absolute top-8 right-8 text-gray-400 hover:text-gray-500"
         aria-label="Close"
       >
         <FaTimes size={20} />
       </button>
       
 
-      <h1 className="text-2xl font-bold text-gray-800 mb-8 text-center">Create New Shop</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-8 text-left">Create New Shop</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4">
         {/* Shop Name */}
         <div className="flex flex-col">
           <label className="text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">

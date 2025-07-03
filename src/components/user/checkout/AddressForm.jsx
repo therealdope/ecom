@@ -84,8 +84,8 @@ const AddressForm = ({ onSubmit }) => {
       onSubmit={handleSubmit}
       className="space-y-6 bg-white border border-gray-200 shadow-sm rounded-lg p-6"
     >
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-indigo-700">Select Shipping Address</h2>
+      <div className="flex flex-col gap-4 md:flex-row items-center justify-between">
+        <h2 className="text-2xl font-bold text-indigo-700">Shipping Address</h2>
         <button
           type="button"
           onClick={() => {
@@ -94,7 +94,7 @@ const AddressForm = ({ onSubmit }) => {
           }}
           className="text-sm font-medium text-indigo-600 bg-indigo-100 px-3 py-1 rounded hover:bg-indigo-200 transition"
         >
-          {showNewForm ? 'Cancel' : 'Add New Address'}
+          {showNewForm ? 'Cancel' : 'Add Address'}
         </button>
       </div>
 

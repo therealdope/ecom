@@ -446,13 +446,14 @@ export default function UserDashboardLayout({ children }) {
             </div>
 
             <div className="divide-y divide-gray-200">
-              <MenuLink href="/user/profile" icon={UserIcon} text="Profile" />
-              <MenuLink href="/user/messages" icon={EnvelopeIcon} text="Messages" />
-              <MenuLink href="/user/notifications" icon={BellIcon} text="Notifications" unreadNotification={unreadNotificationCount} />
-              <MenuLink href="/user/shoppers" icon={BuildingStorefrontIcon} text="Shoppers" />
-              <MenuLink href="/user/settings" icon={Cog6ToothIcon} text="Settings" />
-              <MenuLink href="/user/orders" icon={CubeIcon} text="Orders" />
-              <MenuLink href="/user/payments" icon={CreditCardIcon} text="Payments" />
+              <MenuLink href="/user/profile" icon={UserIcon} text="Profile" setIsMobileProfileOpen={setIsMobileProfileOpen} />
+              <MenuLink href="/user/messages" icon={EnvelopeIcon} text="Messages" setIsMobileProfileOpen={setIsMobileProfileOpen} />
+              <MenuLink href="/user/notifications" icon={BellIcon} text="Notifications" unreadNotification={unreadNotificationCount} setIsMobileProfileOpen={setIsMobileProfileOpen} />
+              <MenuLink href="/user/shoppers" icon={BuildingStorefrontIcon} text="Shoppers" setIsMobileProfileOpen={setIsMobileProfileOpen} />
+              <MenuLink href="/user/settings" icon={Cog6ToothIcon} text="Settings" setIsMobileProfileOpen={setIsMobileProfileOpen} />
+              <MenuLink href="/user/orders" icon={CubeIcon} text="Orders" setIsMobileProfileOpen={setIsMobileProfileOpen} />
+              <MenuLink href="/user/payments" icon={CreditCardIcon} text="Payments" setIsMobileProfileOpen={setIsMobileProfileOpen} />
+
               <button
                 type="button"
                 onClick={handleLogout}
@@ -488,7 +489,7 @@ export default function UserDashboardLayout({ children }) {
   );
 }
 
-const MenuLink = ({ href, icon: Icon, text, unreadNotification }) => (
+const MenuLink = ({ href, icon: Icon, text, unreadNotification,setIsMobileProfileOpen }) => (
   <Link href={href}>
     <button
       onClick={() => setIsMobileProfileOpen(false)}

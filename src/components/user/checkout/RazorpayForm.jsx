@@ -55,7 +55,7 @@ const RazorpayForm = ({ checkoutData, onBack }) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-white border border-gray-200 shadow-sm rounded-lg p-6">
       <div className="flex items-center gap-3">
         
         <h2 className="text-2xl font-bold text-indigo-700">Secure Payment</h2>
@@ -79,7 +79,7 @@ const RazorpayForm = ({ checkoutData, onBack }) => {
         <button
           onClick={handlePayment}
           disabled
-          className="flex gap-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg transition hover:disabled:cursor-not-allowed"
+          className="hidden gap-2 text-sm bg-indigo-600 hover:bg-indigo-700 justify-center text-white px-5 py-2 rounded-lg transition hover:disabled:cursor-not-allowed"
         >
           <CreditCardIcon className="w-5 h-5 text-white" />
           Pay ₹{getCartTotal().toFixed(2)}

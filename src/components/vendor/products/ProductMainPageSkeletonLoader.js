@@ -5,7 +5,7 @@ export default function ProductMainPageSkeletonLoader() {
     <div className="p-6 w-full max-w-7xl">
       {/* Header Section Skeleton */}
       <div className="flex justify-between items-center mb-6">
-        <div className="animate-pulse h-8 w-64 bg-gray-200 rounded-md"></div>
+        <div className="animate-pulse h-8 w-32 bg-gray-200 rounded-md"></div>
         <div className="animate-pulse h-10 w-32 bg-gray-200 rounded-md"></div>
       </div>
 

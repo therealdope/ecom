@@ -39,6 +39,10 @@ useEffect(() => {
   return () => clearTimeout(timer);
 }, [products, sortField, sortOrder]);
 
+useEffect(() => {
+  setCurrentPage(1);
+}, [searchQuery, categoryFilter, shopFilter, stockFilter, priceMin, priceMax, dateFrom, dateTo, categorySearch, shopSearch]);
+
   const categories = useMemo(() => (
     Array.from(new Set(products.map(p => p.category?.name).filter(Boolean)))
   ), [products]);
@@ -130,10 +134,11 @@ const stockMatch =
   const paginatedProducts = sortedProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages);
-    }
-  }, [currentPage, totalPages]);
+  if (currentPage > totalPages) {
+    setCurrentPage(Math.max(1, totalPages));
+  }
+}, [currentPage, totalPages]);
+
 
   const handleCategoryChange = (cat) => {
     setCurrentPage(1);
@@ -181,13 +186,13 @@ const stockMatch =
       className="w-full md:max-w-md px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
     />
 
-    <div className="flex gap-2 flex-wrap justify-end">
+    <div className="flex gap-2 justify-end">
       {/* Sort Dropdown */}
-      <div className="flex items-center bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="flex items-center bg-white rounded-lg shadow-sm border border-gray-200 ">
         <select
           value={sortField}
           onChange={e => setSortField(e.target.value)}
-          className="text-sm px-4 py-2 border-r border-gray-200 text-gray-700 bg-white focus:outline-none"
+          className="text-sm px-3 py-2 border-r w-18 md:w-auto border-gray-200 text-gray-700 bg-white focus:outline-none"
         >
           <option value="name">Sort by Name</option>
           <option value="price">Sort by Price</option>
@@ -213,6 +218,7 @@ const stockMatch =
         <FaFilter className="text-gray-600" size={14} />
         Filters
       </button>
+
     </div>
   </div>
 
@@ -263,7 +269,7 @@ const stockMatch =
               <td className="px-6 py-4 text-right text-gray-700">{variant?.stock ?? '-'}</td>
               <td className="px-6 py-4 text-right text-gray-700">{variant?.price?.toFixed(2) ?? '-'}</td>
               <td className="px-6 py-4 text-gray-700">{new Date(product.createdAt).toLocaleDateString()}</td>
-              <td className="px-6 py-4 text-center">
+              <td className="px-6 py-4 text-center flex mt-5">
                 <button onClick={() => setEditingProduct(product)} className="text-indigo-500 hover:text-indigo-600 mx-2" title="Edit">
                   <FaEdit size={16} />
                 </button>
@@ -322,7 +328,6 @@ const stockMatch =
       <div className="flex items-center gap-3">
         <button
           onClick={() => {
-            // Reset all filters
             setCategoryFilter([]);
             setShopFilter([]);
             setStockFilter('all');
@@ -330,7 +335,10 @@ const stockMatch =
             setPriceMax('');
             setDateFrom('');
             setDateTo('');
+            setCategorySearch('');
+            setShopSearch('');
           }}
+
           className="text-xs text-red-600 hover:underline"
         >
           Clear All

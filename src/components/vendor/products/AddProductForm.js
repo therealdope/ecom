@@ -650,7 +650,7 @@ const renderStep2 = () => (
 
   return (
     <div className="fixed z-50 inset-0 bg-black/30 backdrop-blur-sm overflow-y-auto h-full w-full">
-      <div className="relative sm:top-20 mx-auto p-5 w-full sm:max-w-4xl shadow-xl rounded-2xl bg-white min-h-screen sm:min-h-0">
+      <div className="relative sm:top-20 mx-auto p-5 w-full sm:max-w-4xl shadow-xl md:rounded-2xl bg-white min-h-screen sm:min-h-0">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-medium">Add New Product - Step {currentStep} of 3</h3>
           <button

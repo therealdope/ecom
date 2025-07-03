@@ -68,7 +68,7 @@ export default function UserVendorsPage() {
 
   return (
     <UserDashboardLayout>
-      <div className="p-6">
+      <div className="p-6 mt-4  md:mt-0">
         <h2 className="text-2xl font-semibold text-indigo-700 mb-4">Your Vendors</h2>
         <div className="overflow-auto rounded-xl shadow bg-indigo-100/30 backdrop-blur-md">
           <table className="min-w-full text-left divide-y divide-indigo-200">

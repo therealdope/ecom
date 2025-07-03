@@ -102,7 +102,7 @@ export default function ProductPage({ params }) {
 
   return (
     <UserDashboardLayout>
-      <div className="max-w-7xl mb-8 mx-auto px-4 py-10 -mt-6">
+      <div className="max-w-7xl mb-8 mx-auto px-4 py-10 md:-mt-6">
         <button
   onClick={() => router.back()}
   className="group mb-8 hidden md:inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm text-indigo-600 border border-indigo-200 rounded-full px-4 py-2 shadow-sm hover:shadow-md hover:bg-indigo-50 transition-all duration-200"

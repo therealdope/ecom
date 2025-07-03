@@ -22,7 +22,7 @@ export default function UserPaymentsPage() {
 
   return (
     <UserDashboardLayout>
-      <div className="p-6">
+      <div className="p-6 mt-4 md:mt-0">
         <h2 className="text-2xl font-semibold text-indigo-700 mb-6">Your Payments</h2>
 
         {payments.length === 0 ? (

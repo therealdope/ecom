@@ -54,7 +54,7 @@ export default function WishlistPage() {
 
   return (
     <UserDashboardLayout>
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-10 md:py-8">
         {/* Back button */}
         <button
           onClick={() => router.push('/user/dashboard')}
@@ -71,7 +71,7 @@ export default function WishlistPage() {
           </svg>
           <span className="font-medium text-sm">Go Back</span>
         </button>
-        <h1 className="text-2xl font-bold mb-8">My Wishlist</h1>
+        <h1 className="text-2xl font-bold mb-8 text-indigo-700">My Wishlist</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {wishlistItems.map((item) => {

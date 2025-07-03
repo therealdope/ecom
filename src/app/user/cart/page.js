@@ -51,7 +51,7 @@ export default function CartPage() {
 
   return (
     <UserDashboardLayout>
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-10 md:py-8">
         {/* Back button */}
         <button
           onClick={() => router.push('/user/dashboard')}
@@ -71,7 +71,7 @@ export default function CartPage() {
 
         {/* Title and Clear Cart */}
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold">Shopping Cart</h1>
+          <h1 className="text-2xl font-bold text-indigo-700">Shopping Cart</h1>
           <button
             onClick={clearCart}
             className="flex items-center gap-1 text-sm text-red-600 hover:underline"

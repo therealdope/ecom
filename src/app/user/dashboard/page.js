@@ -61,12 +61,6 @@ export default function DashboardPage() {
   }, []);
 
   const categories = ['Home', 'Categories', "Men's", "Women's", 'Sport', 'Hot Offers'];
-  const categoryButtons = [
-    { name: "Men's", image: '/mens.jpg' },
-    { name: "Women's", image: '/womens.jpg' },
-    { name: 'Sport', image: '/sport.jpg' },
-    { name: 'Hot Offers', image: '/offers.jpg' },
-  ];
 
   const renderProduct = (product) => (
     <div
@@ -112,6 +106,10 @@ export default function DashboardPage() {
           className="object-cover"
           loading="lazy"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          onClick={() =>{ 
+          router.push(`/user/product/${product.id}`)
+          setLoading(true);
+        }}
         />
         <button
           onClick={(e) => {
@@ -127,7 +125,7 @@ export default function DashboardPage() {
           )}
         </button>
       </div>
-      <div className="p-4">
+      <div className="p-4 border-t border-gray-100">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-lg font-semibold truncate flex-1">{product.name}</h3>
           <span className="text-sm bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full">
@@ -146,8 +144,8 @@ export default function DashboardPage() {
             ₹{product.variants[0]?.price || 'N/A'}
           </span>
         </div>
-        <button
-        className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2"
+        {/* <button
+        className="w-full bg-indigo-700 text-white py-2 rounded-lg hover:bg-indigo-600 transition-colors flex items-center justify-center gap-2"
         onClick={() =>{ 
           router.push(`/user/product/${product.id}`)
           setLoading(true);
@@ -156,7 +154,7 @@ export default function DashboardPage() {
             <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
           </svg>
           Add to Cart
-        </button>
+        </button> */}
       </div>
     </div>
   );
@@ -178,84 +176,50 @@ export default function DashboardPage() {
 
         {/* Swiper carousel */}
         <div ref={swiperRef} className="swiper rounded-xl overflow-hidden">
-          <div className="swiper-wrapper">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="swiper-slide">
-                {/* Mobile */}
-                <Image
-                  src={`/mobile-banner${i + 1}.jpg`}
-                  alt={`Slide ${i + 1}`}
-                  width={800}
-                  height={400}
-                  className="block sm:hidden w-full h-112 object-cover"
-                />
+  <div className="swiper-wrapper">
+    {[...Array(5)].map((_, i) => (
+      <div key={i} className="swiper-slide">
+        {/* Mobile */}
+        <Image
+          src={`/mobile-banner${i + 1}.jpg`}
+          alt={`Slide ${i + 1}`}
+          width={800}
+          height={600}
+          className="block sm:hidden w-full aspect-[11/16] object-cover"
+        />
 
-                {/* Tablet */}
-                <Image
-                  src={`/tablet-banner${i + 1}.jpg`}
-                  alt={`Slide ${i + 1}`}
-                  width={1024}
-                  height={500}
-                  className="hidden sm:block md:hidden w-full h-118 object-cover"
-                />
+        {/* Tablet */}
+        <Image
+          src={`/tablet-banner${i + 1}.jpg`}
+          alt={`Slide ${i + 1}`}
+          width={1024}
+          height={600}
+          className="hidden sm:block md:hidden w-full aspect-[10/8] object-cover"
+        />
 
-                {/* Desktop */}
-                <Image
-                  src={`/banner${i + 1}.jpg`}
-                  alt={`Slide ${i + 1}`}
-                  width={1024}
-                  height={500}
-                  className="hidden md:block w-full h-128 object-center"
-                />
-              </div>
-            ))}
-          </div>
+        {/* Desktop */}
+        <Image
+          src={`/banner${i + 1}.jpg`}
+          alt={`Slide ${i + 1}`}
+          width={1600}
+          height={700}
+          className="hidden md:block w-full aspect-[16/6.8] object-cover"
+        />
+      </div>
+    ))}
+  </div>
+
+  <div className="swiper-pagination"></div>
+</div>
 
 
-          <div className="swiper-pagination"></div>
-        </div>
 
         {/* Marquee */}
-        <div className="overflow-hidden whitespace-nowrap bg-indigo-50 py-2 rounded-xl">
-          <div className="inline-block animate-marquee text-indigo-700 font-medium text-sm">
-            Hot Offers Available Now! | New Arrivals Just In | Up to 50% OFF on Sports Gear | Trending Now — Don’t Miss Out!
+        <div className="overflow-hidden rounded-lg bg-gradient-to-r from-indigo-600 via-indigo-400 to-indigo-500 py-2 px-4 shadow-lg">
+          <div className="inline-block animate-marquee whitespace-nowrap text-white font-semibold text-sm tracking-wide hover:[animation-play-state:paused]">
+            Hot Offers Available Now! &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; New Arrivals Just In &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; Up to 50% OFF on Sports Gear &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; Trending Now — Don’t Miss Out!
           </div>
         </div>
-
-        {/* Category buttons with image */}
-        <div className="relative flex items-start">
-          {/* Backdrop */}
-          <div className="absolute inset-0 bg-opacity-10 rounded-xl z-0" />
-
-          {/* Grid container */}
-          <div className="relative z-10 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 p-3 flex-grow">
-            {categoryButtons.map((cat, idx) => (
-              <div
-                key={idx}
-                className="flex flex-col items-center bg-white p-4 rounded-2xl shadow-md"
-              >
-                <Image
-                  src={cat.image}
-                  alt={cat.name}
-                  width={20}
-                  height={20}
-                  className="w-20 h-20 object-cover p-2"
-                />
-                <span className="mt-2 font-medium text-sm text-center">{cat.name}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Rotated Show All button */}
-          <div className="relative z-10 flex items-center justify-center ">
-            <div className="bg-indigo-100 rounded-xl shadow-md hover:bg-indigo-200 transition duration-300 py-5 mt-3 cursor-pointer animate-shine">
-              <span className="text-indigo-600 font-semibold transform rotate-90 origin-bottom-left block ml-10 mb-19">
-                Show All
-              </span>
-            </div>
-          </div>
-        </div>
-
 
         {/* Product Sections */}
         {loading ? (
@@ -265,25 +229,25 @@ export default function DashboardPage() {
             {/* Compact product sections in grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div>
-                <h3 className="text-lg font-bold mb-2">New Arrivals</h3>
+                <h3 className="text-lg font-bold mb-2 text-indigo-700">New Arrivals</h3>
                 <div className="space-y-4">
                   {products.newArrivals.map(renderProduct)}
                 </div>
               </div>
               <div>
-                <h3 className="text-lg font-bold mb-2">Trending</h3>
+                <h3 className="text-lg font-bold mb-2 text-indigo-700">Trending</h3>
                 <div className="space-y-4">
                   {products.trending.map(renderProduct)}
                 </div>
               </div>
               <div>
-                <h3 className="text-lg font-bold mb-2">Top Rated</h3>
+                <h3 className="text-lg font-bold mb-2 text-indigo-700">Top Rated</h3>
                 <div className="space-y-4">
                   {products.topRated.map(renderProduct)}
                 </div>
               </div>
               <div>
-                <h3 className="text-lg font-bold mb-2">You May Like</h3>
+                <h3 className="text-lg font-bold mb-2 text-indigo-700">You May Like</h3>
                 <div className="space-y-4">
                   {products.random.map(renderProduct)}
                 </div>
@@ -292,7 +256,7 @@ export default function DashboardPage() {
 
             {/* Detailed product cards */}
             <div>
-              <h2 className="text-2xl font-bold mb-4">Discover More Products</h2>
+              <h2 className="text-2xl font-bold mb-4 text-indigo-700">Discover More Products</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {products.all.slice(0, 6).map(renderDetailedProduct)}
               </div>

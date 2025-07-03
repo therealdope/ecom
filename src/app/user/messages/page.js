@@ -154,7 +154,7 @@ export default function MessagesPage() {
 
   return (
     <UserDashboardLayout>
-      <div className="flex h-[calc(100vh-96px)] shadow-lg border border-gray-200/80 rounded-xl bg-white text-gray-800">
+      <div className="flex h-[calc(100vh-125px)]  md:h-[calc(100vh-96px)] shadow-lg border border-gray-200/80 rounded-xl bg-white text-gray-800 mt-10 md:mt-0">
 
         {/* Sidebar */}
         <div className={`md:block w-full md:w-1/3 p-4 overflow-auto bg-gray-100 rounded-l-xl ${isMobileView && showChatWindow ? 'hidden' : ''}`}>

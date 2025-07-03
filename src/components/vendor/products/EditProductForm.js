@@ -342,7 +342,7 @@ export default function EditProductForm({ product, isOpen, onClose, onProductUpd
 
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 overflow-y-auto">
-      <div className="mx-auto my-12 w-full max-w-4xl bg-white rounded-2xl p-6 shadow-xl">
+      <div className="mx-auto md:my-12 w-full max-w-4xl bg-white md:rounded-2xl p-6 shadow-xl">
 
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-xl font-semibold">Edit Product</h3>

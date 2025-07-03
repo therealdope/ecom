@@ -13,8 +13,8 @@ const PromoCode = ({ onSubmit, onBack }) => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 bg-white border border-gray-200 shadow-sm rounded-lg p-6">
+      <div className="flex flex-col gap-4 md:flex-row items-center justify-between">
         <h2 className="text-2xl font-bold text-indigo-700">Apply Offers</h2>
         <button
           type="button"
@@ -61,7 +61,7 @@ const PromoCode = ({ onSubmit, onBack }) => {
         </div>
       </div>
 
-      <div className="flex justify-between pt-6">
+      <div className="flex flex-col md:flex-row justify-between gap-4 pt-6">
         <button
           type="button"
           onClick={onBack}

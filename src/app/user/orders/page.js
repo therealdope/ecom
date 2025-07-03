@@ -128,8 +128,7 @@ const submitReview = async () => {
 
   return (
     <UserDashboardLayout>
-      <div className="px-4 py-6 sm:px-6 lg:px-8 relative">
-        <h2 className="text-2xl font-semibold text-indigo-700 mb-4">Your Orders</h2>
+      <div className="px-4 py-10 md:py-4 sm:px-6 lg:px-8 relative">
         {/* Filters */}
         <div className="mb-6">
           <div className="flex justify-between items-center sm:hidden mb-4">

@@ -117,8 +117,8 @@ const CheckoutPage = () => {
   };
 
   const renderSummary = () => (
-  <div className="space-y-6 ">
-    <div className="flex items-center justify-between">
+  <div className="space-y-6 bg-white border border-gray-200 shadow-sm rounded-lg p-6">
+    <div className="flex flex-col gap-4 md:flex-row items-center justify-between">
       <h2 className="text-2xl font-bold text-indigo-700">Order Summary</h2>
       <button
         onClick={() => {
@@ -130,7 +130,7 @@ const CheckoutPage = () => {
       </button>
     </div>
 
-    <div className="bg-white border border-gray-200 shadow-sm rounded-lg p-6 space-y-6">
+    <div className="space-y-4">
       {/* Address */}
       <div className="flex items-start gap-3">
         <MapPinIcon className="w-5 h-5 text-indigo-600 mt-0.5" />
@@ -251,9 +251,9 @@ const CheckoutPage = () => {
 
   return (
   <UserDashboardLayout>
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="max-w-7xl mx-auto px-4 py-10 md:py-8">
       <button
-        onClick={() => router.push('/user/dashboard')}
+        onClick={() => router.back()}
         className="group mb-8 hidden md:inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm text-indigo-600 border border-indigo-200 rounded-full px-4 py-2 shadow-sm hover:shadow-md hover:bg-indigo-50 transition-all duration-200"
       >
         <svg
@@ -272,15 +272,15 @@ const CheckoutPage = () => {
       <div className="grid md:grid-cols-3 gap-6">
         {/* Left: Cart Item Preview */}
         <div className="hidden md:block bg-white shadow rounded-lg p-4 space-y-4 h-fit">
-          <h2 className="text-lg font-semibold text-gray-800 border-b border-gray-500 pb-2">Your Items</h2>
+          <h2 className="text-lg font-semibold text-indigo-700 border-b border-gray-400 pb-2">Your Items</h2>
           {cartItems.map((item) => (
             <div key={`${item.productId}-${item.variantId}`} className="flex items-center gap-3">
-              <div className="relative w-16 h-16 rounded overflow-hidden border">
+              <div className="relative w-16 h-16 rounded border border-gray-400">
                 <Image
                   src={item.product.imageUrl}
                   alt={item.product.name}
-                  width={16}
-                  height={16}
+                  width={20}
+                  height={20}
                   className="object-cover w-full h-full"
                 />
               </div>

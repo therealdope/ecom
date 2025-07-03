@@ -66,12 +66,12 @@ useEffect(() => {
     <VendorLayout>
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900">Products - {selectedShop.name}</h1>
+          <h1 className="text-2xl font-semibold text-indigo-700">{selectedShop.name}</h1>
           <button
             onClick={() => setIsAddModalOpen(true)}
             className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
           >
-            Add New Product
+            Add Product
           </button>
         </div>
 

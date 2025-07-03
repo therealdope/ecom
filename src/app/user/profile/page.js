@@ -171,7 +171,7 @@ export default function UserProfilePage() {
 
   return (
     <UserLayout>
-      <div className="flex flex-col md:flex-row gap-6 px-4 py-8 max-w-6xl mx-auto">
+      <div className="flex flex-col md:flex-row gap-6 px-4 py-10 md:py-8 max-w-6xl mx-auto">
         {/* Left Sidebar */}
         <aside className="md:w-1/4 w-full bg-indigo-200/30 backdrop-blur-md p-6 rounded-2xl shadow-md space-y-6">
           <div className="flex flex-col items-center">
