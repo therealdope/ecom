@@ -97,6 +97,7 @@ export default function VendorDashboard() {
           <option value="week">Last 7 Days</option>
           <option value="month">Last 30 Days</option>
           <option value="year">Last 12 Months</option>
+          <option value="all">All Time</option>
         </select>
       </div>
 

@@ -30,6 +30,10 @@ export async function GET(req) {
       startDate.setFullYear(now.getFullYear() - 1);
       previousStartDate.setFullYear(now.getFullYear() - 2);
       break;
+    case 'all':
+      startDate.setFullYear(now.getFullYear() - 100);
+      previousStartDate.setFullYear(now.getFullYear() - 101);
+      break;
   }
 
   // Get current period stats
