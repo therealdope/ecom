@@ -1,18 +1,12 @@
-
-<div style="background-color:#f1f1f1; padding:20px; border-radius:12px;" align="center">
-  <img src="./public/logo.png" alt="ecom-logo" height="100" />
-
-<div style="padding: 20px; border-radius: 12px;" align="center">
-  <a href="https://ecom-skheni.vercel.app/" target="_blank" style="display: inline-flex; align-items: center; background-color: #f1f1f1; color: black; border-radius: 9px; padding: 10px 16px; font-weight: 600; text-decoration: none; box-shadow: 2px 2px 7px rgba(0,0,0,0.2); margin-left: 16px;">
-    <img src="./public/logo.png" alt="ecom-logo" height="24" style="margin-right: 9px; border-right: 1px dashed black; padding-right: 5px;" />
-    <span style="font-size: 14px; font-weight: 400; font-family:'Inter', sans-serif; letter-spacing: 0.5px;">
-      Visit Website
-    </span>
+<p align="center">
+  <a href="https://ecom-skheni.vercel.app/" target="_blank">
+    <img src="./public/logo-white.png" alt="ecom-logo" height="40" />
   </a>
-</div>
-
-
-</div>
+  <br />
+  <a href="https://ecom-skheni.vercel.app/" target="_blank">
+    <img src="https://img.shields.io/badge/Visit%20Website-000?style=for-the-badge&logo=vercel&logoColor=white" />
+  </a>
+</p>
 
 ## Table of Contents
 
