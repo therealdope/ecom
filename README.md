@@ -1,99 +1,117 @@
-# 🛍️ E-Commerce Website
 
-## 📋 Table of Contents
-- [Overview](#overview)
-- [Features](#features)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-- [Design Guidelines](#design-guidelines)
+<div style="background-color:#f1f1f1; padding:20px; border-radius:12px;" align="center">
+  <img src="./public/logo.png" alt="ecom-logo" height="100" />
 
-## 🌟 Overview
-A modern e-commerce platform built with Next.js, featuring both user and vendor interfaces.
+<div style="padding: 20px; border-radius: 12px;" align="center">
+  <a href="https://ecom-skheni.vercel.app/" target="_blank" style="display: inline-flex; align-items: center; background-color: #f1f1f1; color: black; border-radius: 9px; padding: 10px 16px; font-weight: 600; text-decoration: none; box-shadow: 2px 2px 7px rgba(0,0,0,0.2); margin-left: 16px;">
+    <img src="./public/logo.png" alt="ecom-logo" height="24" style="margin-right: 9px; border-right: 1px dashed black; padding-right: 5px;" />
+    <span style="font-size: 14px; font-weight: 400; font-family:'Inter', sans-serif; letter-spacing: 0.5px;">
+      Visit Website
+    </span>
+  </a>
+</div>
 
-## ✨ Features
-- 👤 User Authentication
-- 🛒 Shopping Cart Management
-- 💳 Secure Payment Processing
-- 📱 Responsive Design
-- 🏪 Vendor Dashboard
-- 📦 Order Management
-- 🔍 Product Search
-- ❤️ Wishlist
 
-## 🗂️ Project Structure
-```plaintext
-├── src/
-│   ├── app/                      # Next.js app directory
-│   │   ├── (auth)/               # Authentication routes
-│   │   ├── (user)/               # User routes
-│   │   ├── (vendor)/             # Vendor routes
-│   │   ├── api/                  # API routes
-│   │   ├── layout.tsx            # Root layout
-│   │   └── page.tsx              # Home page
-│   │
-│   ├── components/               # React components
-│   │   ├── shared/               # Reusable elements
-│   │   ├── user/                 # User components
-│   │   ├── vendor/               # Vendor components
-│   │   └── forms/                # Form components
-│   │
-│   ├── context/                  # React context
-│   │   ├── AuthContext.tsx       # Authentication context
-│   │   ├── CartContext.tsx       # Shopping cart context
-│   │   └── VendorContext.tsx     # Vendor management
-│   │
-│   ├── hooks/                    # Custom React hooks
-│   │   ├── useAuth.ts            # Authentication hook
-│   │   ├── useCart.ts            # Cart management
-│   │   ├── useUpload.ts          # File upload
-│   │   └── useRoleRedirect.ts    # Role-based routing
-│   │
-│   ├── lib/                      # Utility functions
-│   │   ├── prisma.ts             # Database client
-│   │   ├── cloudinary.ts         # Image upload
-│   │   └── auth.ts               # Auth utilities
-│   │
-│   ├── styles/                   # Global styles
-│   │   └── globals.css           # Global CSS
-│   │
-│   └── utils/                    # Helper functions
-│       └── sendMail.js           # Email utilities
-│
-├── public/                       # Static assets
-├── prisma/                       # Database schema
-└── package.json                  # Dependencies
-```
+</div>
 
-## 🚀 Getting Started
+## Table of Contents
+
+* [Overview](#overview)
+* [Why ECOM?](#why-ecom)
+* [Built With](#built-with)
+* [Getting Started](#getting-started)
+
+  * [Prerequisites](#prerequisites)
+  * [Installation](#installation)
+  * [Usage](#usage)
+* [License](#license)
+* [Contributing](#contributing)
+* [Star Us!](#star-us)
+
+
+## Overview
+
+**ECOM** is a full-featured open-source e-commerce platform built with **Next.js**, **Prisma**, and **Tailwind CSS**. It provides everything needed to launch a production-ready commerce app including authentication, product management, cart, wishlist, payments, real-time chat, dashboards, and profile management.
+
+
+
+## Why ECOM?
+
+* **Modular Architecture** – Clean and scalable structure using Next.js and Prisma.
+* **Rich UI/UX** – Dynamic layouts, responsive components, and smooth animations.
+* **API-Driven** – Backend for authentication, orders, products, users, and payments.
+* **Fully Integrated** – Razorpay (payments), Cloudinary (media), Resend (email), and more.
+* **Real-Time Features** – Chat, notifications, and role-based access control.
+
+## Built With
+
+| Tech                                                                                            |                                                                                                |
+| ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| ![Next.js](https://img.shields.io/badge/Next.js-000?logo=nextdotjs)                             | ![Prisma](https://img.shields.io/badge/Prisma-2D3748?logo=prisma\&logoColor=white)             |
+| ![Tailwind CSS](https://img.shields.io/badge/Tailwind-06B6D4?logo=tailwindcss\&logoColor=white) | ![React](https://img.shields.io/badge/React-20232A?logo=react\&logoColor=61DAFB)               |
+| ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript\&logoColor=black)  | ![npm](https://img.shields.io/badge/NPM-CB3837?logo=npm\&logoColor=white)                      |
+| ![Razorpay](https://img.shields.io/badge/Razorpay-02042B?logo=razorpay\&logoColor=white)        | ![Cloudinary](https://img.shields.io/badge/Cloudinary-3448C5?logo=cloudinary\&logoColor=white) |
+| ![Resend](https://img.shields.io/badge/Resend-000000?logo=data\:image/svg+xml;base64,YOUR_ICON) | ![Chart.js](https://img.shields.io/badge/Chart.js-FF6384?logo=chartdotjs\&logoColor=white)     |
+| ![ESLint](https://img.shields.io/badge/ESLint-4B32C3?logo=eslint\&logoColor=white)              | ![Axios](https://img.shields.io/badge/Axios-5A29E4?logo=axios\&logoColor=white)                |
+| ![date-fns](https://img.shields.io/badge/date--fns-EC4899?logo=calendar\&logoColor=white)       | JSON, Markdown                                                                                 |
+
+
+## Getting Started
 
 ### Prerequisites
-- Node.js (v18 or higher)
-- npm or yarn
-- PostgreSQL database
 
-### Installation
-1. Clone the repository
-```bash
-git clone <repository-url>
+Make sure you have the following installed:
+
+* [Node.js](https://nodejs.org/) (v18+)
+* [npm](https://www.npmjs.com/)
+
+### Environment Setup
+
+Create a `.env` file in the root directory and add the following:
+
+```env
+DATABASE_URL=
+NEXTAUTH_SECRET=
+NEXT_PUBLIC_CLOUDINARY_API_KEY=
+RAZORPAY_KEY_ID=
+RAZORPAY_KEY_SECRET=
+RESEND_API_KEY=
 ```
 
-2. Install dependencies
+---
+
+### Installation
+
 ```bash
+git clone https://github.com/therealdope/ecom
+cd ecom
 npm install
 ```
 
-3. Set up environment variables
-```bash
-cp .env.example .env.local
-```
+---
 
-4. Run development server
+### Usage
+
+Start the development server:
+
 ```bash
 npm run dev
 ```
 
-## 📄 License
-This project is licensed under the MIT License - see the LICENSE file for details.
+Visit `http://localhost:3000` in your browser.
 
-## 👥 Contributing
-Contributions are welcome! Please feel free to submit a Pull Request.
+
+
+## License
+
+This project is licensed under the [MIT License](./LICENSE).
+
+
+## Contributing
+
+Contributions are welcome! Feel free to open issues, submit pull requests, or suggest features.
+
+
+## Star Us!
+
+If you find this project useful, consider giving it a ⭐ on [GitHub](https://github.com/therealdope/ecom)!
