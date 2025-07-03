@@ -1,7 +1,7 @@
 <p align="center">
   <a href="https://ecom-skheni.vercel.app/" target="_blank">
-    <img src="./public/logo-white.png" alt="ecom-logo" height="40" />
-  </a>
+    <img src="./public/logo-white.png" alt="ecom-logo" height="125" />
+  </a><br/>
   <br />
   <a href="https://ecom-skheni.vercel.app/" target="_blank">
     <img src="https://img.shields.io/badge/Visit%20Website-000?style=for-the-badge&logo=vercel&logoColor=white" />
@@ -14,8 +14,8 @@
 * [Why ECOM?](#why-ecom)
 * [Built With](#built-with)
 * [Getting Started](#getting-started)
-
   * [Prerequisites](#prerequisites)
+  * [Environment Setup](#environment-setup)
   * [Installation](#installation)
   * [Usage](#usage)
 * [License](#license)
@@ -39,7 +39,7 @@
 
 ## Built With
 
-| Tech                                                                                            |                                                                                                |
+|                                                                                               Tech                                                                                            |                                                                                                |
 | ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | ![Next.js](https://img.shields.io/badge/Next.js-000?logo=nextdotjs)                             | ![Prisma](https://img.shields.io/badge/Prisma-2D3748?logo=prisma\&logoColor=white)             |
 | ![Tailwind CSS](https://img.shields.io/badge/Tailwind-06B6D4?logo=tailwindcss\&logoColor=white) | ![React](https://img.shields.io/badge/React-20232A?logo=react\&logoColor=61DAFB)               |
@@ -52,14 +52,14 @@
 
 ## Getting Started
 
-### Prerequisites
+> ### Prerequisites
 
 Make sure you have the following installed:
 
 * [Node.js](https://nodejs.org/) (v18+)
 * [npm](https://www.npmjs.com/)
 
-### Environment Setup
+> ### Environment Setup
 
 Create a `.env` file in the root directory and add the following:
 
@@ -72,9 +72,8 @@ RAZORPAY_KEY_SECRET=
 RESEND_API_KEY=
 ```
 
----
 
-### Installation
+> ### Installation
 
 ```bash
 git clone https://github.com/therealdope/ecom
@@ -82,9 +81,8 @@ cd ecom
 npm install
 ```
 
----
 
-### Usage
+> ### Usage
 
 Start the development server:
 
