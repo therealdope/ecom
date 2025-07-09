@@ -166,7 +166,7 @@ export default function UserDashboardLayout({ children }) {
                               </div>
                               <div className="ml-auto">
                                 <p className="font-medium text-indigo-600">
-                                  ${result.variants[0]?.price}
+                                  ₹{result.variants[0]?.price}
                                 </p>
                               </div>
                             </div>
@@ -404,7 +404,7 @@ export default function UserDashboardLayout({ children }) {
                         </div>
                         <div className="flex-shrink-0">
                           <p className="font-medium text-indigo-600">
-                            ${result.variants[0]?.price}
+                            ₹{result.variants[0]?.price}
                           </p>
                         </div>
                       </div>
