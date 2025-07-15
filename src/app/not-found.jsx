@@ -1,7 +1,5 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { metadata as siteMetadata } from '@/lib/metadata';
-export const metadata = siteMetadata;
 
 export default function NotFound() {
   return (
