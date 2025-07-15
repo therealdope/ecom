@@ -1,6 +1,6 @@
 import { Open_Sans, Roboto_Mono } from "next/font/google";
 import "@styles/globals.css";
-import Script from 'next/script';
+import Script from "next/script";
 import Providers from "@/components/shared/Providers";
 
 const robotoMono = Roboto_Mono({
@@ -46,17 +46,8 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${robotoMono.variable} ${openSans.variable}`}>
-      <head>
-
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
-        />
-      </head>
       <body className="antialiased">
         <Providers>{children}</Providers>
-
-        {/* Swiper JS */}
         <Script
           src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"
           strategy="afterInteractive"
