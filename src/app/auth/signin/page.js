@@ -76,6 +76,42 @@ export default function SignIn() {
     }
   };
 
+  // Handle dummy login for user and vendor
+  const handleDummyLogin = async (userType) => {
+    setIsLoading(true);
+    setRole(userType);
+    
+    try {
+      const email = userType === 'USER' ? 'user@dummy.com' : 'vendor@dummy.com';
+      const password = userType === 'USER' ? 'user@dummy' : 'vendor@dummy';
+      
+      const result = await signIn('credentials', {
+        email: email,
+        password: password,
+        role: userType,
+        rememberMe: 'true',
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError('Error logging in with dummy account');
+      } else if (result?.ok) {
+        const redirectPath =
+          userType === 'USER' ? '/user/dashboard' : '/vendor/dashboard';
+        await router.replace(redirectPath);
+        showToast({
+          title: 'Welcome to Demo Mode!',
+          description: `You've been signed in as a demo ${userType.toLowerCase()}.`,
+        });
+      }
+    } catch (error) {
+      setError('An error occurred during dummy sign in');
+      console.error('Dummy sign in error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (isLoading || status === 'loading') return <Loader />;
 
   return (
@@ -117,6 +153,33 @@ export default function SignIn() {
                 create a new account
               </Link>
             </p>
+          </div>
+
+          {/* Dummy Login Buttons */}
+          <div className="flex flex-col space-y-3">
+            <p className="text-center text-sm text-pink-600 font-medium">Quick Demo login Access:</p>
+            <div className="flex space-x-4">
+              <button
+                type="button"
+                onClick={() => handleDummyLogin('USER')}
+                className="flex-1 py-2 px-4 border border-pink-500 rounded-md text-pink-700 bg-pink-50 hover:bg-pink-100 transition-all duration-300 flex items-center justify-center"
+              >
+                <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span>Demo User</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDummyLogin('VENDOR')}
+                className="flex-1 py-2 px-4 border border-pink-500 rounded-md text-pink-700 bg-pink-50 hover:bg-pink-100 transition-all duration-300 flex items-center justify-center"
+              >
+                <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+                <span>Demo Vendor</span>
+              </button>
+            </div>
           </div>
 
           {error && (
